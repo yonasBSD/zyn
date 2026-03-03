@@ -1,6 +1,5 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use zyn::{Camel, Kebab, Lower, Pascal, Screaming, Snake, Upper};
 
 mod builtin {
     use super::*;
@@ -107,7 +106,6 @@ mod custom {
 
 mod ident_pipe {
     use super::*;
-    use zyn::Ident;
 
     #[test]
     fn prefix_pattern() {
@@ -136,7 +134,6 @@ mod ident_pipe {
 
 mod fmt_pipe {
     use super::*;
-    use zyn::Fmt;
 
     #[test]
     fn string_format() {

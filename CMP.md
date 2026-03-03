@@ -28,12 +28,9 @@ quote! {
 ### zyn
 
 ```rust
-let name = &input.ident;
-let fields = extract_fields(&input);
-
 zyn! {
-    struct {{ name }} {
-        @for (f of fields) {
+    struct {{ input.ident }} {
+        @for (f of extract_fields(&input)) {
             pub {{ f.ident }}: {{ f.ty }},
         }
     }
@@ -179,8 +176,6 @@ quote! {
 ### zyn
 
 ```rust
-use zyn::Ident;
-
 zyn! {
     impl {{ struct_name }} {
         @for (f of fields) {
@@ -226,12 +221,9 @@ fn render_struct(name: &syn::Ident, fields: &[Field]) -> proc_macro2::TokenStrea
 ```rust
 #[zyn::element]
 fn field_decl(vis: syn::Visibility, name: syn::Ident, ty: syn::Type) -> syn::Result<proc_macro2::TokenStream> {
-    Ok(zyn::zyn! {
-        {{ vis }} {{ name }}: {{ ty }},
-    })
+    Ok(zyn::zyn! { {{ vis }} {{ name }}: {{ ty }}, })
 }
 
-// Usage — composable, no manual token collection:
 zyn! {
     struct {{ name }} {
         @for (f of fields) {
@@ -265,8 +257,6 @@ quote! {
 ### zyn
 
 ```rust
-use zyn::{Snake, Screaming, Ident};
-
 zyn! {
     fn {{ name | snake }}() {}
     const {{ name | screaming }}: &str = stringify!({{ name }});

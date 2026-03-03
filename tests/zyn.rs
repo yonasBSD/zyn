@@ -307,7 +307,6 @@ mod interpolation_advanced {
 
     #[test]
     fn nested_field_with_pipe() {
-        use zyn::Upper;
         let item = Item {
             field: Field {
                 name: quote::format_ident!("hello"),
@@ -344,7 +343,6 @@ mod groups {
 
 mod combined {
     use super::*;
-    use zyn::Snake;
 
     #[test]
     fn if_with_pipe_and_braces() {

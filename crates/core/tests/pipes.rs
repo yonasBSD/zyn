@@ -13,7 +13,7 @@ mod upper {
                 let mut __zyn_ts_0 = ::proc_macro2::TokenStream::new();
                 {
                     let __zyn_val = (name).to_string();
-                    let __zyn_val = ::zyn::Pipe::pipe(&(Upper), __zyn_val);
+                    let __zyn_val = ::zyn::Pipe::pipe(&(::zyn::Upper), __zyn_val);
                     ::quote::ToTokens::to_tokens(&__zyn_val, &mut __zyn_ts_0);
                 }
                 __zyn_ts_0
@@ -35,7 +35,7 @@ mod lower {
                 let mut __zyn_ts_0 = ::proc_macro2::TokenStream::new();
                 {
                     let __zyn_val = (name).to_string();
-                    let __zyn_val = ::zyn::Pipe::pipe(&(Lower), __zyn_val);
+                    let __zyn_val = ::zyn::Pipe::pipe(&(::zyn::Lower), __zyn_val);
                     ::quote::ToTokens::to_tokens(&__zyn_val, &mut __zyn_ts_0);
                 }
                 __zyn_ts_0
@@ -57,7 +57,7 @@ mod snake {
                 let mut __zyn_ts_0 = ::proc_macro2::TokenStream::new();
                 {
                     let __zyn_val = (name).to_string();
-                    let __zyn_val = ::zyn::Pipe::pipe(&(Snake), __zyn_val);
+                    let __zyn_val = ::zyn::Pipe::pipe(&(::zyn::Snake), __zyn_val);
                     ::quote::ToTokens::to_tokens(&__zyn_val, &mut __zyn_ts_0);
                 }
                 __zyn_ts_0
@@ -79,7 +79,7 @@ mod camel {
                 let mut __zyn_ts_0 = ::proc_macro2::TokenStream::new();
                 {
                     let __zyn_val = (name).to_string();
-                    let __zyn_val = ::zyn::Pipe::pipe(&(Camel), __zyn_val);
+                    let __zyn_val = ::zyn::Pipe::pipe(&(::zyn::Camel), __zyn_val);
                     ::quote::ToTokens::to_tokens(&__zyn_val, &mut __zyn_ts_0);
                 }
                 __zyn_ts_0
@@ -101,7 +101,7 @@ mod pascal {
                 let mut __zyn_ts_0 = ::proc_macro2::TokenStream::new();
                 {
                     let __zyn_val = (name).to_string();
-                    let __zyn_val = ::zyn::Pipe::pipe(&(Pascal), __zyn_val);
+                    let __zyn_val = ::zyn::Pipe::pipe(&(::zyn::Pascal), __zyn_val);
                     ::quote::ToTokens::to_tokens(&__zyn_val, &mut __zyn_ts_0);
                 }
                 __zyn_ts_0
@@ -123,7 +123,7 @@ mod screaming {
                 let mut __zyn_ts_0 = ::proc_macro2::TokenStream::new();
                 {
                     let __zyn_val = (name).to_string();
-                    let __zyn_val = ::zyn::Pipe::pipe(&(Screaming), __zyn_val);
+                    let __zyn_val = ::zyn::Pipe::pipe(&(::zyn::Screaming), __zyn_val);
                     ::quote::ToTokens::to_tokens(&__zyn_val, &mut __zyn_ts_0);
                 }
                 __zyn_ts_0
@@ -145,9 +145,9 @@ mod chained {
                 let mut __zyn_ts_0 = ::proc_macro2::TokenStream::new();
                 {
                     let __zyn_val = (name).to_string();
-                    let __zyn_val = ::zyn::Pipe::pipe(&(Snake), __zyn_val);
+                    let __zyn_val = ::zyn::Pipe::pipe(&(::zyn::Snake), __zyn_val);
                     let __zyn_val = __zyn_val.to_string();
-                    let __zyn_val = ::zyn::Pipe::pipe(&(Upper), __zyn_val);
+                    let __zyn_val = ::zyn::Pipe::pipe(&(::zyn::Upper), __zyn_val);
                     ::quote::ToTokens::to_tokens(&__zyn_val, &mut __zyn_ts_0);
                 }
                 __zyn_ts_0

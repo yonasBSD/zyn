@@ -49,15 +49,35 @@ impl Parse for PipeNode {
     }
 }
 
+const BUILTIN_PIPES: &[&str] = &[
+    "upper",
+    "lower",
+    "snake",
+    "camel",
+    "pascal",
+    "kebab",
+    "screaming",
+    "ident",
+    "fmt",
+];
+
 impl Expand for PipeNode {
     fn expand(&self, _output: &Ident, _idents: &mut crate::ident::Iter) -> TokenStream {
-        let name = pascal!(self.name => ident);
+        let pascal_name = pascal!(self.name => ident);
+        let is_builtin = BUILTIN_PIPES.contains(&self.name.to_string().as_str());
 
-        if self.args.is_empty() {
-            quote! { let __zyn_val = ::zyn::Pipe::pipe(&(#name), __zyn_val); }
+        if is_builtin {
+            if self.args.is_empty() {
+                quote! { let __zyn_val = ::zyn::Pipe::pipe(&(::zyn::#pascal_name), __zyn_val); }
+            } else {
+                let args = &self.args;
+                quote! { let __zyn_val = ::zyn::Pipe::pipe(&(::zyn::#pascal_name(#(#args),*)), __zyn_val); }
+            }
+        } else if self.args.is_empty() {
+            quote! { let __zyn_val = ::zyn::Pipe::pipe(&(#pascal_name), __zyn_val); }
         } else {
             let args = &self.args;
-            quote! { let __zyn_val = ::zyn::Pipe::pipe(&(#name(#(#args),*)), __zyn_val); }
+            quote! { let __zyn_val = ::zyn::Pipe::pipe(&(#pascal_name(#(#args),*)), __zyn_val); }
         }
     }
 }
