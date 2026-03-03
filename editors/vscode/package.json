@@ -1,0 +1,32 @@
+{
+  "name": "zyn",
+  "displayName": "zyn",
+  "description": "Syntax highlighting for zyn template macros in Rust",
+  "version": "0.0.1",
+  "publisher": "aacebo",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aacebo/zyn"
+  },
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "grammars": [
+      {
+        "scopeName": "source.zyn.injection",
+        "path": "./syntaxes/zyn.injection.json",
+        "injectTo": [
+          "source.rust"
+        ],
+        "embeddedLanguages": {
+          "source.rust": "rust"
+        }
+      }
+    ]
+  }
+}
