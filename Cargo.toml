@@ -36,6 +36,9 @@ repository.workspace = true
 keywords.workspace = true
 categories.workspace = true
 
+[lib]
+doctest = false
+
 [features]
 default = ["derive"]
 derive = ["zyn-derive"]

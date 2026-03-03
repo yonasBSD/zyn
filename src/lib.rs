@@ -9,7 +9,9 @@ pub use zyn_derive::*;
 /// use zyn::prelude::*;
 /// ```
 pub mod prelude {
-    pub use crate::{Camel, Kebab, Lower, Pascal, Pipe, Render, Screaming, Snake, Upper};
+    pub use crate::{
+        Camel, Fmt, Ident, Kebab, Lower, Pascal, Pipe, Render, Screaming, Snake, Upper,
+    };
 
     #[cfg(feature = "derive")]
     pub use zyn_derive::{element, pipe, zyn};

@@ -38,6 +38,15 @@ Insert any expression that implements `ToTokens`:
 zyn! { fn {{ name }}() -> {{ ret_type }} {} }
 ```
 
+Supports field access, method calls, and any Rust expression:
+
+```rust
+zyn! {
+    {{ item.field.name }}: {{ item.field.ty }},
+    {{ names.len() }}
+}
+```
+
 ### Pipes
 
 Transform interpolated values with pipes. Reference them in snake_case — they resolve to PascalCase structs automatically:
@@ -60,6 +69,18 @@ Chain pipes:
 zyn! { {{ name | snake | upper }} }  // HelloWorld -> HELLO_WORLD
 ```
 
+#### Format pipes
+
+Pipes can take arguments via `:` syntax. The `ident` and `fmt` pipes use a `{}` placeholder:
+
+```rust
+zyn! {
+    fn {{ name | ident:"get_{}" }}() {}     // hello -> fn get_hello() {}
+    fn {{ name | ident:"{}_impl" }}() {}    // hello -> fn hello_impl() {}
+    const NAME: &str = {{ name | fmt:"{}" }};  // hello -> const NAME: &str = "hello";
+}
+```
+
 ### Control Flow
 
 #### Conditionals
@@ -73,6 +94,15 @@ zyn! {
     } @else {
         fn {{ name }}() {}
     }
+}
+```
+
+Conditions support field access and method calls:
+
+```rust
+zyn! {
+    @if (opts.is_pub) { pub }
+    @if (items.is_empty()) { @throw "no items" }
 }
 ```
 
@@ -161,7 +191,7 @@ fn prefix(input: String) -> proc_macro2::Ident {
     )
 }
 
-// Usage — generates struct Prefix, referenced as @prefix:
+// Generates struct Prefix, used as {{ name | prefix }}:
 zyn! { {{ name | prefix }} }
 ```
 

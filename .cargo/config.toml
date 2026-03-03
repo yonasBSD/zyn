@@ -9,3 +9,4 @@ RUST_BACKTRACE = "1"
 retry = 3
 
 [alias]
+lint = "clippy --workspace --all-features -- -D warnings"

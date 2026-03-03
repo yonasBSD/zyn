@@ -104,3 +104,51 @@ mod custom {
         assert_eq!(result.to_string(), expected.to_string());
     }
 }
+
+mod ident_pipe {
+    use super::*;
+    use zyn::Ident;
+
+    #[test]
+    fn prefix_pattern() {
+        let name = quote::format_ident!("hello");
+        let result: TokenStream = zyn::zyn!({ { name | ident:"get_{}" } });
+        let expected = quote!(get_hello);
+        assert_eq!(result.to_string(), expected.to_string());
+    }
+
+    #[test]
+    fn suffix_pattern() {
+        let name = quote::format_ident!("hello");
+        let result: TokenStream = zyn::zyn!({ { name | ident:"{}_impl" } });
+        let expected = quote!(hello_impl);
+        assert_eq!(result.to_string(), expected.to_string());
+    }
+
+    #[test]
+    fn chained_with_case() {
+        let name = quote::format_ident!("HelloWorld");
+        let result: TokenStream = zyn::zyn!({ { name | snake | ident:"get_{}" } });
+        let expected = quote!(get_hello_world);
+        assert_eq!(result.to_string(), expected.to_string());
+    }
+}
+
+mod fmt_pipe {
+    use super::*;
+    use zyn::Fmt;
+
+    #[test]
+    fn string_format() {
+        let name = quote::format_ident!("hello");
+        let result: TokenStream = zyn::zyn!({ { name | fmt:"get_{}" } });
+        assert_eq!(result.to_string(), "\"get_hello\"");
+    }
+
+    #[test]
+    fn chained_with_case() {
+        let name = quote::format_ident!("HelloWorld");
+        let result: TokenStream = zyn::zyn!({ { name | snake | fmt:"{}-component" } });
+        assert_eq!(result.to_string(), "\"hello_world-component\"");
+    }
+}
