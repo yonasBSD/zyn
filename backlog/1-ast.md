@@ -1,127 +1,93 @@
-# Phase 1: AST Types + Render Trait
+# Phase 1 + 2: AST Types + Parsing + Traits ✅
 
-## Scope
+## Status: Complete
 
-Define the AST node types and the `Render` trait. The `Render` trait enables Dioxus-style elements — reusable units of code generation that accept named props and return a `TokenStream`.
+## Structure
 
-## Files to Create
+```
+crates/derive/src/
+  lib.rs                  mod ast;
+  ast/
+    mod.rs                Node enum, Element struct, Parse impls, From impls, is_*/as_*/span()
+    tokens_node.rs        Tokens struct
+    interp_node.rs        Interp struct + Parse
+    if_node.rs            If struct + Parse (with @else if/@else)
+    for_node.rs           For struct + Parse
+    match_node.rs         Match struct + Parse
+    group_node.rs         Group struct + Parse (paren/bracket/brace)
+    throw_node.rs         Throw struct + Parse
+    element_node.rs       ElementNode struct + Parse + parse_with_ident()
+    pipe_node.rs          Pipe struct + Parse
 
-- `crates/derive/src/ast.rs`
-- `crates/derive/src/mod.rs` (stub)
-- `crates/derive/src/lib.rs` (add `mod template;`)
+src/
+  lib.rs                  Render trait, Pipe trait
+```
 
-## Files to Modify
-
-- `src/lib.rs` — add `Render` trait, re-export `zyn_derive::zyn`
-
-## Render Trait (in `src/lib.rs`)
+## Traits (in `src/lib.rs`)
 
 ```rust
 pub trait Render {
     fn render(&self) -> syn::Result<proc_macro2::TokenStream>;
 }
+
+pub trait Pipe {
+    type Input;
+    type Output: quote::ToTokens;
+    fn pipe(&self, input: Self::Input) -> Self::Output;
+}
 ```
 
-Elements are types implementing `Render`. The struct fields are the element's props. Inside `zyn!`, elements are invoked via `@ElementName { prop: value }`.
+## AST (in `crates/derive/src/ast/`)
 
-Example element definition (manual):
+Each Node variant is a standalone struct in its own `_node.rs` file with:
+- `pub` fields including `span: Span`
+- `impl Parse` for parsing from a `ParseStream`
+- `span(&self) -> Span` method
+
+### Node enum (`mod.rs`)
 
 ```rust
-struct FieldDecl {
-    vis: syn::Visibility,
-    name: syn::Ident,
-    ty: syn::Type,
-}
-
-impl zyn::Render for FieldDecl {
-    fn render(&self) -> syn::Result<proc_macro2::TokenStream> {
-        let vis = &self.vis;
-        let name = &self.name;
-        let ty = &self.ty;
-        Ok(zyn::zyn! {
-            {{ vis }} {{ name }}: {{ ty }},
-        })
-    }
+pub enum Node {
+    Tokens(Tokens),
+    Interp(Interp),
+    If(If),
+    For(For),
+    Match(Match),
+    Group(Group),
+    Throw(Throw),
+    Element(ElementNode),
 }
 ```
 
-Example usage inside a template:
+### Element (root container)
 
 ```rust
-zyn::zyn! {
-    struct {{ name }} {
-        @for (field of fields) {
-            @FieldDecl { vis: field.vis, name: field.name, ty: field.ty }
-        }
-    }
+pub struct Element {
+    pub nodes: Vec<Node>,
 }
 ```
 
-## AST Types (in `crates/derive/src/ast.rs`)
+`impl Parse for Element` — main loop dispatches to variant parsers based on `@`, `{{ }}`, group delimiters, or passthrough token accumulation.
 
-```rust
-struct Element {
-    nodes: Vec<Node>,
-}
+### From impls
 
-enum Node {
-    Tokens(TokenStream),
+`From<T> for Node` implemented for all variant types: `Tokens`, `Interp`, `If`, `For`, `Match`, `Group`, `Throw`, `ElementNode`.
 
-    Interpolation {
-        expr: TokenStream,
-        pipes: Vec<Pipe>,
-    },
+### Methods on Node
 
-    If {
-        branches: Vec<(TokenStream, Element)>,
-        else_body: Option<Element>,
-    },
+Predicates: `is_tokens`, `is_interp`, `is_if`, `is_for`, `is_match`, `is_group`, `is_throw`, `is_element`
 
-    For {
-        binding: Ident,
-        iter: TokenStream,
-        body: Element,
-    },
+Accessors (panic on wrong variant): `as_tokens`, `as_interp`, `as_if`, `as_for`, `as_match`, `as_group`, `as_throw`, `as_element`
 
-    Match {
-        expr: TokenStream,
-        arms: Vec<(TokenStream, Element)>,
-    },
+Span: `span(&self) -> Span` (delegates to inner struct)
 
-    Group {
-        delimiter: Delimiter,
-        body: Element,
-    },
+### Parsing
 
-    Throw {
-        message: TokenStream,
-    },
+- `Parse for Element` — root loop, token accumulation, dispatch
+- `parse_at` — `@` directive dispatch (if/for/match/throw/else error/element)
+- `parse_brace` — `{{ }}` interpolation detection via fork, or recursive brace Group
+- Each struct's `Parse` impl handles its own syntax after the keyword
+- `ElementNode::parse_with_ident` — for when `@` + ident already consumed
+- `is_at_else` — fork-based `@else` lookahead
 
-    Element {
-        name: TokenStream,
-        props: Vec<(Ident, TokenStream)>,
-        children: Option<Element>,
-    },
-}
-
-struct Pipe {
-    name: Ident,
-    args: Vec<TokenStream>,
-}
-```
-
-`Node::Element` captures:
-- `name` — the element type path (e.g., `FieldDecl`, `my_mod::Header`)
-- `props` — named key-value pairs: `prop_name: expr`
-- `children` — optional nested template body, passed as a `children` field on the constructed struct (the element's `render()` can use it)
-
-`TokenStream` = `proc_macro2::TokenStream`. Conditions, expressions, and patterns are kept as opaque token streams — they are Rust code emitted as-is into generated output.
-
-`Node::Group` is needed because brace/paren/bracket groups may contain `{{ }}` or `@` directives inside them, so their contents must be recursively parsed.
-
-`Node::Tokens` accumulates consecutive raw tokens that pass through verbatim (like `quote!`).
-
-## Acceptance Criteria
-
-- `cargo build --workspace` compiles
-- `cargo clippy --workspace --all-features -- -D warnings` passes
+Note: `syn::spanned::Spanned` is sealed, so we use inherent `span()` methods.

@@ -1,3 +1,5 @@
+pub mod ast;
+
 pub trait Render {
     fn render(&self) -> syn::Result<proc_macro2::TokenStream>;
 }
