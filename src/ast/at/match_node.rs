@@ -1,14 +1,18 @@
+use proc_macro2::Ident;
 use proc_macro2::Span;
 use proc_macro2::TokenStream;
 use proc_macro2::TokenTree;
 
 use quote::ToTokens;
+use quote::quote;
 
 use syn::Token;
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 
-use super::Element;
+use super::super::Element;
+
+use crate::Expand;
 
 pub struct MatchNode {
     pub span: Span,
@@ -62,5 +66,25 @@ impl Parse for MatchNode {
             expr,
             arms,
         })
+    }
+}
+
+impl Expand for MatchNode {
+    fn expand(&self, output: &Ident, idents: &mut crate::ident::Iter) -> TokenStream {
+        let expr = &self.expr;
+        let arms: Vec<TokenStream> = self
+            .arms
+            .iter()
+            .map(|(pattern, body)| {
+                let body_expanded = body.expand(output, idents);
+                quote! { #pattern => { #body_expanded } }
+            })
+            .collect();
+
+        quote! {
+            match #expr {
+                #(#arms),*
+            }
+        }
     }
 }

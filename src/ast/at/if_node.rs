@@ -1,11 +1,16 @@
+use proc_macro2::Ident;
 use proc_macro2::Span;
 use proc_macro2::TokenStream;
+
+use quote::quote;
 
 use syn::Token;
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 
-use super::Element;
+use super::super::Element;
+
+use crate::Expand;
 
 pub struct IfNode {
     pub span: Span,
@@ -69,6 +74,29 @@ impl Parse for IfNode {
             branches,
             else_body,
         })
+    }
+}
+
+impl Expand for IfNode {
+    fn expand(&self, output: &Ident, idents: &mut crate::ident::Iter) -> TokenStream {
+        let mut result = TokenStream::new();
+
+        for (i, (cond, body)) in self.branches.iter().enumerate() {
+            let body_expanded = body.expand(output, idents);
+
+            if i == 0 {
+                result = quote! { if #cond { #body_expanded } };
+            } else {
+                result = quote! { #result else if #cond { #body_expanded } };
+            }
+        }
+
+        if let Some(else_body) = &self.else_body {
+            let else_expanded = else_body.expand(output, idents);
+            result = quote! { #result else { #else_expanded } };
+        }
+
+        result
     }
 }
 

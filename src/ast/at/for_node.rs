@@ -1,10 +1,15 @@
+use proc_macro2::Ident;
 use proc_macro2::Span;
 use proc_macro2::TokenStream;
+
+use quote::quote;
 
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 
-use super::Element;
+use super::super::Element;
+
+use crate::Expand;
 
 pub struct ForNode {
     pub span: Span,
@@ -43,5 +48,19 @@ impl Parse for ForNode {
             iter,
             body: Box::new(body),
         })
+    }
+}
+
+impl Expand for ForNode {
+    fn expand(&self, output: &Ident, idents: &mut crate::ident::Iter) -> TokenStream {
+        let binding = &self.binding;
+        let iter = &self.iter;
+        let body_expanded = self.body.expand(output, idents);
+
+        quote! {
+            for #binding in #iter {
+                #body_expanded
+            }
+        }
     }
 }

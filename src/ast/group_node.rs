@@ -1,10 +1,16 @@
 use proc_macro2::Delimiter;
+use proc_macro2::Ident;
 use proc_macro2::Span;
+use proc_macro2::TokenStream;
+
+use quote::quote;
 
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 
 use super::Element;
+
+use crate::Expand;
 
 pub struct GroupNode {
     pub span: Span,
@@ -52,6 +58,31 @@ impl Parse for GroupNode {
             })
         } else {
             Err(input.error("expected a delimited group"))
+        }
+    }
+}
+
+impl Expand for GroupNode {
+    fn expand(&self, output: &Ident, idents: &mut crate::ident::Iter) -> TokenStream {
+        let inner = idents.next().unwrap();
+        let body_expanded = self.body.expand(&inner, idents);
+
+        let delim = match self.delimiter {
+            Delimiter::Parenthesis => quote! { ::proc_macro2::Delimiter::Parenthesis },
+            Delimiter::Bracket => quote! { ::proc_macro2::Delimiter::Bracket },
+            Delimiter::Brace => quote! { ::proc_macro2::Delimiter::Brace },
+            Delimiter::None => quote! { ::proc_macro2::Delimiter::None },
+        };
+
+        quote! {
+            {
+                let mut #inner = ::proc_macro2::TokenStream::new();
+                #body_expanded
+                ::quote::ToTokens::to_tokens(
+                    &::proc_macro2::Group::new(#delim, #inner),
+                    &mut #output,
+                );
+            }
         }
     }
 }

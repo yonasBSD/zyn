@@ -1,8 +1,13 @@
+use proc_macro2::Ident;
 use proc_macro2::Span;
 use proc_macro2::TokenStream;
 
+use quote::quote;
+
 use syn::parse::Parse;
 use syn::parse::ParseStream;
+
+use crate::Expand;
 
 pub struct ThrowNode {
     pub span: Span,
@@ -25,5 +30,14 @@ impl Parse for ThrowNode {
             span: Span::call_site(),
             message,
         })
+    }
+}
+
+impl Expand for ThrowNode {
+    fn expand(&self, _output: &Ident, _idents: &mut crate::ident::Iter) -> TokenStream {
+        let message = &self.message;
+        quote! {
+            ::core::compile_error!(#message);
+        }
     }
 }

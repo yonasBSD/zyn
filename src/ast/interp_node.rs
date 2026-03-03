@@ -1,14 +1,18 @@
+use proc_macro2::Ident;
 use proc_macro2::Span;
 use proc_macro2::TokenStream;
 use proc_macro2::TokenTree;
 
 use quote::ToTokens;
+use quote::quote;
 
 use syn::Token;
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 
 use super::PipeNode;
+
+use crate::Expand;
 
 pub struct InterpNode {
     pub span: Span,
@@ -51,5 +55,14 @@ impl Parse for InterpNode {
         }
 
         Ok(Self { span, expr, pipes })
+    }
+}
+
+impl Expand for InterpNode {
+    fn expand(&self, output: &Ident, _idents: &mut crate::ident::Iter) -> TokenStream {
+        let expr = &self.expr;
+        quote! {
+            ::quote::ToTokens::to_tokens(&(#expr), &mut #output);
+        }
     }
 }

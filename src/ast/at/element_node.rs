@@ -1,14 +1,18 @@
+use proc_macro2::Ident;
 use proc_macro2::Span;
 use proc_macro2::TokenStream;
 use proc_macro2::TokenTree;
 
 use quote::ToTokens;
+use quote::quote;
 
 use syn::Token;
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 
-use super::Element;
+use super::super::Element;
+
+use crate::Expand;
 
 pub struct ElementNode {
     pub span: Span,
@@ -72,6 +76,40 @@ impl ElementNode {
             props,
             children,
         })
+    }
+}
+
+impl Expand for ElementNode {
+    fn expand(&self, output: &Ident, idents: &mut crate::ident::Iter) -> TokenStream {
+        let name = &self.name;
+        let prop_names: Vec<&syn::Ident> = self.props.iter().map(|(n, _)| n).collect();
+        let prop_values: Vec<&TokenStream> = self.props.iter().map(|(_, v)| v).collect();
+
+        if let Some(children) = &self.children {
+            let inner = idents.next().unwrap();
+            let children_expanded = children.expand(&inner, idents);
+
+            quote! {
+                {
+                    let mut #inner = ::proc_macro2::TokenStream::new();
+                    #children_expanded
+                    let __zyn_rendered = ::zyn::Render::render(&#name {
+                        #(#prop_names: #prop_values,)*
+                        children: #inner,
+                    })?;
+                    ::quote::ToTokens::to_tokens(&__zyn_rendered, &mut #output);
+                }
+            }
+        } else {
+            quote! {
+                {
+                    let __zyn_rendered = ::zyn::Render::render(&#name {
+                        #(#prop_names: #prop_values,)*
+                    })?;
+                    ::quote::ToTokens::to_tokens(&__zyn_rendered, &mut #output);
+                }
+            }
+        }
     }
 }
 
