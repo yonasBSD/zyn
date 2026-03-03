@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use zyn::{Camel, Lower, Pascal, Screaming, Snake, Upper};
+use zyn::{Camel, Kebab, Lower, Pascal, Screaming, Snake, Upper};
 
 mod builtin {
     use super::*;
@@ -59,6 +59,13 @@ mod builtin {
         let result: TokenStream = zyn::zyn!({ { name | snake | upper } });
         let expected = quote!(HELLO_WORLD);
         assert_eq!(result.to_string(), expected.to_string());
+    }
+
+    #[test]
+    fn kebab() {
+        let name = quote::format_ident!("HelloWorld");
+        let result: TokenStream = zyn::zyn!({ { name | kebab } });
+        assert_eq!(result.to_string(), "\"hello-world\"");
     }
 }
 

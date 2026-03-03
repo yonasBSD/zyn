@@ -209,6 +209,25 @@ impl Pipe for Pascal {
     }
 }
 
+/// Converts the input to kebab-case as a string literal.
+///
+/// Unlike other pipes that return `Ident`, this returns a `LitStr`
+/// because hyphens are not valid in Rust identifiers.
+///
+/// Template usage: `{{ name | kebab }}`
+pub struct Kebab;
+
+impl Pipe for Kebab {
+    type Input = String;
+    type Output = syn::LitStr;
+
+    fn pipe(&self, input: String) -> syn::LitStr {
+        let snake = Snake.pipe(input);
+        let kebab = snake.to_string().replace('_', "-");
+        syn::LitStr::new(&kebab, proc_macro2::Span::call_site())
+    }
+}
+
 /// Converts the input to SCREAMING_SNAKE_CASE.
 ///
 /// Template usage: `{{ name | screaming }}`

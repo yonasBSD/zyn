@@ -105,3 +105,51 @@ mod screaming {
         assert_eq!(Screaming.pipe("FooBar".to_string()).to_string(), "FOO_BAR");
     }
 }
+
+mod kebab {
+    use zyn_core::{Kebab, Pipe};
+
+    #[test]
+    fn from_pascal() {
+        assert_eq!(Kebab.pipe("FooBar".to_string()).value(), "foo-bar");
+    }
+
+    #[test]
+    fn from_snake() {
+        assert_eq!(Kebab.pipe("foo_bar".to_string()).value(), "foo-bar");
+    }
+
+    #[test]
+    fn from_screaming() {
+        assert_eq!(Kebab.pipe("FOO_BAR".to_string()).value(), "foo-bar");
+    }
+}
+
+mod case_functions {
+    use zyn_core::case;
+
+    #[test]
+    fn to_snake() {
+        assert_eq!(case::to_snake("HelloWorld"), "hello_world");
+    }
+
+    #[test]
+    fn to_pascal() {
+        assert_eq!(case::to_pascal("hello_world"), "HelloWorld");
+    }
+
+    #[test]
+    fn to_camel() {
+        assert_eq!(case::to_camel("hello_world"), "helloWorld");
+    }
+
+    #[test]
+    fn to_screaming() {
+        assert_eq!(case::to_screaming("HelloWorld"), "HELLO_WORLD");
+    }
+
+    #[test]
+    fn to_kebab() {
+        assert_eq!(case::to_kebab("HelloWorld"), "hello-world");
+    }
+}

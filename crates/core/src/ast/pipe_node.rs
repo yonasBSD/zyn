@@ -1,12 +1,9 @@
 use proc_macro2::Ident;
 use proc_macro2::Span;
 use proc_macro2::TokenStream;
-use proc_macro2::TokenTree;
 
-use quote::ToTokens;
 use quote::quote;
 
-use syn::Token;
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 
@@ -16,7 +13,6 @@ use crate::pascal;
 pub struct PipeNode {
     pub span: Span,
     pub name: syn::Ident,
-    pub args: Vec<TokenStream>,
 }
 
 impl PipeNode {
@@ -29,23 +25,7 @@ impl Parse for PipeNode {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let name: syn::Ident = input.parse()?;
         let span = name.span();
-
-        let mut args = Vec::new();
-
-        while input.peek(Token![:]) {
-            input.parse::<Token![:]>()?;
-
-            let mut arg = TokenStream::new();
-
-            while !input.is_empty() && !input.peek(Token![:]) && !input.peek(Token![|]) {
-                let tt: TokenTree = input.parse()?;
-                tt.to_tokens(&mut arg);
-            }
-
-            args.push(arg);
-        }
-
-        Ok(Self { span, name, args })
+        Ok(Self { span, name })
     }
 }
 

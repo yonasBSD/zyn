@@ -1,3 +1,4 @@
+/// Converts a string to PascalCase.
 pub fn to_pascal(s: &str) -> String {
     let mut out = String::new();
     let mut capitalize = true;
@@ -16,6 +17,62 @@ pub fn to_pascal(s: &str) -> String {
     out
 }
 
+/// Converts a string to snake_case.
+pub fn to_snake(s: &str) -> String {
+    let mut out = String::new();
+    let chars: Vec<char> = s.chars().collect();
+
+    for (i, &c) in chars.iter().enumerate() {
+        if c.is_uppercase() {
+            let prev_lower = i > 0 && chars[i - 1].is_lowercase();
+            let next_lower = i + 1 < chars.len() && chars[i + 1].is_lowercase();
+            let prev_upper = i > 0 && chars[i - 1].is_uppercase();
+
+            if prev_lower || (next_lower && prev_upper) {
+                out.push('_');
+            }
+
+            out.extend(c.to_lowercase());
+        } else if c == '_' {
+            if !out.is_empty() && !out.ends_with('_') {
+                out.push('_');
+            }
+        } else {
+            out.push(c);
+        }
+    }
+
+    out
+}
+
+/// Converts a string to camelCase.
+pub fn to_camel(s: &str) -> String {
+    let pascal = to_pascal(s);
+    let mut chars = pascal.chars();
+
+    match chars.next() {
+        None => String::new(),
+        Some(c) => c.to_lowercase().collect::<String>() + chars.as_str(),
+    }
+}
+
+/// Converts a string to SCREAMING_SNAKE_CASE.
+pub fn to_screaming(s: &str) -> String {
+    to_snake(s).to_uppercase()
+}
+
+/// Converts a string to kebab-case.
+pub fn to_kebab(s: &str) -> String {
+    to_snake(s).replace('_', "-")
+}
+
+/// Converts a string or ident to PascalCase.
+///
+/// # Usage
+///
+/// - `pascal!("hello_world")` → `"HelloWorld"` (`String`)
+/// - `pascal!(ident => ident)` → PascalCase `syn::Ident`
+/// - `pascal!(token_stream => token_stream)` → PascalCase last ident in path
 #[macro_export]
 macro_rules! pascal {
     ($ident:expr => ident) => {
@@ -54,5 +111,60 @@ macro_rules! pascal {
     }};
     ($s:expr) => {
         $crate::case::to_pascal($s)
+    };
+}
+
+/// Converts a string or ident to snake_case.
+///
+/// - `snake!("HelloWorld")` → `"hello_world"` (`String`)
+/// - `snake!(ident => ident)` → snake_case `syn::Ident`
+#[macro_export]
+macro_rules! snake {
+    ($ident:expr => ident) => {
+        syn::Ident::new(&$crate::case::to_snake(&$ident.to_string()), $ident.span())
+    };
+    ($s:expr) => {
+        $crate::case::to_snake($s)
+    };
+}
+
+/// Converts a string or ident to camelCase.
+///
+/// - `camel!("hello_world")` → `"helloWorld"` (`String`)
+/// - `camel!(ident => ident)` → camelCase `syn::Ident`
+#[macro_export]
+macro_rules! camel {
+    ($ident:expr => ident) => {
+        syn::Ident::new(&$crate::case::to_camel(&$ident.to_string()), $ident.span())
+    };
+    ($s:expr) => {
+        $crate::case::to_camel($s)
+    };
+}
+
+/// Converts a string or ident to SCREAMING_SNAKE_CASE.
+///
+/// - `screaming!("HelloWorld")` → `"HELLO_WORLD"` (`String`)
+/// - `screaming!(ident => ident)` → SCREAMING_SNAKE_CASE `syn::Ident`
+#[macro_export]
+macro_rules! screaming {
+    ($ident:expr => ident) => {
+        syn::Ident::new(
+            &$crate::case::to_screaming(&$ident.to_string()),
+            $ident.span(),
+        )
+    };
+    ($s:expr) => {
+        $crate::case::to_screaming($s)
+    };
+}
+
+/// Converts a string or ident to kebab-case.
+///
+/// - `kebab!("HelloWorld")` → `"hello-world"` (`String`)
+#[macro_export]
+macro_rules! kebab {
+    ($s:expr) => {
+        $crate::case::to_kebab($s)
     };
 }

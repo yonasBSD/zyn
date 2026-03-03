@@ -115,6 +115,17 @@ mod control_flow {
     }
 
     #[test]
+    fn for_inline_iterator() {
+        let result: TokenStream = zyn::zyn!(
+            @for (name of ["x", "y", "z"].map(|s| quote::format_ident!("{}", s))) {
+                pub {{ name }}: f64,
+            }
+        );
+        let expected = quote!(pub x: f64, pub y: f64, pub z: f64,);
+        assert_eq!(result.to_string(), expected.to_string());
+    }
+
+    #[test]
     fn match_multiple_arms() {
         let kind = "enum";
         let result: TokenStream = zyn::zyn!(
@@ -188,6 +199,25 @@ mod groups {
         let result: TokenStream = zyn::zyn!(type Foo = [{{ ty }}; 4];);
         let expected = quote!(
             type Foo = [u8; 4];
+        );
+        assert_eq!(result.to_string(), expected.to_string());
+    }
+}
+
+mod combined {
+    use super::*;
+    use zyn::Snake;
+
+    #[test]
+    fn if_with_pipe_and_braces() {
+        let name = quote::format_ident!("hello_world");
+        let is_pub = true;
+        let result: TokenStream = zyn::zyn!(
+            @if (is_pub) { pub }
+            fn {{ name | snake }}() {}
+        );
+        let expected = quote!(
+            pub fn hello_world() {}
         );
         assert_eq!(result.to_string(), expected.to_string());
     }
