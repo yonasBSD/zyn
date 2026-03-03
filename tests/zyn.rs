@@ -143,6 +143,36 @@ mod control_flow {
     }
 
     #[test]
+    fn match_wildcard_only() {
+        let kind = "anything";
+        let result: TokenStream = zyn::zyn!(
+            @match (kind) {
+                _ => { struct Fallback; }
+            }
+        );
+        let expected = quote!(
+            struct Fallback;
+        );
+        assert_eq!(result.to_string(), expected.to_string());
+    }
+
+    #[test]
+    fn match_wildcard_catches() {
+        let kind = 99;
+        let result: TokenStream = zyn::zyn!(
+            @match (kind) {
+                1 => { struct One; }
+                2 => { struct Two; }
+                _ => { struct Other; }
+            }
+        );
+        let expected = quote!(
+            struct Other;
+        );
+        assert_eq!(result.to_string(), expected.to_string());
+    }
+
+    #[test]
     fn nested_if_inside_for() {
         let items = vec![
             (quote::format_ident!("a"), true),

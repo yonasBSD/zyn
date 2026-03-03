@@ -54,3 +54,76 @@ mod throw {
         assert_eq!(result.to_string(), expected.to_string());
     }
 }
+
+mod syntax_errors {
+    use zyn_core::ast::Element;
+
+    fn parse_err(input: &str) -> String {
+        match syn::parse_str::<Element>(input) {
+            Err(e) => e.to_string(),
+            Ok(_) => panic!("expected parse error for: {input}"),
+        }
+    }
+
+    #[test]
+    fn empty_interpolation() {
+        let msg = parse_err("{{ }}");
+        assert!(
+            msg.contains("empty interpolation"),
+            "expected 'empty interpolation', got: {msg}"
+        );
+    }
+
+    #[test]
+    fn throw_missing_message() {
+        let msg = parse_err("@throw");
+        assert!(
+            msg.contains("expected string literal"),
+            "expected 'expected string literal', got: {msg}"
+        );
+    }
+
+    #[test]
+    fn else_without_if() {
+        let msg = parse_err("@else { foo }");
+        assert!(
+            msg.contains("unexpected @else without @if"),
+            "expected 'unexpected @else without @if', got: {msg}"
+        );
+    }
+
+    #[test]
+    fn for_missing_of_keyword() {
+        // "in" is a Rust keyword, so syn rejects it before the "of" check
+        let msg = parse_err("@for (item in items) { }");
+        assert!(
+            msg.contains("expected identifier"),
+            "expected 'expected identifier', got: {msg}"
+        );
+    }
+
+    #[test]
+    fn for_wrong_of_keyword() {
+        // "from" is a valid ident but not "of"
+        let msg = parse_err("@for (item from items) { }");
+        assert!(
+            msg.contains("expected `of`"),
+            "expected 'expected `of`', got: {msg}"
+        );
+    }
+
+    #[test]
+    fn element_missing_props() {
+        let result = syn::parse_str::<Element>("@my_element");
+        assert!(result.is_err(), "@element without props should fail");
+    }
+
+    #[test]
+    fn throw_non_string_message() {
+        let msg = parse_err("@throw 42");
+        assert!(
+            msg.contains("expected string literal"),
+            "expected 'expected string literal', got: {msg}"
+        );
+    }
+}

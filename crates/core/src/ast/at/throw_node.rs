@@ -3,7 +3,7 @@ use proc_macro2::Span;
 use proc_macro2::TokenStream;
 
 use quote::ToTokens;
-use quote::quote;
+use quote::quote_spanned;
 
 use syn::parse::Parse;
 use syn::parse::ParseStream;
@@ -34,8 +34,9 @@ impl Parse for ThrowNode {
 
 impl Expand for ThrowNode {
     fn expand(&self, _output: &Ident, _idents: &mut crate::ident::Iter) -> TokenStream {
+        let span = self.span;
         let message = &self.message;
-        quote! {
+        quote_spanned! { span =>
             ::core::compile_error!(#message);
         }
     }
