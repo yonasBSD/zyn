@@ -47,3 +47,4 @@ zyn-derive = { workspace = true, optional = true }
 [dev-dependencies]
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
+syn = { workspace = true }

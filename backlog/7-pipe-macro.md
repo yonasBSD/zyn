@@ -17,6 +17,8 @@ Provide a `#[zyn::pipe]` attribute macro that transforms a function into a struc
 
 ### Input
 
+Functions use standard Rust snake_case naming. The macro converts to PascalCase for the generated struct:
+
 ```rust
 #[zyn::pipe]
 fn prefix(input: String, pre: &str) -> proc_macro2::Ident {
@@ -50,11 +52,11 @@ impl ::zyn::Pipe for Prefix {
 
 ### Transformation rules
 
-1. Function name → unit struct name (PascalCase, e.g. `Prefix`, `Snake`, `Upper`)
+1. Function name → unit struct name, converted from snake_case to PascalCase (e.g. `prefix` → `Prefix`)
 2. First parameter → `Pipe::Input` type, passed as the pipe input
 3. Additional parameters → pipe args (from `:arg` syntax in template), passed at expansion time
 4. Return type → `Pipe::Output` (must implement `ToTokens`)
-5. Function body → `Pipe::transform()` body
+5. Function body → `Pipe::pipe()` body
 
 ### Pipe args
 
@@ -96,6 +98,7 @@ This is simpler and avoids complexity around trait generics with variable args. 
 - `cargo build --workspace` compiles
 - `cargo test --workspace` passes
 - `cargo clippy --workspace --all-features -- -D warnings` passes
+- snake_case function name is converted to PascalCase struct name
 - Custom pipes defined with `#[pipe]` work in `{{ expr | PipeName }}` syntax
 - Pipe args from `:arg` syntax are passed to additional parameters
 - Error messages point at the correct span for invalid input

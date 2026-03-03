@@ -43,6 +43,7 @@ version = "0.0.0"
 dependencies = [
  "proc-macro2",
  "quote",
+ "syn",
  "zyn-core",
  "zyn-derive",
 ]
