@@ -19,5 +19,8 @@ pub mod prelude {
     };
 
     #[cfg(feature = "derive")]
-    pub use zyn_derive::{element, pipe, zyn};
+    pub use zyn_derive::*;
+
+    #[cfg(feature = "ext")]
+    pub use zyn_ext::*;
 }
