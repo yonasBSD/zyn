@@ -9,7 +9,7 @@ fn greeting(name: proc_macro2::Ident) -> syn::Result<proc_macro2::TokenStream> {
 #[test]
 fn basic_element() -> syn::Result<()> {
     let result: TokenStream = zyn::zyn!(
-        @greeting { name: quote::format_ident!("hello") }
+        @greeting(name = quote::format_ident!("hello"))
     );
     let expected = quote!(
         fn hello() {}
@@ -29,7 +29,7 @@ fn wrapper(
 #[test]
 fn element_with_children() -> syn::Result<()> {
     let result: TokenStream = zyn::zyn!(
-        @wrapper { name: quote::format_ident!("Foo") } {
+        @wrapper(name = quote::format_ident!("Foo")) {
             x: i32,
         }
     );
@@ -50,7 +50,7 @@ fn get_greeting(name: proc_macro2::Ident) -> syn::Result<proc_macro2::TokenStrea
 #[test]
 fn custom_name_override() -> syn::Result<()> {
     let result: TokenStream = zyn::zyn!(
-        @say_hello { name: quote::format_ident!("world") }
+        @say_hello(name = quote::format_ident!("world"))
     );
     let expected = quote!(
         fn world() {}
@@ -75,10 +75,10 @@ mod namespaced {
     #[test]
     fn namespaced_element() -> syn::Result<()> {
         let result: TokenStream = zyn::zyn!(
-            @components::field_decl {
-                name: quote::format_ident!("age"),
-                ty: quote::format_ident!("u32"),
-            }
+            @components::field_decl(
+                name = quote::format_ident!("age"),
+                ty = quote::format_ident!("u32"),
+            )
         );
         let expected = quote!(age: u32,);
         assert_eq!(result.to_string(), expected.to_string());
@@ -91,7 +91,7 @@ fn element_inside_for_loop() -> syn::Result<()> {
     let names = vec![quote::format_ident!("foo"), quote::format_ident!("bar")];
     let result: TokenStream = zyn::zyn!(
         @for (name of names) {
-            @greeting { name: name.clone() }
+            @greeting(name = name.clone())
         }
     );
     let expected = quote!(

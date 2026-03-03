@@ -103,13 +103,13 @@ fn parse_props_and_children(
     name: TokenStream,
 ) -> syn::Result<ElementNode> {
     let props_content;
-    syn::braced!(props_content in input);
+    syn::parenthesized!(props_content in input);
 
     let mut props = Vec::new();
 
     while !props_content.is_empty() {
         let prop_name: syn::Ident = props_content.parse()?;
-        props_content.parse::<Token![:]>()?;
+        props_content.parse::<Token![=]>()?;
 
         let mut value = TokenStream::new();
 

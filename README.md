@@ -123,11 +123,11 @@ fn field_decl(vis: syn::Visibility, name: syn::Ident, ty: syn::Type) -> syn::Res
 
 // Generates struct FieldDecl, referenced as @field_decl in templates:
 zyn! {
-    @field_decl {
-        vis: syn::parse_quote!(pub),
-        name: quote::format_ident!("age"),
-        ty: syn::parse_quote!(u32),
-    }
+    @field_decl(
+        vis = syn::parse_quote!(pub),
+        name = quote::format_ident!("age"),
+        ty = syn::parse_quote!(u32),
+    )
 }
 // output: pub age: u32,
 ```
@@ -141,7 +141,7 @@ fn wrapper(vis: syn::Visibility, children: proc_macro2::TokenStream) -> syn::Res
 }
 
 zyn! {
-    @wrapper { vis: quote::quote!(pub) } {
+    @wrapper(vis = quote::quote!(pub)) {
         name: String,
         age: u32,
     }
