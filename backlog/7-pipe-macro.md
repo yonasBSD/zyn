@@ -36,7 +36,7 @@ impl ::zyn::Pipe for prefix {
     type Input = String;
     type Output = proc_macro2::Ident;
 
-    fn transform(&self, input: String) -> proc_macro2::Ident {
+    fn pipe(&self, input: String) -> proc_macro2::Ident {
         fn __zyn_pipe_impl(input: String, pre: &str) -> proc_macro2::Ident {
             proc_macro2::Ident::new(
                 &format!("{}_{}", pre, input),
@@ -64,7 +64,7 @@ For pipes with arguments like `{{ name | prefix:"my" }}`, the additional functio
 // {{ name | prefix:"my" }}
 {
     let __zyn_val = (#name).to_string();
-    let __zyn_val = ::zyn::Pipe::transform(&prefix, __zyn_val, "my");
+    let __zyn_val = ::zyn::Pipe::pipe(&prefix, __zyn_val, "my");
     ::quote::ToTokens::to_tokens(&__zyn_val, &mut __zyn_ts);
 }
 ```

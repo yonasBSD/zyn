@@ -6,7 +6,7 @@ Implement the `Pipe` trait, built-in pipes, and the expansion logic for `{{ expr
 
 ## Files to Create
 
-- `crates/derive/src/template/pipe.rs` — built-in pipe expansion logic
+- `crates/derive/src/pipe.rs` — built-in pipe expansion logic
 
 ## Files to Modify
 
@@ -19,7 +19,7 @@ pub trait Pipe {
     type Input;
     type Output: quote::ToTokens;
 
-    fn transform(&self, input: Self::Input) -> Self::Output;
+    fn pipe(&self, input: Self::Input) -> Self::Output;
 }
 ```
 
@@ -34,7 +34,7 @@ impl zyn::Pipe for Prefix {
     type Input = String;
     type Output = proc_macro2::Ident;
 
-    fn transform(&self, input: String) -> proc_macro2::Ident {
+    fn pipe(&self, input: String) -> proc_macro2::Ident {
         proc_macro2::Ident::new(
             &format!("{}_{}", self.0, input),
             proc_macro2::Span::call_site(),
@@ -80,7 +80,7 @@ Unknown pipe names are treated as expressions implementing `zyn::Pipe`. The expa
 // {{ name | my_pipe }}
 {
     let __zyn_val = (#name).to_string();
-    let __zyn_val = ::zyn::Pipe::transform(&(my_pipe), __zyn_val);
+    let __zyn_val = ::zyn::Pipe::pipe(&(my_pipe), __zyn_val);
     ::quote::ToTokens::to_tokens(&__zyn_val, &mut __zyn_ts);
 }
 ```

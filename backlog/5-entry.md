@@ -2,12 +2,12 @@
 
 ## Scope
 
-Wire everything together: define the `#[proc_macro] pub fn zyn` entry point, finalize `template/mod.rs`, and write integration tests.
+Wire everything together: define the `#[proc_macro] pub fn zyn` entry point, finalize `lib.rs`, and write integration tests.
 
 ## Files to Modify
 
 - `crates/derive/src/lib.rs` — add `#[proc_macro] pub fn zyn(input: TokenStream) -> TokenStream`
-- `crates/derive/src/template/mod.rs` — expose `pub fn expand(input: proc_macro2::TokenStream) -> proc_macro2::TokenStream`
+- `crates/derive/src/lib.rs` — expose `pub fn expand(input: proc_macro2::TokenStream) -> proc_macro2::TokenStream`
 
 ## Files to Create
 
@@ -18,17 +18,17 @@ Wire everything together: define the `#[proc_macro] pub fn zyn` entry point, fin
 ```rust
 #[proc_macro]
 pub fn zyn(input: TokenStream) -> TokenStream {
-    template::expand(input.into()).into()
+    expand(input.into()).into()
 }
 ```
 
-`template::expand` parses the input, expands the AST, and wraps in the top-level block:
+`expand` parses the input, expands the AST, and wraps in the top-level block:
 
 ```rust
 pub fn expand(input: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
     match parse(input) {
-        Ok(template) => {
-            let expanded = expand_template(&template, &mut 0);
+        Ok(element) => {
+            let expanded = expand_element(&template, &mut 0);
             quote! {
                 {
                     let mut __zyn_ts = ::proc_macro2::TokenStream::new();

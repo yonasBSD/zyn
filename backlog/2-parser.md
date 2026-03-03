@@ -2,26 +2,26 @@
 
 ## Scope
 
-Parse a `proc_macro2::TokenStream` (the input to `zyn!`) into a `Template` AST using `syn::parse` infrastructure. The parser walks token trees and identifies interpolations, directives, element invocations, and passthrough tokens.
+Parse a `proc_macro2::TokenStream` (the input to `zyn!`) into a `Element` AST using `syn::parse` infrastructure. The parser walks token trees and identifies interpolations, directives, element invocations, and passthrough tokens.
 
 ## Files to Create
 
-- `crates/derive/src/template/parse.rs`
+- `crates/derive/src/parse.rs`
 
 ## Design
 
 ### Using `syn::parse`
 
-Implement `syn::parse::Parse` for `Template` so the entry point is `syn::parse2::<Template>(input)`. The parser uses `ParseStream` methods (`peek`, `parse`, `fork`) and `syn::braced!` / `syn::parenthesized!` macros for group handling.
+Implement `syn::parse::Parse` for `Element` so the entry point is `syn::parse2::<Element>(input)`. The parser uses `ParseStream` methods (`peek`, `parse`, `fork`) and `syn::braced!` / `syn::parenthesized!` macros for group handling.
 
 ```rust
-impl Parse for Template {
+impl Parse for Element {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let mut nodes = Vec::new();
         while !input.is_empty() {
             // detect and parse nodes
         }
-        Ok(Template { nodes })
+        Ok(Element { nodes })
     }
 }
 ```
@@ -59,13 +59,13 @@ Inside the inner brace group, scan for top-level `|` (Pipe) punctuation to split
 ### Parsing rules
 
 ```
-Template::parse(input: ParseStream):
+Element::parse(input: ParseStream):
     while !input.is_empty():
         if peek(@) + known keyword → parse directive
         if peek(@) + non-keyword Ident → parse element
         if peek(Brace) and is_interpolation(fork) → parse interpolation
         if peek(Brace|Paren|Bracket) → syn::braced!/parenthesized!/bracketed!
-            recursively parse contents as Template, emit Node::Group
+            recursively parse contents as Element, emit Node::Group
         else → input.parse::<TokenTree>(), accumulate into Node::Tokens
 
 parse_interpolation(input):
@@ -79,7 +79,7 @@ parse_if(input):
     input.parse::<Token![@]>()
     input.parse::<syn::Ident>()  // "if"
     syn::parenthesized!(cond in input) → condition as TokenStream
-    syn::braced!(body in input) → syn::parse2::<Template>(body)
+    syn::braced!(body in input) → syn::parse2::<Element>(body)
     while input.peek(Token![@]) && input.peek2(syn::Ident) == "else":
         input.parse::<Token![@]>()
         input.parse::<syn::Ident>()  // "else"
@@ -96,7 +96,7 @@ parse_for(input):
         params.parse::<syn::Ident>()  // binding
         expect "of" ident
         collect remaining as iter TokenStream
-    syn::braced!(body in input) → syn::parse2::<Template>(body)
+    syn::braced!(body in input) → syn::parse2::<Element>(body)
 
 parse_match(input):
     input.parse::<Token![@]>()
@@ -105,7 +105,7 @@ parse_match(input):
     syn::braced!(arms_content in input):
         loop:
             collect tokens until FatArrow (=>) → pattern TokenStream
-            syn::braced!(arm_body in arms_content) → syn::parse2::<Template>
+            syn::braced!(arm_body in arms_content) → syn::parse2::<Element>
             optional comma
             break if arms_content.is_empty()
 
@@ -125,7 +125,7 @@ parse_element(input):
             optional comma
             break if props_content.is_empty()
     if input.peek(syn::token::Brace):
-        syn::braced!(children_content in input) → syn::parse2::<Template>
+        syn::braced!(children_content in input) → syn::parse2::<Element>
         set children = Some(template)
     emit Node::Element { name, props, children }
 ```
@@ -157,7 +157,7 @@ Element prop values accept arbitrary Rust expressions.
 
 ### Error handling
 
-Use `syn::Error::new_spanned` with the offending token for all parse errors. Return `syn::Result<Template>`.
+Use `syn::Error::new_spanned` with the offending token for all parse errors. Return `syn::Result<Element>`.
 
 ## Acceptance Criteria
 

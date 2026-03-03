@@ -180,7 +180,7 @@ pub trait Pipe {
     type Input;
     type Output: quote::ToTokens;
 
-    fn transform(&self, input: Self::Input) -> Self::Output;
+    fn pipe(&self, input: Self::Input) -> Self::Output;
 }
 ```
 
@@ -195,7 +195,7 @@ impl zyn::Pipe for Prefix {
     type Input = String;
     type Output = proc_macro2::Ident;
 
-    fn transform(&self, input: String) -> proc_macro2::Ident {
+    fn pipe(&self, input: String) -> proc_macro2::Ident {
         proc_macro2::Ident::new(
             &format!("{}_{}", self.0, input),
             proc_macro2::Span::call_site(),
@@ -227,15 +227,13 @@ src/
   lib.rs              main crate: Render trait, Pipe trait, re-exports
 
 crates/derive/src/
-  lib.rs              crate root, exports zyn! + #[element]
-  template/
-    mod.rs            public API: expand(TokenStream) -> TokenStream
-    parse.rs          parse input token trees into template AST
-    ast.rs            AST node types
-    expand.rs         AST -> generated Rust code (TokenStream)
-    pipe.rs           built-in pipe definitions
-  element.rs        #[element] attribute macro
-  pipe_macro.rs     #[pipe] attribute macro
+  lib.rs              crate root, exports zyn! + #[element] + #[pipe]
+  ast.rs              AST node types
+  parse.rs            parse input token trees into AST
+  expand.rs           AST -> generated Rust code (TokenStream)
+  pipe.rs             built-in pipe definitions
+  element.rs          #[element] attribute macro
+  pipe_macro.rs       #[pipe] attribute macro
 ```
 
 ---
@@ -307,7 +305,7 @@ zyn! {
 ### AST (`ast.rs`)
 
 ```rust
-struct Template {
+struct Element {
     nodes: Vec<Node>,
 }
 
@@ -320,19 +318,19 @@ enum Node {
     },
 
     If {
-        branches: Vec<(TokenStream, Template)>,
-        else_body: Option<Template>,
+        branches: Vec<(TokenStream, Element)>,
+        else_body: Option<Element>,
     },
 
     For {
         binding: Ident,
         iter: TokenStream,
-        body: Template,
+        body: Element,
     },
 
     Match {
         expr: TokenStream,
-        arms: Vec<(TokenStream, Template)>,
+        arms: Vec<(TokenStream, Element)>,
     },
 
     Throw {
@@ -342,12 +340,12 @@ enum Node {
     Element {
         name: TokenStream,
         props: Vec<(Ident, TokenStream)>,
-        children: Option<Template>,
+        children: Option<Element>,
     },
 
     Group {
         delimiter: Delimiter,
-        body: Template,
+        body: Element,
     },
 }
 
@@ -367,10 +365,10 @@ When the parser encounters a `Group` (brace/paren/bracket delimited tokens), it 
 
 ## Parser Design (`parse.rs`)
 
-The parser implements `syn::parse::Parse` for `Template`, using `ParseStream` methods for lookahead and consumption.
+The parser implements `syn::parse::Parse` for `Element`, using `ParseStream` methods for lookahead and consumption.
 
 ```rust
-impl Parse for Template {
+impl Parse for Element {
     fn parse(input: ParseStream) -> syn::Result<Self> { ... }
 }
 ```
@@ -378,7 +376,7 @@ impl Parse for Template {
 ### Parsing algorithm
 
 ```
-Template::parse(input):
+Element::parse(input):
     while !input.is_empty():
         if peek(@) + known keyword → parse directive
         if peek(@) + non-keyword Ident → parse element
@@ -424,10 +422,10 @@ Inside the inner brace group of `{{ ... }}`, scan for `|` (Pipe) tokens at the t
 
 ## Expander Design (`expand.rs`)
 
-The expander takes a `Template` AST and produces a `TokenStream` of Rust code.
+The expander takes an `Element` AST and produces a `TokenStream` of Rust code.
 
 ```rust
-fn expand(template: &Template) -> TokenStream
+fn expand(element: &Element) -> TokenStream
 ```
 
 Strategy: generate code that builds a `TokenStream` incrementally using `::quote::ToTokens::to_tokens()`.
@@ -595,7 +593,7 @@ pub trait Pipe {
     type Input;
     type Output: quote::ToTokens;
 
-    fn transform(&self, input: Self::Input) -> Self::Output;
+    fn pipe(&self, input: Self::Input) -> Self::Output;
 }
 ```
 

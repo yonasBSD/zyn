@@ -6,8 +6,8 @@ Define the AST node types and the `Render` trait. The `Render` trait enables Dio
 
 ## Files to Create
 
-- `crates/derive/src/template/ast.rs`
-- `crates/derive/src/template/mod.rs` (stub)
+- `crates/derive/src/ast.rs`
+- `crates/derive/src/mod.rs` (stub)
 - `crates/derive/src/lib.rs` (add `mod template;`)
 
 ## Files to Modify
@@ -57,10 +57,10 @@ zyn::zyn! {
 }
 ```
 
-## AST Types (in `crates/derive/src/template/ast.rs`)
+## AST Types (in `crates/derive/src/ast.rs`)
 
 ```rust
-struct Template {
+struct Element {
     nodes: Vec<Node>,
 }
 
@@ -73,24 +73,24 @@ enum Node {
     },
 
     If {
-        branches: Vec<(TokenStream, Template)>,
-        else_body: Option<Template>,
+        branches: Vec<(TokenStream, Element)>,
+        else_body: Option<Element>,
     },
 
     For {
         binding: Ident,
         iter: TokenStream,
-        body: Template,
+        body: Element,
     },
 
     Match {
         expr: TokenStream,
-        arms: Vec<(TokenStream, Template)>,
+        arms: Vec<(TokenStream, Element)>,
     },
 
     Group {
         delimiter: Delimiter,
-        body: Template,
+        body: Element,
     },
 
     Throw {
@@ -100,7 +100,7 @@ enum Node {
     Element {
         name: TokenStream,
         props: Vec<(Ident, TokenStream)>,
-        children: Option<Template>,
+        children: Option<Element>,
     },
 }
 

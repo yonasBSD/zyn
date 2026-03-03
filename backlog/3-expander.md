@@ -2,11 +2,11 @@
 
 ## Scope
 
-Transform a `Template` AST into generated Rust code (`TokenStream`) that builds a `proc_macro2::TokenStream` at macro-expansion time.
+Transform a `Element` AST into generated Rust code (`TokenStream`) that builds a `proc_macro2::TokenStream` at macro-expansion time.
 
 ## Files to Create
 
-- `crates/derive/src/template/expand.rs`
+- `crates/derive/src/expand.rs`
 
 ## Design
 
