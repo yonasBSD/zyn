@@ -17,8 +17,7 @@ use zyn::prelude::*;
 // Generate a greeting function with a configurable name
 let name = quote::format_ident!("hello_world");
 let is_pub = true;
-
-let output: proc_macro2::TokenStream = zyn! {
+let output = zyn! {
     @if (is_pub) { pub }
     fn {{ name | snake }}() {
         println!("hello!");
