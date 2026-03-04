@@ -8,6 +8,12 @@ pub mod ext {
     pub use zyn_ext::*;
 }
 
+pub use proc_macro2;
+pub use quote;
+
+#[cfg(feature = "syn")]
+pub use syn;
+
 /// Common imports for working with zyn templates.
 ///
 /// ```ignore

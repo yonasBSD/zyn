@@ -10,8 +10,8 @@ mod tokens {
         let result = element.to_token_stream();
         let expected = quote! {
             {
-                let mut __zyn_ts_0 = ::proc_macro2::TokenStream::new();
-                __zyn_ts_0.extend(::quote::quote!(struct Foo ;));
+                let mut __zyn_ts_0 = ::zyn::proc_macro2::TokenStream::new();
+                __zyn_ts_0.extend(::zyn::quote::quote!(struct Foo ;));
                 __zyn_ts_0
             }
         };
@@ -28,8 +28,8 @@ mod interp {
         let result = element.to_token_stream();
         let expected = quote! {
             {
-                let mut __zyn_ts_0 = ::proc_macro2::TokenStream::new();
-                ::quote::ToTokens::to_tokens(&(name), &mut __zyn_ts_0);
+                let mut __zyn_ts_0 = ::zyn::proc_macro2::TokenStream::new();
+                ::zyn::quote::ToTokens::to_tokens(&(name), &mut __zyn_ts_0);
                 __zyn_ts_0
             }
         };
@@ -46,7 +46,7 @@ mod throw {
         let result = element.to_token_stream();
         let expected = quote! {
             {
-                let mut __zyn_ts_0 = ::proc_macro2::TokenStream::new();
+                let mut __zyn_ts_0 = ::zyn::proc_macro2::TokenStream::new();
                 ::core::compile_error!("bad input");
                 __zyn_ts_0
             }

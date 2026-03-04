@@ -32,6 +32,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "trace-var"
+version = "0.0.0"
+dependencies = [
+ "zyn",
+]
+
+[[package]]
 name = "unicode-ident"
 version = "1.0.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -56,6 +63,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+ "zyn",
 ]
 
 [[package]]

@@ -1,7 +1,7 @@
 [workspace]
 resolver = "3"
-members = [".", "crates/*"]
-default-members = [".", "crates/*"]
+members = [".", "crates/*", "examples/*"]
+default-members = [".", "crates/*", "examples/*"]
 
 [workspace.package]
 version = "0.1.0"
@@ -17,7 +17,7 @@ categories = ["development-tools::procedural-macro-helpers", "rust-patterns", "n
 [workspace.dependencies]
 proc-macro2 = "1"
 quote = "1"
-syn = { version = "2" }
+syn = { version = "2", features = ["full", "fold"] }
 
 zyn-core = { path = "./crates/core", version = "0.1.0" }
 zyn-ext = { path = "./crates/ext", version = "0.1.0" }
@@ -45,13 +45,15 @@ doctest = false
 default = ["derive"]
 derive = ["zyn-derive"]
 ext = ["zyn-ext"]
+syn = ["dep:syn"]
 
 [dependencies]
 zyn-core = { workspace = true }
 zyn-ext = { workspace = true, optional = true }
 zyn-derive = { workspace = true, optional = true }
-
-[dev-dependencies]
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
+syn = { workspace = true, optional = true }
+
+[dev-dependencies]
 syn = { workspace = true }

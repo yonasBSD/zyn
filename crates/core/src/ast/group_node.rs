@@ -58,18 +58,18 @@ impl Expand for GroupNode {
         let body_expanded = self.body.expand(&inner, idents);
 
         let delim = match self.delimiter {
-            Delimiter::Parenthesis => quote! { ::proc_macro2::Delimiter::Parenthesis },
-            Delimiter::Bracket => quote! { ::proc_macro2::Delimiter::Bracket },
-            Delimiter::Brace => quote! { ::proc_macro2::Delimiter::Brace },
-            Delimiter::None => quote! { ::proc_macro2::Delimiter::None },
+            Delimiter::Parenthesis => quote! { ::zyn::proc_macro2::Delimiter::Parenthesis },
+            Delimiter::Bracket => quote! { ::zyn::proc_macro2::Delimiter::Bracket },
+            Delimiter::Brace => quote! { ::zyn::proc_macro2::Delimiter::Brace },
+            Delimiter::None => quote! { ::zyn::proc_macro2::Delimiter::None },
         };
 
         quote! {
             {
-                let mut #inner = ::proc_macro2::TokenStream::new();
+                let mut #inner = ::zyn::proc_macro2::TokenStream::new();
                 #body_expanded
-                ::quote::ToTokens::to_tokens(
-                    &::proc_macro2::Group::new(#delim, #inner),
+                ::zyn::quote::ToTokens::to_tokens(
+                    &::zyn::proc_macro2::Group::new(#delim, #inner),
                     &mut #output,
                 );
             }
