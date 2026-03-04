@@ -98,17 +98,18 @@ fn parse_mode(tokens: &mut std::iter::Peekable<proc_macro2::token_stream::IntoIt
     if let Some(proc_macro2::TokenTree::Ident(ident)) = fork.next() {
         let mode = ident.to_string();
 
-        if matches!(mode.as_str(), "pretty" | "raw" | "ast") {
-            if let Some(proc_macro2::TokenTree::Punct(p)) = fork.peek() {
-                if p.as_char() == '=' {
-                    fork.next();
+        if matches!(mode.as_str(), "pretty" | "raw" | "ast")
+            && let Some(proc_macro2::TokenTree::Punct(p)) = fork.peek()
+            && p.as_char() == '='
+        {
+            fork.next();
 
-                    if let Some(proc_macro2::TokenTree::Punct(p2)) = fork.peek() && p2.as_char() == '>' {
-                        fork.next();
-                        *tokens = fork;
-                        return mode;
-                    }
-                }
+            if let Some(proc_macro2::TokenTree::Punct(p2)) = fork.peek()
+                && p2.as_char() == '>'
+            {
+                fork.next();
+                *tokens = fork;
+                return mode;
             }
         }
     }
