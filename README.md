@@ -109,7 +109,7 @@ zyn! {
 
 ```rust
 zyn! {
-    @for (name of ["x", "y", "z"].map(|s| quote::format_ident!("{}", s))) {
+    @for (name in ["x", "y", "z"].map(|s| quote::format_ident!("{}", s))) {
         pub {{ name }}: f64,
     }
 }

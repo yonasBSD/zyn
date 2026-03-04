@@ -118,7 +118,7 @@ Elements compose naturally with control flow:
 
 ```rust,zyn
 zyn! {
-    @for (name of names) {
+    @for (name in names) {
         @greeting(name = name.clone())
     }
 }

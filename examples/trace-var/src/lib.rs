@@ -3,13 +3,13 @@ mod folder;
 use std::collections::HashSet;
 
 use proc_macro::TokenStream;
+use zyn::ItemFn;
+use zyn::Render;
 use zyn::ext::Args;
 use zyn::proc_macro2::Ident;
 use zyn::proc_macro2::TokenStream as TokenStream2;
 use zyn::syn::Expr;
 use zyn::syn::Pat;
-use zyn::ItemFn;
-use zyn::Render;
 use zyn::syn::parse_macro_input;
 
 use folder::TraceVarFolder;
@@ -47,7 +47,6 @@ fn let_trace(pat: Pat, init: Expr, ident: Ident) -> zyn::syn::Result<TokenStream
         };
     ))
 }
-
 
 #[proc_macro_attribute]
 pub fn trace_var(args: TokenStream, input: TokenStream) -> TokenStream {

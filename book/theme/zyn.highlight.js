@@ -62,7 +62,7 @@
       aliases: ['zyn'],
       keywords: {
         ...rustKeywords,
-        keyword: [(rustKeywords.keyword || ''), 'of throw'].join(' ').trim(),
+        keyword: [(rustKeywords.keyword || ''), 'throw'].join(' ').trim(),
       },
       contains: [
         DIRECTIVE,

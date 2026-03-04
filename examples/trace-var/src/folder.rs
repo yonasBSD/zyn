@@ -1,7 +1,9 @@
 use std::collections::HashSet;
 
-use zyn::proc_macro2::Ident;
 use zyn::ItemFn;
+use zyn::Render;
+use zyn::proc_macro2::Ident;
+use zyn::proc_macro2::TokenStream as TokenStream2;
 use zyn::syn::BinOp;
 use zyn::syn::Expr;
 use zyn::syn::ExprAssign;
@@ -9,10 +11,8 @@ use zyn::syn::ExprBinary;
 use zyn::syn::Local;
 use zyn::syn::Pat;
 use zyn::syn::Stmt;
-use zyn::proc_macro2::TokenStream as TokenStream2;
 use zyn::syn::fold;
 use zyn::syn::fold::Fold;
-use zyn::Render;
 
 use crate::AssignTrace;
 use crate::LetTrace;
@@ -82,7 +82,16 @@ impl Fold for TraceVarFolderInner {
                     let left = *left;
                     let op_ts = zyn::zyn!({ { op } });
                     if self.is_traced_expr(&left) {
-                        zyn::syn::parse2(AssignTrace { left, op: op_ts, right }.render().unwrap()).unwrap()
+                        zyn::syn::parse2(
+                            AssignTrace {
+                                left,
+                                op: op_ts,
+                                right,
+                            }
+                            .render()
+                            .unwrap(),
+                        )
+                        .unwrap()
                     } else {
                         Expr::Binary(ExprBinary {
                             attrs,
@@ -111,7 +120,16 @@ impl Fold for TraceVarFolderInner {
                     Pat::Ident(p) => p.ident.clone(),
                     _ => unreachable!(),
                 };
-                zyn::syn::parse2(LetTrace { pat, init: init_expr, ident }.render().unwrap()).unwrap()
+                zyn::syn::parse2(
+                    LetTrace {
+                        pat,
+                        init: init_expr,
+                        ident,
+                    }
+                    .render()
+                    .unwrap(),
+                )
+                .unwrap()
             }
             _ => fold::fold_stmt(self, s),
         }
@@ -120,8 +138,10 @@ impl Fold for TraceVarFolderInner {
 
 impl Render for TraceVarFolder {
     fn render(&self) -> zyn::syn::Result<TokenStream2> {
-        let mut folder = TraceVarFolderInner { vars: self.vars.clone() };
-        Ok(zyn::zyn!({{ folder.fold_item_fn(self.input.0.clone()) }}))
+        let mut folder = TraceVarFolderInner {
+            vars: self.vars.clone(),
+        };
+        Ok(zyn::zyn!({ { folder.fold_item_fn(self.input.0.clone()) } }))
     }
 }
 

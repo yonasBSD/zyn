@@ -93,21 +93,11 @@ mod syntax_errors {
     }
 
     #[test]
-    fn for_in_keyword_hint() {
-        let msg = parse_err("@for (item in items) { }");
-        assert!(
-            msg.contains("use `of` instead"),
-            "expected hint about `of`, got: {msg}"
-        );
-    }
-
-    #[test]
-    fn for_wrong_of_keyword() {
-        // "from" is a valid ident but not "of"
+    fn for_wrong_in_keyword() {
         let msg = parse_err("@for (item from items) { }");
         assert!(
-            msg.contains("expected `of`"),
-            "expected 'expected `of`', got: {msg}"
+            msg.contains("expected `in`"),
+            "expected 'expected `in`', got: {msg}"
         );
     }
 

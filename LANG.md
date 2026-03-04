@@ -281,7 +281,7 @@ else { body_expansion }
 ### 8.2 `@for`
 
 ```
-@for ( binding of iter ) { body }
+@for ( binding in iter ) { body }
 ```
 
 - `binding` is a single identifier.
@@ -571,8 +571,7 @@ For a `::` separated path like `components::field_decl`, only the **last** segme
 |---|---|
 | `{{ }}` (empty interpolation) | parse error: `"empty interpolation"` |
 | `@else` not preceded by `@if` | parse error: `"unexpected @else without @if"` |
-| `@for (x in ...)` | parse error: `"expected 'of' ('in' is a Rust keyword, use 'of' instead)"` |
-| `@for (x foo ...)` | parse error: `"expected 'of'"` |
+| `@for (x foo ...)` | parse error: `"expected 'in'"` |
 | `@throw expr` where `expr` is not a string literal | parse error from `syn::LitStr` parsing |
 | Element `render` returning `Err` | runtime error propagated via `?` at expansion time |
 | Pipe output not implementing `ToTokens` | Rust type error in generated code |

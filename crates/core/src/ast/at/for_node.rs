@@ -30,17 +30,10 @@ impl Parse for ForNode {
         let params;
         syn::parenthesized!(params in input);
         let binding: syn::Ident = params.parse()?;
-        let of_kw: syn::Ident = params.call(syn::Ident::parse_any)?;
+        let in_kw: syn::Ident = params.call(syn::Ident::parse_any)?;
 
-        if of_kw == "in" {
-            return Err(syn::Error::new_spanned(
-                of_kw,
-                "expected `of` (`in` is a Rust keyword, use `of` instead)",
-            ));
-        }
-
-        if of_kw != "of" {
-            return Err(syn::Error::new_spanned(of_kw, "expected `of`"));
+        if in_kw != "in" {
+            return Err(syn::Error::new_spanned(in_kw, "expected `in`"));
         }
 
         let iter: TokenStream = params.parse()?;

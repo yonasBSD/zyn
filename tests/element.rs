@@ -137,7 +137,7 @@ fn children_without_parens() -> syn::Result<()> {
 fn element_inside_for_loop() -> syn::Result<()> {
     let names = vec![quote::format_ident!("foo"), quote::format_ident!("bar")];
     let result = zyn::zyn!(
-        @for (name of names) {
+        @for (name in names) {
             @greeting(name = name.clone())
         }
     );

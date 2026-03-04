@@ -27,25 +27,22 @@ zyn! {
 
 ## Loops
 
-Iterate with `@for`. The keyword is `of`, not `in`:
+Iterate with `@for`:
 
 ```rust,zyn
 zyn! {
-    @for (name of names) {
+    @for (name in names) {
         pub {{ name }}: f64,
     }
 }
 // output: pub x: f64, pub y: f64, pub z: f64,
 ```
 
-> [!important]
-> Use `of` instead of `in` — `in` is a reserved keyword in Rust's macro token stream.
-
 Inline iterators work:
 
 ```rust,zyn
 zyn! {
-    @for (name of ["x", "y", "z"].map(|s| quote::format_ident!("{}", s))) {
+    @for (name in ["x", "y", "z"].map(|s| quote::format_ident!("{}", s))) {
         pub {{ name }}: f64,
     }
 }
@@ -92,7 +89,7 @@ Control flow directives nest freely:
 
 ```rust,zyn
 zyn! {
-    @for (item of items) {
+    @for (item in items) {
         @if (item.1) {
             fn {{ item.0 }}() {}
         }

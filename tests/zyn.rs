@@ -72,7 +72,7 @@ mod control_flow {
     #[test]
     fn for_loop() {
         let names = vec![quote::format_ident!("a"), quote::format_ident!("b")];
-        let result = zyn::zyn!(@for (name of names) { {{ name }}, });
+        let result = zyn::zyn!(@for (name in names) { {{ name }}, });
         let expected = quote!(a, b,);
         assert_eq!(result.to_string(), expected.to_string());
     }
@@ -109,14 +109,14 @@ mod control_flow {
     #[test]
     fn for_empty_iterable() {
         let items: Vec<proc_macro2::Ident> = vec![];
-        let result = zyn::zyn!(@for (item of items) { {{ item }} });
+        let result = zyn::zyn!(@for (item in items) { {{ item }} });
         assert!(result.is_empty());
     }
 
     #[test]
     fn for_inline_iterator() {
         let result = zyn::zyn!(
-            @for (name of ["x", "y", "z"].map(|s| quote::format_ident!("{}", s))) {
+            @for (name in ["x", "y", "z"].map(|s| quote::format_ident!("{}", s))) {
                 pub {{ name }}: f64,
             }
         );
@@ -178,7 +178,7 @@ mod control_flow {
             (quote::format_ident!("b"), false),
         ];
         let result = zyn::zyn!(
-            @for (item of items) {
+            @for (item in items) {
                 @if (item.1) {
                     fn {{ item.0 }}() {}
                 }
@@ -283,7 +283,7 @@ mod interpolation_advanced {
             vec![quote::format_ident!("b"), quote::format_ident!("c")],
         ];
         let result = zyn::zyn!(
-            @for (item of items) {
+            @for (item in items) {
                 {{ item.len() }},
             }
         );

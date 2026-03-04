@@ -30,7 +30,7 @@ quote! {
 ```rust
 zyn! {
     struct {{ input.ident }} {
-        @for (f of extract_fields(&input)) {
+        @for (f in extract_fields(&input)) {
             pub {{ f.ident }}: {{ f.ty }},
         }
     }
@@ -114,14 +114,14 @@ zyn! {
     @match (kind) {
         Kind::Struct => {
             struct {{ name }} {
-                @for (f of fields) {
+                @for (f in fields) {
                     {{ f.ident }}: {{ f.ty }},
                 }
             }
         }
         Kind::Enum => {
             enum {{ name }} {
-                @for (v of variants) {
+                @for (v in variants) {
                     {{ v.ident }},
                 }
             }
@@ -178,7 +178,7 @@ quote! {
 ```rust
 zyn! {
     impl {{ struct_name }} {
-        @for (f of fields) {
+        @for (f in fields) {
             pub fn {{ f.ident | ident:"set_{}" }}(&mut self, value: {{ f.ty }}) -> &mut Self {
                 self.{{ f.ident }} = Some(value);
                 self
@@ -226,7 +226,7 @@ fn field_decl(vis: syn::Visibility, name: syn::Ident, ty: syn::Type) -> syn::Res
 
 zyn! {
     struct {{ name }} {
-        @for (f of fields) {
+        @for (f in fields) {
             @field_decl(vis = f.vis.clone(), name = f.ident.clone(), ty = f.ty.clone())
         }
     }
@@ -289,7 +289,7 @@ zyn! {
     }
 
     struct {{ name }} {
-        @for (f of fields) {
+        @for (f in fields) {
             {{ f.ident }}: {{ f.ty }},
         }
     }
@@ -302,7 +302,7 @@ zyn! {
 
 | Aspect | Raw syn + quote | zyn |
 |--------|----------------|-----|
-| Iteration | `.iter().map().collect()` + `#(#tokens)*` | `@for (item of iter) { ... }` |
+| Iteration | `.iter().map().collect()` + `#(#tokens)*` | `@for (item in iter) { ... }` |
 | Conditionals | `if/else` blocks wrapping `quote!` | `@if (cond) { ... } @else { ... }` inline |
 | Pattern matching | `match` wrapping `quote!` | `@match (expr) { arm => { ... } }` inline |
 | Case conversion | External crate + `format_ident!` | `{{ name \| snake }}` pipe syntax |
