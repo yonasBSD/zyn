@@ -4,7 +4,7 @@ members = [".", "crates/*"]
 default-members = [".", "crates/*"]
 
 [workspace.package]
-version = "0.0.0"
+version = "0.1.0"
 edition = "2024"
 license = "MIT"
 readme = "README.md"
@@ -19,9 +19,9 @@ proc-macro2 = "1"
 quote = "1"
 syn = { version = "2" }
 
-zyn-core = { path = "./crates/core", version = "0.0.0" }
-zyn-ext = { path = "./crates/ext", version = "0.0.0" }
-zyn-derive = { path = "./crates/derive", version = "0.0.0" }
+zyn-core = { path = "./crates/core", version = "0.1.0" }
+zyn-ext = { path = "./crates/ext", version = "0.1.0" }
+zyn-derive = { path = "./crates/derive", version = "0.1.0" }
 
 # ----------- Package ----------- #
 

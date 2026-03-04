@@ -1,110 +1,93 @@
 (function() {
   const ZYN_DEFINITION = function(hljs) {
-    // Pipe arguments: :arg1:arg2
     const PIPE_ARG = {
       className: 'params',
-      begin: /:/, 
-      end: /(?=[| \n\}])/,
+      begin: /:/,
+      end: /(?=[:|]|\}\})/,
+      contains: [hljs.QUOTE_STRING_MODE, hljs.NUMBER_MODE]
+    };
+
+    const PIPE = {
+      className: 'meta',
+      begin: /\|/,
+      end: /(?=\}\})/,
       contains: [
-        hljs.QUOTE_STRING_MODE,
-        { className: 'number', begin: /\b\d+\b/ }
+        { className: 'built_in',       begin: /\b(?:upper|lower|snake|camel|pascal|kebab|screaming|ident|fmt)\b/ },
+        { className: 'title.function', begin: /\b[a-z_][a-z0-9_]*\b/ },
+        PIPE_ARG,
       ]
     };
 
-    const PIPES = {
-      className: 'subst',
-      begin: /\|/, 
-      end: /(?=\}\})/,
+    const INTERPOLATION = {
+      className: 'template-variable',
+      begin: /\{\{/,
+      end: /\}\}/,
       contains: [
-        {
-          // Built-in and Custom Pipes
-          className: 'title.function',
-          begin: /[a-z][a-z0-9_]*/,
-          keywords: {
-            built_in: "upper lower snake camel pascal kebab screaming ident fmt"
-          }
-        },
-        PIPE_ARG
+        PIPE,
+        { subLanguage: 'rust', begin: /[^\s|}]/, end: /(?=[|}])/, excludeEnd: true },
       ]
     };
+
+    const DIRECTIVE = {
+      className: 'keyword',
+      begin: /@(?:else(?:[ \t]+if)?|if|for|match|throw)\b/
+    };
+
+    const CUSTOM_ELEMENT = {
+      className: 'title.function',
+      begin: /@[a-z_][a-z0-9_]*(?:::[a-z_][a-z0-9_]*)*/
+    };
+
+    const PROP = {
+      begin: /\b[a-z_][a-z0-9_]*\b(?=\s*=)/,
+      returnBegin: true,
+      contains: [
+        { className: 'attr',     begin: /[a-z_][a-z0-9_]*/ },
+        { className: 'operator', begin: /=/ },
+      ]
+    };
+
+    const RUST_ATTR = {
+      className: 'meta',
+      begin: /#!?\[/,
+      end: /\]/,
+      contains: [hljs.QUOTE_STRING_MODE]
+    };
+
+    const rust = hljs.getLanguage('rust');
+    const rustKeywords = (rust && rust.keywords) ? rust.keywords : {};
 
     return {
       name: 'zyn',
       aliases: ['zyn'],
       keywords: {
-        keyword: "if else for match throw of",
-        literal: "true false"
+        ...rustKeywords,
+        keyword: [(rustKeywords.keyword || ''), 'of throw'].join(' ').trim(),
       },
       contains: [
-        hljs.HASH_COMMENT_MODE,
+        DIRECTIVE,
+        CUSTOM_ELEMENT,
+        INTERPOLATION,
+        PROP,
         hljs.C_LINE_COMMENT_MODE,
-        // 1. Directives: @if, @else, @for, @match, @throw
-        {
-          className: 'keyword',
-          begin: /@/,
-          end: /(if|else|for|match|throw)\b/
-        },
-        // 2. Custom Elements: @path::element or @element
-        {
-          begin: /@/,
-          end: /(?=[(\s{])/,
-          contains: [
-            {
-              className: 'title.function',
-              begin: /[a-z][a-z0-9_]*(?:::[a-z][a-z0-9_]*)*/
-            }
-          ]
-        },
-        // 3. Interpolation: {{ expr | pipe }}
-        {
-          className: 'template-tag',
-          begin: /\{\{/, 
-          end: /\}\}/,
-          contains: [
-            {
-              // The Rust Expression part
-              subLanguage: 'rust',
-              begin: /[^\s{][^|}]*/,
-              endsBefore: /\||\}\}/,
-              excludeEnd: true
-            },
-            PIPES
-          ]
-        },
-        // 4. Handle Element Props: prop = value
-        {
-          begin: /[a-z][a-z0-9_]*\s*=/,
-          returnBegin: true,
-          contains: [
-            { className: 'attr', begin: /[a-z][a-z0-9_]*/ },
-            { begin: /=/, className: 'operator' }
-          ]
-        },
-        // 5. Macro Entry: zyn! { ... }
-        {
-          className: 'built_in',
-          begin: /zyn!\s*\{/,
-          end: /\}/,
-          contains: [{ self: true }, hljs.inherit(hljs.TITLE_MODE, { begin: /zyn/ })]
-        }
-      ]
+        hljs.C_BLOCK_COMMENT_MODE,
+        hljs.QUOTE_STRING_MODE,
+        hljs.NUMBER_MODE,
+        RUST_ATTR,
+      ],
     };
   };
 
-  // mdBook Integration Logic
   const initZyn = () => {
-    if (typeof hljs !== 'undefined') {
-      hljs.registerLanguage('zyn', ZYN_DEFINITION);
-      
-      const highlightFn = hljs.highlightElement || hljs.highlightBlock;
-      // We target BOTH .language-zyn and .language-rust if it looks like zyn
-      document.querySelectorAll('code.language-zyn, code.language-rust').forEach((block) => {
-        if (block.textContent.includes('@') || block.textContent.includes('{{')) {
-          block.classList.add('language-zyn');
-          highlightFn(block);
-        }
-      });
-    }
+    if (typeof hljs === 'undefined') return;
+    hljs.registerLanguage('zyn', ZYN_DEFINITION);
+    const highlightFn = hljs.highlightElement || hljs.highlightBlock;
+    document.querySelectorAll('code.language-zyn, code.language-rust').forEach((block) => {
+      if (block.textContent.includes('@') || block.textContent.includes('{{')) {
+        block.classList.add('language-zyn');
+        highlightFn(block);
+      }
+    });
   };
 
   if (document.readyState === 'loading') {
