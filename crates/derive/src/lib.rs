@@ -1,12 +1,21 @@
+#![feature(proc_macro_diagnostic)]
+
 mod element;
 mod pipe;
+mod prettify;
 
 use zyn_core::proc_macro2;
+use zyn_core::quote::quote;
 use zyn_core::syn;
 
 #[proc_macro]
 pub fn zyn(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    expand(input.into()).into()
+    expand_template(input.into()).into()
+}
+
+#[proc_macro]
+pub fn expand(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    expand_debug(input.into()).into()
 }
 
 #[proc_macro_attribute]
@@ -25,9 +34,84 @@ pub fn pipe(
     pipe::expand(args.into(), input.into()).into()
 }
 
-fn expand(input: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
+fn expand_template(input: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
     match syn::parse2::<zyn_core::ast::Element>(input) {
         Ok(element) => element.to_token_stream(),
         Err(e) => e.to_compile_error(),
     }
+}
+
+fn expand_debug(input: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
+    let mut tokens = input.into_iter().peekable();
+
+    let mode = parse_mode(&mut tokens);
+    let body: proc_macro2::TokenStream = tokens.collect();
+
+    let element = match syn::parse2::<zyn_core::ast::Element>(body) {
+        Ok(el) => el,
+        Err(e) => return e.to_compile_error(),
+    };
+
+    match mode.as_str() {
+        "raw" => {
+            let expanded = element.to_token_stream();
+            let pretty = prettify::prettify_raw(&expanded);
+
+            proc_macro::Diagnostic::spanned(
+                proc_macro::Span::call_site(),
+                proc_macro::Level::Note,
+                format!("zyn::expand! ─── raw\n\n{}", pretty),
+            )
+            .emit();
+
+            expanded
+        }
+        "ast" => {
+            let ast_str = prettify::prettify_ast(&element);
+
+            proc_macro::Diagnostic::spanned(
+                proc_macro::Span::call_site(),
+                proc_macro::Level::Note,
+                format!("zyn::expand! ─── ast\n\n{}", ast_str),
+            )
+            .emit();
+
+            element.to_token_stream()
+        }
+        _ => {
+            let expanded = element.to_token_stream();
+
+            quote! {
+                {
+                    let __zyn_expand_result = #expanded;
+                    ::zyn::debug::print_pretty(&__zyn_expand_result);
+                    __zyn_expand_result
+                }
+            }
+        }
+    }
+}
+
+fn parse_mode(tokens: &mut std::iter::Peekable<proc_macro2::token_stream::IntoIter>) -> String {
+    let mut fork = tokens.clone();
+
+    if let Some(proc_macro2::TokenTree::Ident(ident)) = fork.next() {
+        let mode = ident.to_string();
+
+        if matches!(mode.as_str(), "pretty" | "raw" | "ast") {
+            if let Some(proc_macro2::TokenTree::Punct(p)) = fork.peek() {
+                if p.as_char() == '=' {
+                    fork.next();
+
+                    if let Some(proc_macro2::TokenTree::Punct(p2)) = fork.peek() && p2.as_char() == '>' {
+                        fork.next();
+                        *tokens = fork;
+                        return mode;
+                    }
+                }
+            }
+        }
+    }
+
+    "pretty".to_string()
 }

@@ -1,5 +1,6 @@
 pub mod ast;
 pub mod case;
+pub mod debug;
 pub mod diagnostic;
 pub mod ident;
 pub mod input;
