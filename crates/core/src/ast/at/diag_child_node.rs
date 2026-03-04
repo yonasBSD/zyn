@@ -1,5 +1,4 @@
 use proc_macro2::Span;
-
 use proc_macro2_diagnostics::Diagnostic;
 
 use syn::Token;
@@ -21,6 +20,16 @@ impl DiagChildNode {
             Self::Note(v) => v.span(),
             Self::Help(v) => v.span(),
         }
+    }
+
+    pub(super) fn parse_many(input: ParseStream) -> syn::Result<Vec<Self>> {
+        let mut children = Vec::new();
+
+        while !input.is_empty() {
+            children.push(input.parse::<Self>()?);
+        }
+
+        Ok(children)
     }
 
     pub fn attach_to(&self, diag: Diagnostic) -> Diagnostic {
@@ -45,14 +54,4 @@ impl Parse for DiagChildNode {
             )),
         }
     }
-}
-
-pub fn parse_children(input: ParseStream) -> syn::Result<Vec<DiagChildNode>> {
-    let mut children = Vec::new();
-
-    while !input.is_empty() {
-        children.push(input.parse::<DiagChildNode>()?);
-    }
-
-    Ok(children)
 }

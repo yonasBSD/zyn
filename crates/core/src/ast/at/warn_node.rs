@@ -9,7 +9,6 @@ use syn::parse::Parse;
 use syn::parse::ParseStream;
 
 use super::diag_child_node::DiagChildNode;
-use super::diag_child_node::parse_children;
 
 use crate::Expand;
 
@@ -32,7 +31,7 @@ impl Parse for WarnNode {
         let children = if input.peek(syn::token::Brace) {
             let body;
             syn::braced!(body in input);
-            parse_children(&body)?
+            DiagChildNode::parse_many(&body)?
         } else {
             Vec::new()
         };

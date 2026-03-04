@@ -58,4 +58,20 @@ quote = { workspace = true }
 syn = { workspace = true, optional = true }
 
 [dev-dependencies]
-syn = { workspace = true }
+zyn-core = { workspace = true }
+
+[[test]]
+name = "zyn"
+path = "tests/zyn/mod.rs"
+
+[[test]]
+name = "element"
+path = "tests/element/mod.rs"
+
+[[test]]
+name = "pipe"
+path = "tests/pipe/mod.rs"
+
+[[test]]
+name = "diagnostic"
+path = "tests/diagnostic/mod.rs"

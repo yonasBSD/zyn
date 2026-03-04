@@ -1,0 +1,186 @@
+use zyn::quote::quote;
+
+#[test]
+fn if_true() {
+    let flag = true;
+    let result = zyn::zyn!(@if (flag) { struct Foo; });
+    let expected = quote!(
+        struct Foo;
+    );
+    assert_eq!(result.to_string(), expected.to_string());
+}
+
+#[test]
+fn if_false() {
+    let flag = false;
+    let result = zyn::zyn!(@if (flag) { struct Foo; });
+    assert!(result.is_empty());
+}
+
+#[test]
+fn if_else() {
+    let flag = false;
+    let result = zyn::zyn!(
+        @if (flag) { struct Foo; }
+        @else { struct Bar; }
+    );
+    let expected = quote!(
+        struct Bar;
+    );
+    assert_eq!(result.to_string(), expected.to_string());
+}
+
+#[test]
+fn for_loop() {
+    let names = vec![
+        zyn::quote::format_ident!("a"),
+        zyn::quote::format_ident!("b"),
+    ];
+    let result = zyn::zyn!(@for (name in names) { {{ name }}, });
+    let expected = quote!(a, b,);
+    assert_eq!(result.to_string(), expected.to_string());
+}
+
+#[test]
+fn match_directive() {
+    let kind = 1;
+    let result = zyn::zyn!(
+        @match (kind) {
+            1 => { struct Foo; }
+            _ => { struct Bar; }
+        }
+    );
+    let expected = quote!(
+        struct Foo;
+    );
+    assert_eq!(result.to_string(), expected.to_string());
+}
+
+#[test]
+fn else_if_chain() {
+    let val = 2;
+    let result = zyn::zyn!(
+        @if (val == 1) { struct One; }
+        @else if (val == 2) { struct Two; }
+        @else { struct Other; }
+    );
+    let expected = quote!(
+        struct Two;
+    );
+    assert_eq!(result.to_string(), expected.to_string());
+}
+
+#[test]
+fn for_empty_iterable() {
+    let items: Vec<zyn::proc_macro2::Ident> = vec![];
+    let result = zyn::zyn!(@for (item in items) { {{ item }} });
+    assert!(result.is_empty());
+}
+
+#[test]
+fn for_inline_iterator() {
+    let result = zyn::zyn!(
+        @for (name in ["x", "y", "z"].map(|s| zyn::quote::format_ident!("{}", s))) {
+            pub {{ name }}: f64,
+        }
+    );
+    let expected = quote!(pub x: f64, pub y: f64, pub z: f64,);
+    assert_eq!(result.to_string(), expected.to_string());
+}
+
+#[test]
+fn match_multiple_arms() {
+    let kind = "enum";
+    let result = zyn::zyn!(
+        @match (kind) {
+            "struct" => { struct Foo; }
+            "enum" => { enum Bar {} }
+            "union" => { union Baz {} }
+            _ => { type Other = (); }
+        }
+    );
+    let expected = quote!(
+        enum Bar {}
+    );
+    assert_eq!(result.to_string(), expected.to_string());
+}
+
+#[test]
+fn match_wildcard_only() {
+    let kind = "anything";
+    let result = zyn::zyn!(
+        @match (kind) {
+            _ => { struct Fallback; }
+        }
+    );
+    let expected = quote!(
+        struct Fallback;
+    );
+    assert_eq!(result.to_string(), expected.to_string());
+}
+
+#[test]
+fn match_wildcard_catches() {
+    let kind = 99;
+    let result = zyn::zyn!(
+        @match (kind) {
+            1 => { struct One; }
+            2 => { struct Two; }
+            _ => { struct Other; }
+        }
+    );
+    let expected = quote!(
+        struct Other;
+    );
+    assert_eq!(result.to_string(), expected.to_string());
+}
+
+#[test]
+fn nested_if_inside_for() {
+    let items = vec![
+        (zyn::quote::format_ident!("a"), true),
+        (zyn::quote::format_ident!("b"), false),
+    ];
+    let result = zyn::zyn!(
+        @for (item in items) {
+            @if (item.1) {
+                fn {{ item.0 }}() {}
+            }
+        }
+    );
+    let expected = quote!(
+        fn a() {}
+    );
+    assert_eq!(result.to_string(), expected.to_string());
+}
+
+#[test]
+fn nested_field_in_condition() {
+    struct Opts {
+        is_pub: bool,
+    }
+    let opts = Opts { is_pub: true };
+    let result = zyn::zyn!(
+        @if (opts.is_pub) { pub }
+        fn foo() {}
+    );
+    let expected = quote!(
+        pub fn foo() {}
+    );
+    assert_eq!(result.to_string(), expected.to_string());
+}
+
+#[test]
+fn method_call_in_match() {
+    let value = "hello".to_string();
+    let result = zyn::zyn!(
+        @match (value.len()) {
+            5 => { struct Five; }
+            _ => { struct Other; }
+        }
+    );
+    let expected = quote!(
+        struct Five;
+    );
+    assert_eq!(result.to_string(), expected.to_string());
+}
