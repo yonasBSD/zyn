@@ -4,7 +4,7 @@ All control flow directives start with `@`.
 
 ## Conditionals
 
-```zyn
+```rust,zyn
 zyn! {
     @if (is_async) {
         async fn {{ name }}() {}
@@ -18,7 +18,7 @@ zyn! {
 
 Conditions support field access and method calls:
 
-```zyn
+```rust,zyn
 zyn! {
     @if (opts.is_pub) { pub }
     @if (items.is_empty()) { @throw "no items" }
@@ -29,7 +29,7 @@ zyn! {
 
 Iterate with `@for`. The keyword is `of`, not `in`:
 
-```zyn
+```rust,zyn
 zyn! {
     @for (name of names) {
         pub {{ name }}: f64,
@@ -43,7 +43,7 @@ zyn! {
 
 Inline iterators work:
 
-```zyn
+```rust,zyn
 zyn! {
     @for (name of ["x", "y", "z"].map(|s| quote::format_ident!("{}", s))) {
         pub {{ name }}: f64,
@@ -53,7 +53,7 @@ zyn! {
 
 ## Pattern Matching
 
-```zyn
+```rust,zyn
 zyn! {
     @match (kind) {
         Kind::Struct => { struct {{ name }} {} }
@@ -65,7 +65,7 @@ zyn! {
 
 Expressions work in the match subject:
 
-```zyn
+```rust,zyn
 zyn! {
     @match (value.len()) {
         5 => { struct Five; }
@@ -78,7 +78,7 @@ zyn! {
 
 Emit a `compile_error!` with `@throw`:
 
-```zyn
+```rust,zyn
 zyn! {
     @if (!valid) {
         @throw "expected a struct"
@@ -90,7 +90,7 @@ zyn! {
 
 Control flow directives nest freely:
 
-```zyn
+```rust,zyn
 zyn! {
     @for (item of items) {
         @if (item.1) {

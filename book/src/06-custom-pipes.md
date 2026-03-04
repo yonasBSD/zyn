@@ -6,7 +6,7 @@ Define custom pipes with `#[zyn::pipe]` to create reusable value transforms.
 
 Annotate a function where the first parameter is the input and the return type is the output:
 
-```zyn
+```rust,zyn
 #[zyn::pipe]
 fn prefix(input: String) -> proc_macro2::Ident {
     proc_macro2::Ident::new(
@@ -22,7 +22,7 @@ This generates a unit struct `Prefix` that implements the `Pipe` trait. The func
 
 Reference the pipe by its snake_case name:
 
-```zyn
+```rust,zyn
 zyn! { {{ name | prefix }} }
 // hello -> pfx_hello
 ```
@@ -31,7 +31,7 @@ zyn! { {{ name | prefix }} }
 
 Override the template name:
 
-```zyn
+```rust,zyn
 #[zyn::pipe("yell")]
 fn make_loud(input: String) -> proc_macro2::Ident {
     proc_macro2::Ident::new(
@@ -48,7 +48,7 @@ zyn! { {{ name | yell }} }
 
 Custom pipes chain with built-in pipes:
 
-```zyn
+```rust,zyn
 zyn! { {{ name | snake | prefix }} }
 // HelloWorld -> hello_world -> pfx_hello_world
 ```

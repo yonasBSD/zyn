@@ -2,7 +2,7 @@
 
 Insert any expression that implements `ToTokens` with double braces:
 
-```zyn
+```rust,zyn
 zyn! { fn {{ name }}() -> {{ ret_type }} {} }
 ```
 
@@ -10,7 +10,7 @@ zyn! { fn {{ name }}() -> {{ ret_type }} {} }
 
 Dot notation works inside interpolation:
 
-```zyn
+```rust,zyn
 zyn! {
     {{ item.field.name }}: {{ item.field.ty }},
 }
@@ -18,7 +18,7 @@ zyn! {
 
 ## Method Calls
 
-```zyn
+```rust,zyn
 zyn! {
     {{ names.len() }}
 }
@@ -28,7 +28,7 @@ zyn! {
 
 Interpolation works inside parenthesized and bracketed groups:
 
-```zyn
+```rust,zyn
 zyn! { fn foo(x: {{ ty }}) }
 zyn! { type Foo = [{{ ty }}; 4]; }
 ```

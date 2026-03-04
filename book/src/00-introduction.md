@@ -8,7 +8,7 @@ Zyn is a template engine for Rust procedural macros. It lets you write `quote!`-
 
 Rust's `quote!` macro is great for generating code, but it lacks conditionals, loops, and pattern matching. Zyn fills that gap with a template syntax that feels natural inside proc macros:
 
-```zyn
+```rust,zyn
 use zyn::prelude::*;
 
 let name = quote::format_ident!("hello_world");

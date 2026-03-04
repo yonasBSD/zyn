@@ -6,7 +6,7 @@ Elements are reusable template components. Define them with `#[zyn::element]` an
 
 Annotate a function that returns `syn::Result<proc_macro2::TokenStream>`:
 
-```zyn
+```rust,zyn
 #[zyn::element]
 fn field_decl(vis: syn::Visibility, name: syn::Ident, ty: syn::Type) -> syn::Result<proc_macro2::TokenStream> {
     Ok(zyn::zyn! {
@@ -21,7 +21,7 @@ This generates a struct `FieldDecl` with public fields for each parameter, plus 
 
 Reference the element by its snake_case name with `@`:
 
-```zyn
+```rust,zyn
 zyn! {
     @field_decl(
         vis = syn::parse_quote!(pub),
@@ -36,7 +36,7 @@ zyn! {
 
 Elements can accept children by including a `children: proc_macro2::TokenStream` parameter:
 
-```zyn
+```rust,zyn
 #[zyn::element]
 fn wrapper(name: proc_macro2::Ident, children: proc_macro2::TokenStream) -> syn::Result<proc_macro2::TokenStream> {
     Ok(quote::quote!(struct #name { #children }))
@@ -52,7 +52,7 @@ zyn! {
 
 Children-only elements can omit parentheses entirely:
 
-```zyn
+```rust,zyn
 #[zyn::element]
 fn container(children: proc_macro2::TokenStream) -> syn::Result<proc_macro2::TokenStream> {
     Ok(quote::quote!(mod inner { #children }))
@@ -69,7 +69,7 @@ zyn! {
 
 Elements with no parameters don't need parentheses:
 
-```zyn
+```rust,zyn
 #[zyn::element]
 fn divider() -> syn::Result<proc_macro2::TokenStream> {
     Ok(zyn::zyn!(const DIVIDER: &str = "---";))
@@ -83,7 +83,7 @@ zyn! { @divider() }  // also valid
 
 Override the template name with a string argument:
 
-```zyn
+```rust,zyn
 #[zyn::element("say_hello")]
 fn internal_greeting(name: proc_macro2::Ident) -> syn::Result<proc_macro2::TokenStream> {
     Ok(zyn::zyn!(fn {{ name }}() {}))
@@ -96,7 +96,7 @@ zyn! { @say_hello(name = quote::format_ident!("world")) }
 
 Elements defined in submodules can be referenced with path syntax:
 
-```zyn
+```rust,zyn
 mod components {
     #[zyn::element]
     pub fn field_decl(name: proc_macro2::Ident, ty: proc_macro2::Ident) -> syn::Result<proc_macro2::TokenStream> {
@@ -116,7 +116,7 @@ zyn! {
 
 Elements compose naturally with control flow:
 
-```zyn
+```rust,zyn
 zyn! {
     @for (name of names) {
         @greeting(name = name.clone())

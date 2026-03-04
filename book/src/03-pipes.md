@@ -2,7 +2,7 @@
 
 Pipes transform interpolated values. Add them after a `|`:
 
-```zyn
+```rust,zyn
 zyn! {
     fn {{ name | snake }}() {}
 }
@@ -29,7 +29,7 @@ Pipe names are written in snake_case in templates — they resolve to PascalCase
 
 Pipes can be chained. Each pipe receives the output of the previous one:
 
-```zyn
+```rust,zyn
 zyn! { {{ name | snake | upper }} }
 // HelloWorld -> hello_world -> HELLO_WORLD
 ```
@@ -38,7 +38,7 @@ zyn! { {{ name | snake | upper }} }
 
 The `ident` and `fmt` pipes take a format pattern via `:` syntax. Use `{}` as the placeholder:
 
-```zyn
+```rust,zyn
 zyn! {
     fn {{ name | ident:"get_{}" }}() {}     // hello -> get_hello (as ident)
     fn {{ name | ident:"{}_impl" }}() {}    // hello -> hello_impl (as ident)
@@ -50,7 +50,7 @@ zyn! {
 
 Combine with case pipes:
 
-```zyn
+```rust,zyn
 zyn! { {{ name | snake | ident:"get_{}" }} }
 // HelloWorld -> hello_world -> get_hello_world
 ```

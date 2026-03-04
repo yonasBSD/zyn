@@ -37,7 +37,7 @@ zyn::pascal!(ident => token_stream)
 
 Inside `zyn!`, use the equivalent pipes:
 
-```zyn
+```rust,zyn
 zyn! {
     fn {{ name | snake }}() {}
     struct {{ name | pascal }} {}

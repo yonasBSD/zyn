@@ -840,10 +840,4 @@ aria-label="Show hidden lines"></button>';
         updateBorder();
         document.addEventListener('scroll', updateBorder, { passive: true });
     })();
-    (function removeThemeToggle() {
-        var toggle = document.getElementById('mdbook-theme-toggle');
-        var list = document.getElementById('mdbook-theme-list');
-        if (toggle) toggle.remove();
-        if (list) list.remove();
-    })();
 })();
