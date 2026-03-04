@@ -1,6 +1,6 @@
 use syn::Attribute;
 
-use crate::Args;
+use crate::meta::Args;
 
 pub trait AttrExt {
     fn is(&self, name: &str) -> bool;

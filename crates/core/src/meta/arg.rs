@@ -9,7 +9,7 @@ use syn::Token;
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 
-use crate::Args;
+use super::Args;
 
 pub enum Arg {
     Flag(Ident),

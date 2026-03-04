@@ -1,5 +1,11 @@
 # Args
 
+`Args` is always available — no feature flag required.
+
+```rust
+use zyn::Args;
+```
+
 A parsed, ordered collection of `Arg` values from an attribute's argument list.
 
 ```rust

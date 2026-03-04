@@ -3,9 +3,9 @@ mod folder;
 use std::collections::HashSet;
 
 use proc_macro::TokenStream;
+use zyn::Args;
 use zyn::ItemFn;
 use zyn::Render;
-use zyn::ext::Args;
 use zyn::proc_macro2::Ident;
 use zyn::proc_macro2::TokenStream as TokenStream2;
 use zyn::syn::Expr;

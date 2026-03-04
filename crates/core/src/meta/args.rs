@@ -7,7 +7,7 @@ use syn::Token;
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 
-use crate::Arg;
+use super::Arg;
 
 #[derive(Default)]
 pub struct Args(Vec<Arg>);

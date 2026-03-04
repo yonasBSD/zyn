@@ -1,5 +1,11 @@
 # Arg
 
+`Arg` is always available — no feature flag required.
+
+```rust
+use zyn::Arg;
+```
+
 An individual parsed argument. Four variants map to the four syntactic forms an attribute argument can take:
 
 | Variant | Syntax | Example |

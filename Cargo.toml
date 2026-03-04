@@ -21,7 +21,6 @@ quote = "1"
 syn = { version = "2", features = ["full", "fold"] }
 
 zyn-core = { path = "./crates/core", version = "0.1.0" }
-zyn-ext = { path = "./crates/ext", version = "0.1.0" }
 zyn-derive = { path = "./crates/derive", version = "0.1.0" }
 
 # ----------- Package ----------- #
@@ -45,12 +44,11 @@ doctest = false
 [features]
 default = ["derive"]
 derive = ["zyn-derive"]
-ext = ["zyn-ext"]
+ext = ["zyn-core/ext"]
 syn = ["dep:syn"]
 
 [dependencies]
 zyn-core = { workspace = true }
-zyn-ext = { workspace = true, optional = true }
 zyn-derive = { workspace = true, optional = true }
 
 proc-macro2 = { workspace = true }

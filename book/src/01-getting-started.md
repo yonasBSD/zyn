@@ -14,7 +14,7 @@ zyn = "0.0.0"
 | Feature | Default | Description |
 |---------|---------|-------------|
 | `derive` | yes | Enables `#[zyn::element]` and `#[zyn::pipe]` attribute macros |
-| `ext` | no | Enables `zyn::ext` module for syn attribute parsing helpers |
+| `ext` | no | Enables `AttrExt` and `AttrsExt` traits for `syn::Attribute` parsing (`Arg`/`Args` are always available) |
 
 ## Basic Usage
 
