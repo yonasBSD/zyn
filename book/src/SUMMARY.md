@@ -29,3 +29,8 @@
   - [AttrsExt](./08-ext/attrs-ext.md)
   - [Args](./08-ext/args.md)
   - [Arg](./08-ext/arg.md)
+- [Language Reference](./09-reference/README.md)
+  - [Grammar](./09-reference/grammar.md)
+  - [Expansion Model](./09-reference/expansion.md)
+  - [Trait Reference](./09-reference/traits.md)
+  - [Error Reference](./09-reference/errors.md)

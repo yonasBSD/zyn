@@ -1,16 +1,49 @@
 # Diagnostics
 
-Fallible elements return `zyn::Result` and can emit rich errors with notes and help text:
+Elements handle all diagnostics through **template syntax** — `@throw`, `@warn`, `@note`, and `@help` directives. Elements always return `proc_macro2::TokenStream` and are infallible; any errors or warnings are expressed inline in the template.
+
+## Compile Errors
+
+Use `@throw` inside an element to halt compilation with an error:
 
 ```rust,zyn
 #[zyn::element]
-fn validated(name: syn::Ident) -> zyn::Result {
-    if name == "forbidden" {
-        return Err(zyn::Diagnostic::error(name.span(), "reserved identifier")
-            .note("this name is reserved by the compiler")
-            .help("try a different name like `my_handler`"));
+fn validated(name: proc_macro2::Ident) -> proc_macro2::TokenStream {
+    zyn::zyn! {
+        @if (name.to_string() == "forbidden") {
+            @throw "reserved identifier"
+        } @else {
+            fn {{ name }}() {}
+        }
     }
-    Ok(zyn::zyn!(fn {{ name }}() {}))
+}
+```
+
+```bash
+error: reserved identifier
+  --> src/lib.rs:8:24
+   |
+ 8 |     @validated(name = forbidden)
+   |                       ^^^^^^^^^
+```
+
+## Errors with Notes and Help
+
+Attach notes and help suggestions using a body block:
+
+```rust,zyn
+#[zyn::element]
+fn validated(name: proc_macro2::Ident) -> proc_macro2::TokenStream {
+    zyn::zyn! {
+        @if (name.to_string() == "forbidden") {
+            @throw "reserved identifier" {
+                @note "this name is reserved by the compiler"
+                @help "try a different name like `my_handler`"
+            }
+        } @else {
+            fn {{ name }}() {}
+        }
+    }
 }
 ```
 
@@ -24,24 +57,40 @@ help: try a different name like `my_handler`
    |                       ^^^^^^^^^
 ```
 
-Warnings can be included in infallible element output by prepending warning tokens:
+## Warnings
+
+Use `@warn` to emit a non-fatal warning:
 
 ```rust,zyn
 #[zyn::element]
 fn legacy(name: proc_macro2::Ident) -> proc_macro2::TokenStream {
-    let warning = zyn::Diagnostic::warning(name.span(), "deprecated, use `new_elem` instead")
-        .to_token_stream();
-    let body = zyn::zyn!(fn {{ name }}() {});
-    quote::quote! { #warning #body }
+    zyn::zyn! {
+        @warn "deprecated, use `new_elem` instead" {
+            @help "replace `@legacy` with `@new_elem`"
+        }
+        fn {{ name }}() {}
+    }
 }
 ```
 
 ```bash
 warning: deprecated, use `new_elem` instead
+help: replace `@legacy` with `@new_elem`
   --> src/lib.rs:5:5
    |
  5 |     @legacy(name = my_fn)
    |     ^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: `#[warn(deprecated)]` on by default
+```
+
+`@warn` does not halt compilation — the rest of the template continues to expand normally.
+
+## Standalone Notes and Help
+
+`@note` and `@help` can appear standalone as informational diagnostics:
+
+```rust,zyn
+zyn! {
+    @note "this field is deprecated"
+    @help "consider using `new_field` instead"
+}
 ```

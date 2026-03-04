@@ -59,7 +59,7 @@ impl Fold for TraceVarFolderInner {
                 let left = *left;
                 let op = zyn::zyn!({ { eq_token } });
                 if self.is_traced_expr(&left) {
-                    zyn::syn::parse2(AssignTrace { left, op, right }.render().unwrap()).unwrap()
+                    zyn::syn::parse2(AssignTrace { left, op, right }.render()).unwrap()
                 } else {
                     Expr::Assign(ExprAssign {
                         attrs,
@@ -87,8 +87,7 @@ impl Fold for TraceVarFolderInner {
                                 op: op_ts,
                                 right,
                             }
-                            .render()
-                            .unwrap(),
+                            .render(),
                         )
                         .unwrap()
                     } else {
@@ -125,8 +124,7 @@ impl Fold for TraceVarFolderInner {
                         init: init_expr,
                         ident,
                     }
-                    .render()
-                    .unwrap(),
+                    .render(),
                 )
                 .unwrap()
             }
@@ -136,11 +134,11 @@ impl Fold for TraceVarFolderInner {
 }
 
 impl Render for TraceVarFolder {
-    fn render(&self) -> zyn::Result {
+    fn render(&self) -> zyn::proc_macro2::TokenStream {
         let mut folder = TraceVarFolderInner {
             vars: self.vars.clone(),
         };
-        Ok(zyn::zyn!({ { folder.fold_item_fn(self.input.0.clone()) } }))
+        zyn::zyn!({ { folder.fold_item_fn(self.input.0.clone()) } })
     }
 }
 

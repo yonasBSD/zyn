@@ -16,6 +16,7 @@ categories = ["development-tools::procedural-macro-helpers", "rust-patterns", "n
 
 [workspace.dependencies]
 proc-macro2 = "1"
+proc-macro2-diagnostics = "0.10"
 quote = "1"
 syn = { version = "2", features = ["full", "fold"] }
 

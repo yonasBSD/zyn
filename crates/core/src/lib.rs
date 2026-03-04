@@ -18,7 +18,7 @@ pub trait Expand {
 }
 
 pub trait Render {
-    fn render(&self) -> diagnostic::Result;
+    fn render(&self) -> proc_macro2::TokenStream;
 }
 
 pub trait Pipe {

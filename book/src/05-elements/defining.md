@@ -1,6 +1,6 @@
 # Defining
 
-Annotate a function with `#[zyn::element]`. Parameters become struct fields; the return type controls whether the element can fail:
+Annotate a function with `#[zyn::element]`. Parameters become struct fields; the function must return `proc_macro2::TokenStream`:
 
 ```rust,zyn
 #[zyn::element]
@@ -22,43 +22,18 @@ pub struct FieldDecl {
 }
 
 impl zyn::Render for FieldDecl {
-    fn render(&self) -> zyn::Result {
+    fn render(&self) -> proc_macro2::TokenStream {
         let vis = &self.vis;
         let name = &self.name;
         let ty = &self.ty;
-        Ok(zyn::zyn! { {{ vis }} {{ name }}: {{ ty }}, })
+        zyn::zyn! { {{ vis }} {{ name }}: {{ ty }}, }
     }
 }
 ```
 
 The function name (snake_case) becomes the template directive name. The struct name is the PascalCase equivalent — `field_decl` → `FieldDecl`.
 
-## Return Types
-
-Three return types are supported:
-
-| Return type | Behavior |
-|---|---|
-| `proc_macro2::TokenStream` | Infallible — most common. No `Ok()` wrapper needed. |
-| `zyn::Result` | Fallible — can return `Err(Diagnostic)` with notes and help. |
-| `syn::Result<proc_macro2::TokenStream>` | Legacy bridge — still accepted. |
-
-```rust,zyn
-// Infallible
-#[zyn::element]
-fn greeting(name: proc_macro2::Ident) -> proc_macro2::TokenStream {
-    zyn::zyn!(fn {{ name }}() {})
-}
-
-// Fallible
-#[zyn::element]
-fn validated(name: proc_macro2::Ident) -> zyn::Result {
-    if name == "forbidden" {
-        return Err(zyn::Diagnostic::error(name.span(), "reserved name"));
-    }
-    Ok(zyn::zyn!(fn {{ name }}() {}))
-}
-```
+Elements are always infallible. Diagnostics (errors, warnings, notes, helps) are expressed using [`@throw`, `@warn`, `@note`, `@help`](./diagnostics.md) inside the template body.
 
 ## Using `quote!` Directly
 
