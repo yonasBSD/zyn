@@ -72,12 +72,13 @@ impl Mode {
 
 Variant names are converted to snake_case for matching. `MyVariant` → `my_variant`.
 
-## Files to Modify
+## Files
 
-| File | Change |
+| File | Role |
 |---|---|
-| `crates/derive/src/attribute/enums.rs` | **New** — enum codegen |
-| `crates/derive/src/attribute/mod.rs` | Wire enum dispatch |
+| `crates/derive/src/attribute/enums/mod.rs` | Enum expand entry — generates `from_arg` dispatch and `FromArg` impl |
+| `crates/derive/src/attribute/enums/variant_meta.rs` | `VariantMeta { parse(), arm_from_flag(), arm_from_list(), arm_from_expr() }`, `VariantKind` |
+| `crates/derive/src/attribute/mod.rs` | Wired — `Enum` branch dispatches to `enums::expand` |
 
 ## Tests
 
