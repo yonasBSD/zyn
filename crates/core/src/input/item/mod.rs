@@ -36,6 +36,7 @@ use syn::parse::Parse;
 use syn::parse::ParseStream;
 use syn::parse::discouraged::Speculative;
 
+#[derive(Clone)]
 pub enum ItemInput {
     Struct(ItemStruct),
     Enum(ItemEnum),
@@ -440,6 +441,20 @@ impl From<ImplItemFn> for ItemInput {
 impl From<TraitItemFn> for ItemInput {
     fn from(v: TraitItemFn) -> Self {
         Self::TraitFn(v)
+    }
+}
+
+impl crate::extract::FromInput for ItemInput {
+    type Error = syn::Error;
+
+    fn from_input(input: &crate::input::Input) -> Result<Self, Self::Error> {
+        match input {
+            crate::input::Input::Item(v) => Ok(v.clone()),
+            _ => Err(syn::Error::new(
+                proc_macro2::Span::call_site(),
+                "expected item input",
+            )),
+        }
     }
 }
 

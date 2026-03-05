@@ -32,6 +32,31 @@ impl ToTokens for ItemStruct {
     }
 }
 
+impl crate::extract::FromInput for ItemStruct {
+    type Error = syn::Error;
+
+    fn from_input(input: &crate::input::Input) -> Result<Self, Self::Error> {
+        match input {
+            crate::input::Input::Item(crate::input::ItemInput::Struct(v)) => Ok(v.clone()),
+            crate::input::Input::Derive(crate::input::DeriveInput::Struct(s)) => {
+                Ok(ItemStruct(syn::ItemStruct {
+                    attrs: s.attrs.clone(),
+                    vis: s.vis.clone(),
+                    struct_token: syn::Token![struct](proc_macro2::Span::call_site()),
+                    ident: s.ident.clone(),
+                    generics: s.generics.clone(),
+                    fields: s.data.fields.clone(),
+                    semi_token: s.data.semi_token,
+                }))
+            }
+            _ => Err(syn::Error::new(
+                proc_macro2::Span::call_site(),
+                "expected struct input",
+            )),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

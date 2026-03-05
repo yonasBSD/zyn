@@ -32,6 +32,20 @@ impl ToTokens for ItemExternCrate {
     }
 }
 
+impl crate::extract::FromInput for ItemExternCrate {
+    type Error = syn::Error;
+
+    fn from_input(input: &crate::input::Input) -> Result<Self, Self::Error> {
+        match input {
+            crate::input::Input::Item(crate::input::ItemInput::ExternCrate(v)) => Ok(v.clone()),
+            _ => Err(syn::Error::new(
+                proc_macro2::Span::call_site(),
+                "expected extern crate item input",
+            )),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

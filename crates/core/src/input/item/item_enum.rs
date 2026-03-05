@@ -32,6 +32,31 @@ impl ToTokens for ItemEnum {
     }
 }
 
+impl crate::extract::FromInput for ItemEnum {
+    type Error = syn::Error;
+
+    fn from_input(input: &crate::input::Input) -> Result<Self, Self::Error> {
+        match input {
+            crate::input::Input::Item(crate::input::ItemInput::Enum(v)) => Ok(v.clone()),
+            crate::input::Input::Derive(crate::input::DeriveInput::Enum(e)) => {
+                Ok(ItemEnum(syn::ItemEnum {
+                    attrs: e.attrs.clone(),
+                    vis: e.vis.clone(),
+                    enum_token: syn::Token![enum](proc_macro2::Span::call_site()),
+                    ident: e.ident.clone(),
+                    generics: e.generics.clone(),
+                    brace_token: syn::token::Brace::default(),
+                    variants: e.data.variants.clone(),
+                }))
+            }
+            _ => Err(syn::Error::new(
+                proc_macro2::Span::call_site(),
+                "expected enum input",
+            )),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

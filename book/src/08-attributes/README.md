@@ -25,6 +25,6 @@ let cfg = BuilderConfig::from_input(&input)?;
 
 - [derive(Attribute)](./derive-attribute.md) — declare typed attribute structs
 - [FromInput and Input](./from-input.md) — the extraction trait and input context type
-- [Extractors](./extractors.md) — `Extract<T>`, `Attr<T>`, `Fields<T>`, `Variants`, `Data<T>`
+- [Extractors](./extractors/README.md) — `Attr<T>`, `Fields<T>`, `Variants`, `Data<T>`, element input types
 - [Arg and Args](./arg-args.md) — low-level attribute argument primitives
 - [AttrExt and AttrsExt](./ext.md) — extension traits (legacy API)

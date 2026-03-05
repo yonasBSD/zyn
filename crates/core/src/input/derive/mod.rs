@@ -11,6 +11,7 @@ use quote::ToTokens;
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 
+#[derive(Clone)]
 pub enum DeriveInput {
     Struct(DeriveStruct),
     Enum(DeriveEnum),
@@ -117,6 +118,20 @@ impl ToTokens for DeriveInput {
             Self::Struct(s) => s.to_tokens(tokens),
             Self::Enum(e) => e.to_tokens(tokens),
             Self::Union(u) => u.to_tokens(tokens),
+        }
+    }
+}
+
+impl crate::extract::FromInput for DeriveInput {
+    type Error = syn::Error;
+
+    fn from_input(input: &crate::input::Input) -> Result<Self, Self::Error> {
+        match input {
+            crate::input::Input::Derive(v) => Ok(v.clone()),
+            _ => Err(syn::Error::new(
+                proc_macro2::Span::call_site(),
+                "expected derive input",
+            )),
         }
     }
 }

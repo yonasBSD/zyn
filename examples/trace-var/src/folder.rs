@@ -127,7 +127,8 @@ impl Render for TraceVarFolder {
         let mut folder = TraceVarFolderInner {
             vars: self.vars.clone(),
         };
-        zyn::zyn!({ { folder.fold_item_fn(self.input.0.clone()) } })
+        let item: zyn::syn::ItemFn = (*self.input).clone();
+        zyn::zyn!({ { folder.fold_item_fn(item) } })
     }
 }
 

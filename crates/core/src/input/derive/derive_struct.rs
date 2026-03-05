@@ -55,6 +55,20 @@ impl ToTokens for DeriveStruct {
     }
 }
 
+impl crate::extract::FromInput for DeriveStruct {
+    type Error = syn::Error;
+
+    fn from_input(input: &crate::input::Input) -> Result<Self, Self::Error> {
+        match input {
+            crate::input::Input::Derive(crate::input::DeriveInput::Struct(v)) => Ok(v.clone()),
+            _ => Err(syn::Error::new(
+                proc_macro2::Span::call_site(),
+                "expected derive struct input",
+            )),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

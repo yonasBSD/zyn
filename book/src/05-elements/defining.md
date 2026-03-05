@@ -81,11 +81,11 @@ struct MyConfig {
 
 #[zyn::element]
 fn my_element(
-    cfg: zyn::Attr<MyConfig>,        // extractor — resolved from input, not a prop
-    fields: zyn::Fields,             // extractor — resolved from input, not a prop
+    #[zyn(input)] cfg: zyn::Attr<MyConfig>,        // extractor — resolved from input, not a prop
+    #[zyn(input)] fields: zyn::Fields,             // extractor — resolved from input, not a prop
     label: zyn::proc_macro2::Ident,  // prop — passed at @my_element(label = ...)
 ) -> zyn::proc_macro2::TokenStream {
-    // cfg.0.skip, cfg.0.rename, fields.0, label all available
+    // cfg.skip, cfg.rename, fields, label all available via Deref
     zyn::zyn! { /* ... */ }
 }
 ```

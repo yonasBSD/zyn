@@ -32,6 +32,20 @@ impl ToTokens for ItemImpl {
     }
 }
 
+impl crate::extract::FromInput for ItemImpl {
+    type Error = syn::Error;
+
+    fn from_input(input: &crate::input::Input) -> Result<Self, Self::Error> {
+        match input {
+            crate::input::Input::Item(crate::input::ItemInput::Impl(v)) => Ok(v.clone()),
+            _ => Err(syn::Error::new(
+                proc_macro2::Span::call_site(),
+                "expected impl item input",
+            )),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

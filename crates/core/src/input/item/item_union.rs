@@ -32,6 +32,30 @@ impl ToTokens for ItemUnion {
     }
 }
 
+impl crate::extract::FromInput for ItemUnion {
+    type Error = syn::Error;
+
+    fn from_input(input: &crate::input::Input) -> Result<Self, Self::Error> {
+        match input {
+            crate::input::Input::Item(crate::input::ItemInput::Union(v)) => Ok(v.clone()),
+            crate::input::Input::Derive(crate::input::DeriveInput::Union(u)) => {
+                Ok(ItemUnion(syn::ItemUnion {
+                    attrs: u.attrs.clone(),
+                    vis: u.vis.clone(),
+                    union_token: syn::Token![union](proc_macro2::Span::call_site()),
+                    ident: u.ident.clone(),
+                    generics: u.generics.clone(),
+                    fields: u.data.fields.clone(),
+                }))
+            }
+            _ => Err(syn::Error::new(
+                proc_macro2::Span::call_site(),
+                "expected union input",
+            )),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

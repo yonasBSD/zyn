@@ -32,6 +32,20 @@ impl ToTokens for ItemForeignMod {
     }
 }
 
+impl crate::extract::FromInput for ItemForeignMod {
+    type Error = syn::Error;
+
+    fn from_input(input: &crate::input::Input) -> Result<Self, Self::Error> {
+        match input {
+            crate::input::Input::Item(crate::input::ItemInput::ForeignMod(v)) => Ok(v.clone()),
+            _ => Err(syn::Error::new(
+                proc_macro2::Span::call_site(),
+                "expected foreign mod item input",
+            )),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

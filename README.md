@@ -6,38 +6,6 @@ A template engine for Rust procedural macros. Write code-generation templates wi
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
-## Why?
-
-Building proc macros in Rust means pulling together `syn`, `quote`, `proc_macro2`, a case-conversion crate, `proc-macro-error` for diagnostics, and often hand-rolling the same attribute-parsing and helper-function patterns across every project. The result is verbose, fragmented, and hard to maintain:
-
-- **Reimplementing the same helpers everywhere** — every proc macro crate writes its own `extract_fields`, `get_ident_name`, attribute-argument parser, etc.
-- **`quote!` syntax is limited** — no control flow, no pipes, no components. You end up with `let` bindings and value coercion outside the template, then `#(#tokens)*` collection patterns inside it.
-- **Low-level APIs make simple things complex** — generating a getter for each field means `.iter().map(|f| { ... }).collect::<Vec<_>>()` wrapped in `quote!`, with `format_ident!` for name construction.
-- **No consistent diagnostics** — `compile_error!` for errors, the deprecated-item trick for warnings, `proc-macro-error` crate for richer messages — all different approaches, none built-in.
-- **No standard attribute parsing types** — every project re-invents `Args`, `Arg`, and attribute extension traits from scratch.
-- **Fragmented toolchain** — `proc-macro-error`, `proc-macro2-diagnostics`, `darling`, `heck` for case conversion — five crates doing five things that should be one.
-
-zyn replaces all of that with a single framework:
-
-```rust
-zyn! {
-    @for (field in fields.iter()) {
-        pub fn {{ field.ident | ident:"get_{}" }}(&self) -> &{{ field.ty }} {
-            &self.{{ field.ident }}
-        }
-    }
-}
-```
-
-- **Control flow lives inline** — `@if`, `@for`, `@match` replace the `if/else` + `quote!` + collect pattern
-- **Pipes replace string manipulation** — `{{ name | snake }}`, `{{ name | ident:"get_{}" }}` — no external crates needed
-- **Elements replace helper functions** — `@field_decl(...)` instead of manual `fn render_field(...) -> TokenStream`
-- **Diagnostics are first-class** — `@throw`, `@warn`, `@note`, `@help` with nested context — one syntax, not three crates
-- **Attribute parsing built in** — `#[derive(Attribute)]` for typed extraction, `FromInput`/`FromArg` traits, `Input` enum — no reinventing the wheel
-- **One dependency** — case conversion, diagnostics, attribute parsing, template expansion — all in one crate
-
-No runtime cost. No new dependencies for your users. Everything expands at compile time into the same `TokenStream`-building code you'd write by hand.
-
 ## Quick Start
 
 ```rust
@@ -224,10 +192,10 @@ For element params, use `zyn::Attr<T>` to auto-resolve from the `input` context:
 ```rust
 #[zyn::element]
 fn builder_method(
-    cfg: zyn::Attr<BuilderConfig>,   // auto-resolved from input, not a prop
-    name: zyn::proc_macro2::Ident,   // regular prop, passed at @call site
+    #[zyn(input)] cfg: zyn::Attr<BuilderConfig>,   // auto-resolved from input, not a prop
+    name: zyn::proc_macro2::Ident,                  // regular prop, passed at @call site
 ) -> zyn::proc_macro2::TokenStream {
-    let method = zyn::quote::format_ident!("{}", cfg.0.method);
+    let method = zyn::quote::format_ident!("{}", cfg.method);
     zyn::zyn! { pub fn {{ method }}(self) -> Self { self } }
 }
 ```

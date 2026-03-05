@@ -23,14 +23,13 @@ pub fn expand(args: TokenStream, input: TokenStream) -> TokenStream {
     }
 }
 
-fn type_is_extractor(ty: &syn::Type) -> bool {
-    matches!(
-        ty,
-        syn::Type::Path(p) if p.path.segments.last().map(|s| matches!(
-            s.ident.to_string().as_str(),
-            "Extract" | "Attr" | "Fields" | "Variants" | "Data"
-        )).unwrap_or(false)
-    )
+fn has_input_attr(attrs: &[syn::Attribute]) -> bool {
+    attrs.iter().any(|a| {
+        a.path().is_ident("zyn")
+            && a.parse_args::<syn::Ident>()
+                .map(|i| i == "input")
+                .unwrap_or(false)
+    })
 }
 
 fn expand_element(item: ItemFn, custom_name: Option<zyn_core::syn::LitStr>) -> TokenStream {
@@ -68,7 +67,7 @@ fn expand_element(item: ItemFn, custom_name: Option<zyn_core::syn::LitStr>) -> T
 
                 let ty = pat_type.ty.as_ref().clone();
 
-                if type_is_extractor(&ty) {
+                if has_input_attr(&pat_type.attrs) {
                     extractor_names.push(ident.clone());
                     extractor_types.push(ty);
                 } else {

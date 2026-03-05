@@ -49,6 +49,20 @@ impl ToTokens for DeriveEnum {
     }
 }
 
+impl crate::extract::FromInput for DeriveEnum {
+    type Error = syn::Error;
+
+    fn from_input(input: &crate::input::Input) -> Result<Self, Self::Error> {
+        match input {
+            crate::input::Input::Derive(crate::input::DeriveInput::Enum(v)) => Ok(v.clone()),
+            _ => Err(syn::Error::new(
+                proc_macro2::Span::call_site(),
+                "expected derive enum input",
+            )),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
