@@ -1,5 +1,5 @@
 mod derive;
-pub(crate) mod item;
+mod item;
 
 use quote::ToTokens;
 
