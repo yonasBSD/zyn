@@ -7,7 +7,7 @@ Planned features for zyn, broken into sequential phases. Each phase builds on th
 | Phase | Name | Status | Description |
 |---|---|---|---|
 | [1](./01-attribute-trait.md) | FromInput Trait | complete | `FromInput` + `FromArg` traits, `Input` enum, typed `Arg` accessors, built-in scalar/container impls |
-| [2](./02-derive-structs.md) | Derive Structs | planned | `#[derive(Attribute)]` for structs — generates `FromInput` (attribute mode) or `from_args` (argument mode) |
+| [2](./02-derive-structs.md) | Derive Structs | complete | `#[derive(Attribute)]` for structs — generates `FromInput` (attribute mode) or `from_args` (argument mode) |
 | [3](./03-derive-enums.md) | Derive Enums | planned | `#[derive(Attribute)]` for enums — generates `from_arg` for discriminated union field types |
 | [4](./04-element-integration.md) | Element Integration | planned | `#[element]` params implementing `FromInput` are extracted automatically; plain params remain props |
 | [5](./05-error-accumulation.md) | Error Accumulation | planned | Collect and emit all validation errors together instead of short-circuiting |

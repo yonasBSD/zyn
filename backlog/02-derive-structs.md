@@ -180,13 +180,16 @@ Generated on attribute mode structs only:
   - Named: `name: Type (required|optional|default: "val") — about text`
   - `— about text` omitted if no field `about`
 
-## Files to Create / Modify
+## Files
 
-| File | Change |
+| File | Role |
 |---|---|
-| `crates/derive/src/attribute/mod.rs` | **New** — entrypoint `pub fn expand(input: TokenStream) -> TokenStream`, dispatches to `structs` or `enums` |
-| `crates/derive/src/attribute/structs.rs` | **New** — struct codegen (both modes) |
-| `crates/derive/src/lib.rs` | Register `#[proc_macro_derive(Attribute, attributes(zyn))]` |
+| `crates/derive/src/attribute/mod.rs` | Entrypoint — dispatches by data kind |
+| `crates/derive/src/attribute/emit.rs` | Codegen — `from_args`, `from_arg`, `from_input`, `about` |
+| `crates/derive/src/attribute/structs/mod.rs` | Struct expand entry + re-exports |
+| `crates/derive/src/attribute/structs/struct_meta.rs` | `StructMeta { parse() }` |
+| `crates/derive/src/attribute/structs/field_meta.rs` | `FieldMeta { parse(), is_bool(), option_inner() }`, `FieldKey`, `FieldDefault` |
+| `crates/derive/src/lib.rs` | `#[proc_macro_derive(Attribute, attributes(zyn))]` |
 
 ## Tests
 

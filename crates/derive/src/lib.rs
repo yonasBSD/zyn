@@ -1,3 +1,4 @@
+mod attribute;
 mod element;
 mod pipe;
 mod prettify;
@@ -32,6 +33,11 @@ pub fn pipe(
     input: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
     pipe::expand(args.into(), input.into()).into()
+}
+
+#[proc_macro_derive(Attribute, attributes(zyn))]
+pub fn derive_attribute(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    attribute::expand(input.into()).into()
 }
 
 fn expand_template(input: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
