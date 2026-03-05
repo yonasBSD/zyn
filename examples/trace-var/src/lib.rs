@@ -53,5 +53,7 @@ pub fn trace_var(args: TokenStream, input: TokenStream) -> TokenStream {
     let ext_args = parse_macro_input!(args as Args);
     let vars: HashSet<Ident> = ext_args.iter().filter_map(|a| a.name().cloned()).collect();
     let input = parse_macro_input!(input as ItemFn);
-    TraceVarFolder { input, vars }.render().into()
+    TraceVarFolder { input, vars }
+        .render(&Default::default())
+        .into()
 }

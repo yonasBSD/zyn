@@ -23,6 +23,16 @@ pub fn expand(args: TokenStream, input: TokenStream) -> TokenStream {
     }
 }
 
+fn type_is_extractor(ty: &syn::Type) -> bool {
+    matches!(
+        ty,
+        syn::Type::Path(p) if p.path.segments.last().map(|s| matches!(
+            s.ident.to_string().as_str(),
+            "Extract" | "Attr" | "Fields" | "Variants" | "Data"
+        )).unwrap_or(false)
+    )
+}
+
 fn expand_element(item: ItemFn, custom_name: Option<zyn_core::syn::LitStr>) -> TokenStream {
     let vis = &item.vis;
     let body = &item.block;
@@ -37,8 +47,10 @@ fn expand_element(item: ItemFn, custom_name: Option<zyn_core::syn::LitStr>) -> T
 
     let struct_name = pascal!(item.sig.ident => ident);
 
-    let mut field_names = Vec::new();
-    let mut field_types = Vec::new();
+    let mut prop_names: Vec<syn::Ident> = Vec::new();
+    let mut prop_types: Vec<syn::Type> = Vec::new();
+    let mut extractor_names: Vec<syn::Ident> = Vec::new();
+    let mut extractor_types: Vec<syn::Type> = Vec::new();
 
     for arg in &item.sig.inputs {
         match arg {
@@ -54,8 +66,15 @@ fn expand_element(item: ItemFn, custom_name: Option<zyn_core::syn::LitStr>) -> T
                     }
                 };
 
-                field_names.push(ident.clone());
-                field_types.push(pat_type.ty.as_ref().clone());
+                let ty = pat_type.ty.as_ref().clone();
+
+                if type_is_extractor(&ty) {
+                    extractor_names.push(ident.clone());
+                    extractor_types.push(ty);
+                } else {
+                    prop_names.push(ident.clone());
+                    prop_types.push(ty);
+                }
             }
             FnArg::Receiver(r) => {
                 return zyn_core::syn::Error::new(r.span(), "element parameters must be typed")
@@ -69,14 +88,36 @@ fn expand_element(item: ItemFn, custom_name: Option<zyn_core::syn::LitStr>) -> T
         quote! { use #struct_name as #alias_name; }
     });
 
+    let extractor_bindings: Vec<TokenStream> = extractor_names
+        .iter()
+        .zip(extractor_types.iter())
+        .map(|(name, ty)| {
+            quote! {
+                let #name = match <#ty as ::zyn::FromInput>::from_input(input) {
+                    ::std::result::Result::Ok(v) => v,
+                    ::std::result::Result::Err(e) => {
+                        let __err: ::zyn::syn::Error = ::std::convert::Into::into(e);
+                        return __err.to_compile_error();
+                    }
+                };
+            }
+        })
+        .collect();
+
+    let prop_bindings: Vec<TokenStream> = prop_names
+        .iter()
+        .map(|name| quote! { let #name = &self.#name; })
+        .collect();
+
     quote! {
         #vis struct #struct_name {
-            #(pub #field_names: #field_types,)*
+            #(pub #prop_names: #prop_types,)*
         }
 
         impl ::zyn::Render for #struct_name {
-            fn render(&self) -> ::zyn::proc_macro2::TokenStream {
-                #(let #field_names = &self.#field_names;)*
+            fn render(&self, input: &::zyn::Input) -> ::zyn::proc_macro2::TokenStream {
+                #(#extractor_bindings)*
+                #(#prop_bindings)*
                 #body
             }
         }

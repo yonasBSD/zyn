@@ -206,6 +206,68 @@ impl ItemInput {
         }
     }
 
+    pub fn vis(&self) -> &syn::Visibility {
+        match self {
+            Self::Struct(v) => &v.vis,
+            Self::Enum(v) => &v.vis,
+            Self::Union(v) => &v.vis,
+            Self::Fn(v) => &v.vis,
+            Self::Impl(_) => panic!("called `ItemInput::vis()` on an Impl variant"),
+            Self::Trait(v) => &v.vis,
+            Self::Type(v) => &v.vis,
+            Self::Mod(v) => &v.vis,
+            Self::Const(v) => &v.vis,
+            Self::Static(v) => &v.vis,
+            Self::Use(v) => &v.vis,
+            Self::ExternCrate(v) => &v.vis,
+            Self::ForeignMod(_) => panic!("called `ItemInput::vis()` on a ForeignMod variant"),
+            Self::ImplFn(v) => &v.vis,
+            Self::TraitFn(_) => panic!("called `ItemInput::vis()` on a TraitFn variant"),
+        }
+    }
+
+    pub fn ident(&self) -> &syn::Ident {
+        match self {
+            Self::Struct(v) => &v.ident,
+            Self::Enum(v) => &v.ident,
+            Self::Union(v) => &v.ident,
+            Self::Fn(v) => &v.sig.ident,
+            Self::Impl(_) => panic!("called `ItemInput::ident()` on an Impl variant"),
+            Self::Trait(v) => &v.ident,
+            Self::Type(v) => &v.ident,
+            Self::Mod(v) => &v.ident,
+            Self::Const(v) => &v.ident,
+            Self::Static(v) => &v.ident,
+            Self::Use(_) => panic!("called `ItemInput::ident()` on a Use variant"),
+            Self::ExternCrate(v) => &v.ident,
+            Self::ForeignMod(_) => panic!("called `ItemInput::ident()` on a ForeignMod variant"),
+            Self::ImplFn(v) => &v.sig.ident,
+            Self::TraitFn(v) => &v.sig.ident,
+        }
+    }
+
+    pub fn generics(&self) -> &syn::Generics {
+        match self {
+            Self::Struct(v) => &v.generics,
+            Self::Enum(v) => &v.generics,
+            Self::Union(v) => &v.generics,
+            Self::Fn(v) => &v.sig.generics,
+            Self::Impl(v) => &v.generics,
+            Self::Trait(v) => &v.generics,
+            Self::Type(v) => &v.generics,
+            Self::Mod(_) => panic!("called `ItemInput::generics()` on a Mod variant"),
+            Self::Const(_) => panic!("called `ItemInput::generics()` on a Const variant"),
+            Self::Static(_) => panic!("called `ItemInput::generics()` on a Static variant"),
+            Self::Use(_) => panic!("called `ItemInput::generics()` on a Use variant"),
+            Self::ExternCrate(_) => {
+                panic!("called `ItemInput::generics()` on an ExternCrate variant")
+            }
+            Self::ForeignMod(_) => panic!("called `ItemInput::generics()` on a ForeignMod variant"),
+            Self::ImplFn(v) => &v.sig.generics,
+            Self::TraitFn(v) => &v.sig.generics,
+        }
+    }
+
     pub fn attrs(&self) -> &[syn::Attribute] {
         match self {
             Self::Struct(v) => &v.attrs,

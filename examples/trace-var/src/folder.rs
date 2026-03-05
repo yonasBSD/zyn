@@ -59,7 +59,8 @@ impl Fold for TraceVarFolderInner {
                 let left = *left;
                 let op = zyn::zyn!({ { eq_token } });
                 if self.is_traced_expr(&left) {
-                    zyn::syn::parse2(AssignTrace { left, op, right }.render()).unwrap()
+                    zyn::syn::parse2(zyn::zyn!(@assign_trace(left = left, op = op, right = right)))
+                        .unwrap()
                 } else {
                     Expr::Assign(ExprAssign {
                         attrs,
@@ -82,12 +83,7 @@ impl Fold for TraceVarFolderInner {
                     let op_ts = zyn::zyn!({ { op } });
                     if self.is_traced_expr(&left) {
                         zyn::syn::parse2(
-                            AssignTrace {
-                                left,
-                                op: op_ts,
-                                right,
-                            }
-                            .render(),
+                            zyn::zyn!(@assign_trace(left = left, op = op_ts, right = right)),
                         )
                         .unwrap()
                     } else {
@@ -118,15 +114,8 @@ impl Fold for TraceVarFolderInner {
                     Pat::Ident(p) => p.ident.clone(),
                     _ => unreachable!(),
                 };
-                zyn::syn::parse2(
-                    LetTrace {
-                        pat,
-                        init: init_expr,
-                        ident,
-                    }
-                    .render(),
-                )
-                .unwrap()
+                zyn::syn::parse2(zyn::zyn!(@let_trace(pat = pat, init = init_expr, ident = ident)))
+                    .unwrap()
             }
             _ => fold::fold_stmt(self, s),
         }
@@ -134,7 +123,7 @@ impl Fold for TraceVarFolderInner {
 }
 
 impl Render for TraceVarFolder {
-    fn render(&self) -> zyn::proc_macro2::TokenStream {
+    fn render(&self, _input: &zyn::Input) -> zyn::proc_macro2::TokenStream {
         let mut folder = TraceVarFolderInner {
             vars: self.vars.clone(),
         };

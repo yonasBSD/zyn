@@ -42,7 +42,16 @@ pub fn derive_attribute(input: proc_macro::TokenStream) -> proc_macro::TokenStre
 
 fn expand_template(input: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
     match syn::parse2::<zyn_core::ast::Element>(input) {
-        Ok(element) => element.to_token_stream(),
+        Ok(element) => {
+            let expanded = element.to_token_stream();
+            quote! {
+                {
+                    #[allow(unused_variables)]
+                    let input: ::zyn::Input = ::std::default::Default::default();
+                    #expanded
+                }
+            }
+        }
         Err(e) => e.to_compile_error(),
     }
 }

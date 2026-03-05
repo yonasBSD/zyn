@@ -11,6 +11,151 @@ pub trait FromInput: Sized {
     fn from_input(input: &Input) -> Result<Self, Self::Error>;
 }
 
+pub struct Extract<T: FromInput>(pub T);
+
+impl<T: FromInput> FromInput for Extract<T> {
+    type Error = T::Error;
+
+    fn from_input(input: &Input) -> Result<Self, Self::Error> {
+        T::from_input(input).map(Extract)
+    }
+}
+
+pub struct Attr<T: FromInput>(pub T);
+
+impl<T: FromInput> FromInput for Attr<T> {
+    type Error = T::Error;
+
+    fn from_input(input: &Input) -> Result<Self, Self::Error> {
+        T::from_input(input).map(Attr)
+    }
+}
+
+pub struct Data<T: syn::parse::Parse>(pub T);
+
+impl<T: syn::parse::Parse> FromInput for Data<T> {
+    type Error = syn::Error;
+
+    fn from_input(input: &Input) -> Result<Self, Self::Error> {
+        use quote::ToTokens;
+        syn::parse2(input.to_token_stream()).map(Data)
+    }
+}
+
+pub trait FromFields: Sized {
+    fn from_fields(fields: syn::Fields) -> syn::Result<Self>;
+}
+
+impl FromFields for syn::Fields {
+    fn from_fields(fields: syn::Fields) -> syn::Result<Self> {
+        Ok(fields)
+    }
+}
+
+impl FromFields for syn::FieldsNamed {
+    fn from_fields(fields: syn::Fields) -> syn::Result<Self> {
+        match fields {
+            syn::Fields::Named(f) => Ok(f),
+            _ => Err(syn::Error::new(Span::call_site(), "expected named fields")),
+        }
+    }
+}
+
+impl FromFields for syn::FieldsUnnamed {
+    fn from_fields(fields: syn::Fields) -> syn::Result<Self> {
+        match fields {
+            syn::Fields::Unnamed(f) => Ok(f),
+            _ => Err(syn::Error::new(
+                Span::call_site(),
+                "expected unnamed fields",
+            )),
+        }
+    }
+}
+
+pub struct Fields<T: FromFields = syn::Fields>(pub T);
+
+impl<T: FromFields> FromInput for Fields<T> {
+    type Error = syn::Error;
+
+    fn from_input(input: &Input) -> Result<Self, Self::Error> {
+        let raw = match input {
+            Input::Derive(d) => match d {
+                crate::input::DeriveInput::Struct(s) => s.data.fields.clone(),
+                other => {
+                    return Err(syn::Error::new(
+                        other.ident().span(),
+                        "expected struct input for Fields extractor",
+                    ));
+                }
+            },
+            Input::Item(i) => match i {
+                crate::input::ItemInput::Struct(s) => s.fields.clone(),
+                _ => {
+                    return Err(syn::Error::new(
+                        Span::call_site(),
+                        "expected struct input for Fields extractor",
+                    ));
+                }
+            },
+        };
+        T::from_fields(raw).map(Fields)
+    }
+}
+
+pub struct Variants(pub Vec<syn::Variant>);
+
+impl FromInput for Variants {
+    type Error = syn::Error;
+
+    fn from_input(input: &Input) -> Result<Self, Self::Error> {
+        match input {
+            Input::Derive(d) => match d {
+                crate::input::DeriveInput::Enum(e) => {
+                    Ok(Variants(e.data.variants.iter().cloned().collect()))
+                }
+                other => Err(syn::Error::new(
+                    other.ident().span(),
+                    "expected enum input for Variants extractor",
+                )),
+            },
+            Input::Item(i) => match i {
+                crate::input::ItemInput::Enum(e) => {
+                    Ok(Variants(e.variants.iter().cloned().collect()))
+                }
+                _ => Err(syn::Error::new(
+                    Span::call_site(),
+                    "expected enum input for Variants extractor",
+                )),
+            },
+        }
+    }
+}
+
+impl FromInput for proc_macro2::Ident {
+    type Error = syn::Error;
+
+    fn from_input(input: &Input) -> Result<Self, Self::Error> {
+        Ok(input.ident().clone())
+    }
+}
+
+impl FromInput for syn::Generics {
+    type Error = syn::Error;
+
+    fn from_input(input: &Input) -> Result<Self, Self::Error> {
+        Ok(input.generics().clone())
+    }
+}
+
+impl FromInput for syn::Visibility {
+    type Error = syn::Error;
+
+    fn from_input(input: &Input) -> Result<Self, Self::Error> {
+        Ok(input.vis().clone())
+    }
+}
+
 pub trait FromArg: Sized {
     fn from_arg(arg: &Arg) -> syn::Result<Self>;
 }

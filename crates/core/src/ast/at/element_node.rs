@@ -61,7 +61,7 @@ impl Expand for ElementNode {
                     let __zyn_rendered = ::zyn::Render::render(&#name {
                         #(#prop_names: #prop_values,)*
                         children: #inner,
-                    });
+                    }, &input);
                     ::zyn::quote::ToTokens::to_tokens(&__zyn_rendered, &mut #output);
                 }
             }
@@ -70,7 +70,7 @@ impl Expand for ElementNode {
                 {
                     let __zyn_rendered = ::zyn::Render::render(&#name {
                         #(#prop_names: #prop_values,)*
-                    });
+                    }, &input);
                     ::zyn::quote::ToTokens::to_tokens(&__zyn_rendered, &mut #output);
                 }
             }

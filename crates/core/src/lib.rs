@@ -30,7 +30,7 @@ pub trait Expand {
 }
 
 pub trait Render {
-    fn render(&self) -> proc_macro2::TokenStream;
+    fn render(&self, input: &input::Input) -> proc_macro2::TokenStream;
 }
 
 pub trait Pipe {

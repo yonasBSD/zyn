@@ -33,7 +33,7 @@ zyn! {
 - **Pipes replace string manipulation** — `{{ name | snake }}`, `{{ name | ident:"get_{}" }}` — no external crates needed
 - **Elements replace helper functions** — `@field_decl(...)` instead of manual `fn render_field(...) -> TokenStream`
 - **Diagnostics are first-class** — `@throw`, `@warn`, `@note`, `@help` with nested context — one syntax, not three crates
-- **Attribute parsing built in** — `Arg`, `Args`, `AttrExt`, `AttrsExt` — no reinventing the wheel
+- **Attribute parsing built in** — `#[derive(Attribute)]` for typed extraction, `FromInput`/`FromArg` traits, `Input` enum — no reinventing the wheel
 - **One dependency** — case conversion, diagnostics, attribute parsing, template expansion — all in one crate
 
 No runtime cost. No new dependencies for your users. Everything expands at compile time into the same `TokenStream`-building code you'd write by hand.
@@ -199,6 +199,37 @@ fn prefix(input: String) -> zyn::proc_macro2::Ident {
 
 zyn! { {{ name | prefix }} }
 // hello -> pfx_hello
+```
+
+### Attribute Parsing
+
+Derive typed attribute structs — `FromInput` handles extraction automatically:
+
+```rust
+#[derive(zyn::Attribute)]
+#[zyn("builder", about = "Configure the builder derive")]
+struct BuilderConfig {
+    #[zyn(default = "build".to_string())]
+    method: String,
+    skip: bool,
+}
+
+// In your proc macro:
+let input: zyn::Input = real_derive_input.into();
+let cfg = BuilderConfig::from_input(&input)?;
+```
+
+For element params, use `zyn::Attr<T>` to auto-resolve from the `input` context:
+
+```rust
+#[zyn::element]
+fn builder_method(
+    cfg: zyn::Attr<BuilderConfig>,   // auto-resolved from input, not a prop
+    name: zyn::proc_macro2::Ident,   // regular prop, passed at @call site
+) -> zyn::proc_macro2::TokenStream {
+    let method = zyn::quote::format_ident!("{}", cfg.0.method);
+    zyn::zyn! { pub fn {{ method }}(self) -> Self { self } }
+}
 ```
 
 ### Case Conversion
