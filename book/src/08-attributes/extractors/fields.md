@@ -14,7 +14,7 @@ Implements `Deref` and `DerefMut` to `T`.
 #[zyn::element]
 fn struct_element(
     #[zyn(input)] fields: zyn::Fields,
-) -> zyn::proc_macro2::TokenStream {
+) -> zyn::TokenStream {
     let count = fields.len();
     zyn::zyn!(const COUNT: usize = {{ count }};)
 }
@@ -26,7 +26,7 @@ With a specific field kind:
 #[zyn::element]
 fn named_struct_element(
     #[zyn(input)] fields: zyn::Fields<zyn::syn::FieldsNamed>,
-) -> zyn::proc_macro2::TokenStream {
+) -> zyn::TokenStream {
     let names: Vec<_> = fields.named.iter().map(|f| &f.ident).collect();
     zyn::zyn! { /* ... */ }
 }

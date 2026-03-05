@@ -1,5 +1,5 @@
-use zyn_core::proc_macro2::TokenStream;
-use zyn_core::quote::quote;
+use zyn_core::__private::proc_macro2::TokenStream;
+use zyn_core::__private::quote::quote;
 use zyn_core::syn;
 
 use super::structs::FieldDefault;
@@ -50,7 +50,7 @@ pub fn from_args(
                             ::std::option::Option::Some(arg) => <#ty as ::zyn::FromArg>::from_arg(arg)?,
                             ::std::option::Option::None => return ::std::result::Result::Err(
                                 ::zyn::syn::Error::new(
-                                    ::zyn::proc_macro2::Span::call_site(),
+                                    ::zyn::__private::proc_macro2::Span::call_site(),
                                     ::std::concat!("missing required field `", #key, "`"),
                                 )
                             ),
@@ -96,7 +96,7 @@ pub fn from_arg(
                 match arg {
                     ::zyn::Arg::List(_, args) => Self::from_args(args),
                     _ => ::std::result::Result::Err(::zyn::syn::Error::new(
-                        ::zyn::proc_macro2::Span::call_site(),
+                        ::zyn::__private::proc_macro2::Span::call_site(),
                         "expected list argument",
                     )),
                 }
@@ -119,7 +119,7 @@ pub fn from_input(
         quote! {
             if matches.len() > 1 {
                 return ::std::result::Result::Err(::zyn::syn::Error::new(
-                    ::zyn::proc_macro2::Span::call_site(),
+                    ::zyn::__private::proc_macro2::Span::call_site(),
                     #msg,
                 ));
             }
@@ -189,7 +189,9 @@ pub fn about(
 
         let type_str = {
             let ty = &f.ty;
-            zyn_core::quote::quote!(#ty).to_string().replace(" ", "")
+            zyn_core::__private::quote::quote!(#ty)
+                .to_string()
+                .replace(" ", "")
         };
 
         let status = match (&f.default, f.is_bool(), f.option_inner().is_some()) {

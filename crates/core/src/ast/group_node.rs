@@ -58,18 +58,20 @@ impl Expand for GroupNode {
         let body_expanded = self.body.expand(&inner, idents);
 
         let delim = match self.delimiter {
-            Delimiter::Parenthesis => quote! { ::zyn::proc_macro2::Delimiter::Parenthesis },
-            Delimiter::Bracket => quote! { ::zyn::proc_macro2::Delimiter::Bracket },
-            Delimiter::Brace => quote! { ::zyn::proc_macro2::Delimiter::Brace },
-            Delimiter::None => quote! { ::zyn::proc_macro2::Delimiter::None },
+            Delimiter::Parenthesis => {
+                quote! { ::zyn::__private::proc_macro2::Delimiter::Parenthesis }
+            }
+            Delimiter::Bracket => quote! { ::zyn::__private::proc_macro2::Delimiter::Bracket },
+            Delimiter::Brace => quote! { ::zyn::__private::proc_macro2::Delimiter::Brace },
+            Delimiter::None => quote! { ::zyn::__private::proc_macro2::Delimiter::None },
         };
 
         quote! {
             {
-                let mut #inner = ::zyn::proc_macro2::TokenStream::new();
+                let mut #inner = ::zyn::__private::proc_macro2::TokenStream::new();
                 #body_expanded
-                ::zyn::quote::ToTokens::to_tokens(
-                    &::zyn::proc_macro2::Group::new(#delim, #inner),
+                ::zyn::__private::quote::ToTokens::to_tokens(
+                    &::zyn::__private::proc_macro2::Group::new(#delim, #inner),
                     &mut #output,
                 );
             }

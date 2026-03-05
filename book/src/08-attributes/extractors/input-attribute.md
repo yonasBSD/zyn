@@ -5,9 +5,9 @@ Element parameters marked with `#[zyn(input)]` are automatically resolved from t
 ```rust
 #[zyn::element]
 fn my_element(
-    #[zyn(input)] item: zyn::DeriveStruct,   // extractor — resolved from input
-    name: zyn::proc_macro2::Ident,            // prop — passed at @my_element(name = ...)
-) -> zyn::proc_macro2::TokenStream {
+    #[zyn(input)] item: zyn::syn::DeriveInput,   // extractor — resolved from input
+    name: zyn::syn::Ident,            // prop — passed at @my_element(name = ...)
+) -> zyn::TokenStream {
     zyn::zyn! { /* ... */ }
 }
 ```
@@ -15,8 +15,8 @@ fn my_element(
 Any type that implements `FromInput` can be used as an extractor parameter. This includes:
 
 - All wrapper extractors: `Attr<T>`, `Extract<T>`, `Fields<T>`, `Variants`, `Data<T>`
-- All input types: `ItemFn`, `ItemStruct`, `DeriveStruct`, `DeriveEnum`, etc.
-- Built-in impls: `proc_macro2::Ident`, `syn::Generics`, `syn::Visibility`
+- All syn input types: `syn::ItemFn`, `syn::ItemStruct`, `syn::DeriveInput`, `syn::DataEnum`, etc.
+- Built-in impls: `syn::Ident`, `syn::Generics`, `syn::Visibility`
 
 Multiple extractors can be used in the same element:
 
@@ -25,8 +25,8 @@ Multiple extractors can be used in the same element:
 fn my_element(
     #[zyn(input)] attr: zyn::Attr<MyConfig>,
     #[zyn(input)] fields: zyn::Fields<syn::FieldsNamed>,
-    label: zyn::proc_macro2::Ident,
-) -> zyn::proc_macro2::TokenStream {
+    label: zyn::syn::Ident,
+) -> zyn::TokenStream {
     zyn::zyn! { /* attr.my_field, fields.named, label all available */ }
 }
 ```

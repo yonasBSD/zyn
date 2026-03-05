@@ -1,8 +1,8 @@
-use zyn::quote::quote;
+use zyn::__private::quote::quote;
 
 struct Field {
-    name: zyn::proc_macro2::Ident,
-    ty: zyn::proc_macro2::Ident,
+    name: zyn::syn::Ident,
+    ty: zyn::syn::Ident,
 }
 
 struct Item {
@@ -12,8 +12,8 @@ struct Item {
 #[test]
 fn field_access() {
     let field = Field {
-        name: zyn::quote::format_ident!("age"),
-        ty: zyn::quote::format_ident!("u32"),
+        name: zyn::format_ident!("age"),
+        ty: zyn::format_ident!("u32"),
     };
     let result = zyn::zyn!({{ field.name }}: {{ field.ty }});
     let expected = quote!(age: u32);
@@ -24,8 +24,8 @@ fn field_access() {
 fn nested_field_access() {
     let item = Item {
         field: Field {
-            name: zyn::quote::format_ident!("age"),
-            ty: zyn::quote::format_ident!("u32"),
+            name: zyn::format_ident!("age"),
+            ty: zyn::format_ident!("u32"),
         },
     };
     let result = zyn::zyn!({{ item.field.name }}: {{ item.field.ty }});
@@ -35,10 +35,7 @@ fn nested_field_access() {
 
 #[test]
 fn method_call() {
-    let names = vec![
-        zyn::quote::format_ident!("foo"),
-        zyn::quote::format_ident!("bar"),
-    ];
+    let names = vec![zyn::format_ident!("foo"), zyn::format_ident!("bar")];
     let result = zyn::zyn!({ { names.len() } });
     let expected = quote!(2usize);
     assert_eq!(result.to_string(), expected.to_string());
@@ -47,9 +44,8 @@ fn method_call() {
 #[test]
 fn chained_method_call() {
     let name = "hello_world".to_string();
-    let result = zyn::zyn!({
-        { zyn::proc_macro2::Ident::new(&name.to_uppercase(), zyn::proc_macro2::Span::call_site()) }
-    });
+    let result =
+        zyn::zyn!({ { zyn::syn::Ident::new(&name.to_uppercase(), zyn::Span::call_site()) } });
     let expected = quote!(HELLO_WORLD);
     assert_eq!(result.to_string(), expected.to_string());
 }
@@ -57,11 +53,8 @@ fn chained_method_call() {
 #[test]
 fn method_call_in_for() {
     let items = vec![
-        vec![zyn::quote::format_ident!("a")],
-        vec![
-            zyn::quote::format_ident!("b"),
-            zyn::quote::format_ident!("c"),
-        ],
+        vec![zyn::format_ident!("a")],
+        vec![zyn::format_ident!("b"), zyn::format_ident!("c")],
     ];
     let result = zyn::zyn!(
         @for (item in items) {
@@ -89,8 +82,8 @@ fn method_call_in_condition() {
 fn nested_field_with_pipe() {
     let item = Item {
         field: Field {
-            name: zyn::quote::format_ident!("hello"),
-            ty: zyn::quote::format_ident!("u32"),
+            name: zyn::format_ident!("hello"),
+            ty: zyn::format_ident!("u32"),
         },
     };
     let result = zyn::zyn!({ { item.field.name | upper } });

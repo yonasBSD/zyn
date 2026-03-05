@@ -1,4 +1,4 @@
-use zyn::quote::quote;
+use zyn::__private::quote::quote;
 
 #[test]
 fn plain_tokens() {

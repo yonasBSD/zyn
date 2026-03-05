@@ -2,8 +2,8 @@ mod variant_meta;
 
 use variant_meta::VariantMeta;
 
-use zyn_core::proc_macro2::TokenStream;
-use zyn_core::quote::quote;
+use zyn_core::__private::proc_macro2::TokenStream;
+use zyn_core::__private::quote::quote;
 use zyn_core::syn;
 
 pub fn expand(input: syn::DeriveInput) -> TokenStream {
@@ -75,7 +75,7 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
                     #list_block
                     #expr_block
                     _ => ::std::result::Result::Err(::zyn::syn::Error::new(
-                        ::zyn::proc_macro2::Span::call_site(),
+                        ::zyn::__private::proc_macro2::Span::call_site(),
                         ::std::format!("expected one of: {}", #expected),
                     )),
                 }

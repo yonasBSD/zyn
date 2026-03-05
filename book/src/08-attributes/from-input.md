@@ -47,7 +47,7 @@ Implemented by:
 | Type | Extracts |
 |---|---|
 | `#[derive(Attribute)]` structs | Named attribute from `input.attrs()` |
-| `proc_macro2::Ident` | `input.ident()` |
+| `zyn::syn::Ident` | `input.ident()` |
 | `syn::Generics` | `input.generics()` |
 | `syn::Visibility` | `input.vis()` |
 | `syn::DeriveInput` | Full derive input |

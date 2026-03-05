@@ -1,10 +1,10 @@
 # Children
 
-Elements can accept children by including a `children: proc_macro2::TokenStream` parameter:
+Elements can accept children by including a `children: zyn::TokenStream` parameter:
 
 ```rust,zyn
 #[zyn::element]
-fn wrapper(name: proc_macro2::Ident, children: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
+fn wrapper(name: zyn::syn::Ident, children: zyn::TokenStream) -> zyn::TokenStream {
     zyn::zyn!(struct {{ name }} { {{ children }} })
 }
 
@@ -20,7 +20,7 @@ Children-only elements can omit parentheses entirely:
 
 ```rust,zyn
 #[zyn::element]
-fn container(children: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
+fn container(children: zyn::TokenStream) -> zyn::TokenStream {
     zyn::zyn!(mod inner { {{ children }} })
 }
 

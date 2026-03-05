@@ -17,9 +17,15 @@ pub use input::*;
 pub use meta::*;
 pub use pipes::*;
 
-pub use proc_macro2;
-pub use quote;
+pub use proc_macro2::{Span, TokenStream};
+pub use quote::{ToTokens, format_ident};
 pub use syn;
+
+#[doc(hidden)]
+pub mod __private {
+    pub use proc_macro2;
+    pub use quote;
+}
 
 pub trait Expand {
     fn expand(

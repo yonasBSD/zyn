@@ -8,10 +8,10 @@ Annotate a function where the first parameter is the input and the return type i
 
 ```rust,zyn
 #[zyn::pipe]
-fn prefix(input: String) -> proc_macro2::Ident {
-    proc_macro2::Ident::new(
+fn prefix(input: String) -> zyn::syn::Ident {
+    zyn::syn::Ident::new(
         &format!("pfx_{}", input),
-        proc_macro2::Span::call_site(),
+        zyn::Span::call_site(),
     )
 }
 ```
@@ -33,10 +33,10 @@ Override the template name:
 
 ```rust,zyn
 #[zyn::pipe("yell")]
-fn make_loud(input: String) -> proc_macro2::Ident {
-    proc_macro2::Ident::new(
+fn make_loud(input: String) -> zyn::syn::Ident {
+    zyn::syn::Ident::new(
         &format!("{}__LOUD", input.to_uppercase()),
-        proc_macro2::Span::call_site(),
+        zyn::Span::call_site(),
     )
 }
 

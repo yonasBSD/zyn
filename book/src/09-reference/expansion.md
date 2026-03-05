@@ -1,10 +1,10 @@
 # Expansion Model
 
-Every `zyn!(...)` invocation expands to a single Rust **block expression** that evaluates to `proc_macro2::TokenStream`:
+Every `zyn!(...)` invocation expands to a single Rust **block expression** that evaluates to `zyn::TokenStream`:
 
 ```rust
 {
-    let mut __zyn_ts_0 = ::proc_macro2::TokenStream::new();
+    let mut __zyn_ts_0 = ::zyn::TokenStream::new();
     // ... expanded nodes writing to __zyn_ts_0 ...
     __zyn_ts_0
 }
@@ -28,13 +28,13 @@ Nested structures each get a fresh `__zyn_ts_N`, allocated sequentially from the
 ### TokensNode
 
 ```rust
-output.extend(::zyn::quote::quote!( <stream> ));
+output.extend(::zyn::__private::quote::quote!( <stream> ));
 ```
 
 ### InterpNode (no pipes)
 
 ```rust
-::zyn::quote::ToTokens::to_tokens(&( expr ), &mut output);
+::zyn::__private::quote::ToTokens::to_tokens(&( expr ), &mut output);
 ```
 
 ### InterpNode (with pipes)
@@ -45,7 +45,7 @@ output.extend(::zyn::quote::quote!( <stream> ));
     let __zyn_val = ::zyn::Pipe::pipe(&( Pipe1 ), __zyn_val);
     let __zyn_val = __zyn_val.to_string();   // re-stringify between pipes
     let __zyn_val = ::zyn::Pipe::pipe(&( Pipe2 ), __zyn_val);
-    ::zyn::quote::ToTokens::to_tokens(&__zyn_val, &mut output);
+    ::zyn::__private::quote::ToTokens::to_tokens(&__zyn_val, &mut output);
 }
 ```
 
@@ -66,7 +66,7 @@ Delegate to `proc-macro2-diagnostics` via `Diagnostic::spanned(...).emit_as_item
     let __zyn_rendered = ::zyn::Render::render(&Name {
         prop: value,
     });
-    ::zyn::quote::ToTokens::to_tokens(&__zyn_rendered, &mut output);
+    ::zyn::__private::quote::ToTokens::to_tokens(&__zyn_rendered, &mut output);
 }
 ```
 
@@ -74,13 +74,13 @@ Delegate to `proc-macro2-diagnostics` via `Diagnostic::spanned(...).emit_as_item
 
 ```rust
 {
-    let mut __zyn_ts_N = ::zyn::proc_macro2::TokenStream::new();
+    let mut __zyn_ts_N = ::zyn::TokenStream::new();
     // children Element expanded into __zyn_ts_N
     let __zyn_rendered = ::zyn::Render::render(&Name {
         prop: value,
         children: __zyn_ts_N,
     });
-    ::zyn::quote::ToTokens::to_tokens(&__zyn_rendered, &mut output);
+    ::zyn::__private::quote::ToTokens::to_tokens(&__zyn_rendered, &mut output);
 }
 ```
 

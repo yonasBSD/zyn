@@ -17,9 +17,9 @@ struct MyConfig {
 #[zyn::element]
 fn my_element(
     #[zyn(input)] cfg: zyn::Attr<MyConfig>,
-    name: zyn::proc_macro2::Ident,
-) -> zyn::proc_macro2::TokenStream {
-    if cfg.skip { return zyn::proc_macro2::TokenStream::new(); }
+    name: zyn::syn::Ident,
+) -> zyn::TokenStream {
+    if cfg.skip { return zyn::TokenStream::new(); }
     let rename = cfg.rename.as_deref().unwrap_or("default");
     zyn::zyn! { /* ... */ }
 }
@@ -33,7 +33,7 @@ General-purpose wrapper for any `FromInput` type:
 #[zyn::element]
 fn my_element(
     #[zyn(input)] generics: zyn::Extract<zyn::syn::Generics>,
-) -> zyn::proc_macro2::TokenStream {
+) -> zyn::TokenStream {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
     zyn::zyn! { /* ... */ }
 }

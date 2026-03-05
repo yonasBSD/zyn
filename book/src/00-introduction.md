@@ -244,7 +244,7 @@ fn field_decl(
     vis: zyn::syn::Visibility,
     name: zyn::syn::Ident,
     ty: zyn::syn::Type,
-) -> zyn::proc_macro2::TokenStream {
+) -> zyn::TokenStream {
     zyn::zyn! { {{ vis }} {{ name }}: {{ ty }}, }
 }
 

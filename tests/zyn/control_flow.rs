@@ -1,4 +1,4 @@
-use zyn::quote::quote;
+use zyn::__private::quote::quote;
 
 #[test]
 fn for_classic_literal() {
@@ -55,7 +55,7 @@ fn for_range_with_interpolation() {
     let names = ["a", "b", "c"];
     let result = zyn::zyn!(
         @for (i in 0..names.len()) {
-            {{ zyn::quote::format_ident!("{}", names[i]) }},
+            {{ zyn::format_ident!("{}", names[i]) }},
         }
     );
     let expected = quote!(a, b, c,);
@@ -94,10 +94,7 @@ fn if_else() {
 
 #[test]
 fn for_loop() {
-    let names = vec![
-        zyn::quote::format_ident!("a"),
-        zyn::quote::format_ident!("b"),
-    ];
+    let names = vec![zyn::format_ident!("a"), zyn::format_ident!("b")];
     let result = zyn::zyn!(@for (name in names) { {{ name }}, });
     let expected = quote!(a, b,);
     assert_eq!(result.to_string(), expected.to_string());
@@ -134,7 +131,7 @@ fn else_if_chain() {
 
 #[test]
 fn for_empty_iterable() {
-    let items: Vec<zyn::proc_macro2::Ident> = vec![];
+    let items: Vec<zyn::syn::Ident> = vec![];
     let result = zyn::zyn!(@for (item in items) { {{ item }} });
     assert!(result.is_empty());
 }
@@ -142,7 +139,7 @@ fn for_empty_iterable() {
 #[test]
 fn for_inline_iterator() {
     let result = zyn::zyn!(
-        @for (name in ["x", "y", "z"].map(|s| zyn::quote::format_ident!("{}", s))) {
+        @for (name in ["x", "y", "z"].map(|s| zyn::format_ident!("{}", s))) {
             pub {{ name }}: f64,
         }
     );
@@ -200,8 +197,8 @@ fn match_wildcard_catches() {
 #[test]
 fn nested_if_inside_for() {
     let items = vec![
-        (zyn::quote::format_ident!("a"), true),
-        (zyn::quote::format_ident!("b"), false),
+        (zyn::format_ident!("a"), true),
+        (zyn::format_ident!("b"), false),
     ];
     let result = zyn::zyn!(
         @for (item in items) {

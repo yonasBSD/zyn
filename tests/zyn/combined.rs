@@ -1,8 +1,8 @@
-use zyn::quote::quote;
+use zyn::__private::quote::quote;
 
 #[test]
 fn if_with_pipe_and_braces() {
-    let name = zyn::quote::format_ident!("hello_world");
+    let name = zyn::format_ident!("hello_world");
     let is_pub = true;
     let result = zyn::zyn!(
         @if (is_pub) { pub }

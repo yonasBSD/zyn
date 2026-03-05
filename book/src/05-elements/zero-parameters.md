@@ -4,7 +4,7 @@ Elements with no parameters can be invoked without parentheses:
 
 ```rust,zyn
 #[zyn::element]
-fn divider() -> proc_macro2::TokenStream {
+fn divider() -> zyn::TokenStream {
     zyn::zyn!(const DIVIDER: &str = "---";)
 }
 
@@ -20,12 +20,12 @@ Zero-parameter elements are useful for shared boilerplate that doesn't vary:
 
 ```rust,zyn
 #[zyn::element]
-fn derive_common() -> proc_macro2::TokenStream {
+fn derive_common() -> zyn::TokenStream {
     zyn::zyn!(#[derive(Debug, Clone, PartialEq)])
 }
 
 #[zyn::element]
-fn serde_attrs() -> proc_macro2::TokenStream {
+fn serde_attrs() -> zyn::TokenStream {
     zyn::zyn! {
         #[derive(serde::Serialize, serde::Deserialize)]
         #[serde(rename_all = "camelCase")]
@@ -51,7 +51,7 @@ Zero-parameter elements can still accept children — omit the parens entirely:
 
 ```rust,zyn
 #[zyn::element]
-fn section(children: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
+fn section(children: zyn::TokenStream) -> zyn::TokenStream {
     zyn::zyn! { pub mod section { {{ children }} } }
 }
 

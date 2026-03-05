@@ -1,6 +1,6 @@
+use zyn_core::__private::proc_macro2::TokenStream;
+use zyn_core::__private::quote::quote;
 use zyn_core::pascal;
-use zyn_core::proc_macro2::TokenStream;
-use zyn_core::quote::quote;
 use zyn_core::syn;
 use zyn_core::syn::FnArg;
 use zyn_core::syn::ItemFn;

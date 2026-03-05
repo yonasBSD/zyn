@@ -107,7 +107,7 @@ fn field_decl(
     vis: zyn::syn::Visibility,
     name: zyn::syn::Ident,
     ty: zyn::syn::Type,
-) -> zyn::proc_macro2::TokenStream {
+) -> zyn::TokenStream {
     zyn::zyn! { {{ vis }} {{ name }}: {{ ty }}, }
 }
 
@@ -131,8 +131,8 @@ Children:
 #[zyn::element]
 fn wrapper(
     vis: zyn::syn::Visibility,
-    children: zyn::proc_macro2::TokenStream,
-) -> zyn::proc_macro2::TokenStream {
+    children: zyn::TokenStream,
+) -> zyn::TokenStream {
     zyn::zyn! { {{ vis }} struct Foo { {{ children }} } }
 }
 
@@ -147,7 +147,7 @@ Zero parameters:
 
 ```rust
 #[zyn::element]
-fn divider() -> zyn::proc_macro2::TokenStream {
+fn divider() -> zyn::TokenStream {
     zyn::zyn!(const DIVIDER: &str = "---";)
 }
 
@@ -158,10 +158,10 @@ zyn! { @divider }
 
 ```rust
 #[zyn::pipe]
-fn prefix(input: String) -> zyn::proc_macro2::Ident {
-    zyn::proc_macro2::Ident::new(
+fn prefix(input: String) -> zyn::syn::Ident {
+    zyn::syn::Ident::new(
         &format!("pfx_{}", input),
-        zyn::proc_macro2::Span::call_site(),
+        zyn::Span::call_site(),
     )
 }
 
@@ -193,9 +193,9 @@ For element params, use `zyn::Attr<T>` to auto-resolve from the `input` context:
 #[zyn::element]
 fn builder_method(
     #[zyn(input)] cfg: zyn::Attr<BuilderConfig>,   // auto-resolved from input, not a prop
-    name: zyn::proc_macro2::Ident,                  // regular prop, passed at @call site
-) -> zyn::proc_macro2::TokenStream {
-    let method = zyn::quote::format_ident!("{}", cfg.method);
+    name: zyn::syn::Ident,                  // regular prop, passed at @call site
+) -> zyn::TokenStream {
+    let method = zyn::format_ident!("{}", cfg.method);
     zyn::zyn! { pub fn {{ method }}(self) -> Self { self } }
 }
 ```

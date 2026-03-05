@@ -1,4 +1,4 @@
-use zyn::quote::quote;
+use zyn::__private::quote::quote;
 use zyn::syn;
 
 #[derive(zyn::Attribute)]
@@ -10,10 +10,10 @@ struct TestAttr {
 #[zyn::element]
 fn attr_element(
     #[zyn(input)] attr: zyn::Attr<TestAttr>,
-    label: zyn::proc_macro2::Ident,
-) -> zyn::proc_macro2::TokenStream {
+    label: zyn::syn::Ident,
+) -> zyn::TokenStream {
     let name_str = attr.rename.as_deref().unwrap_or("default");
-    let combined = zyn::quote::format_ident!("{}_{}", label, name_str);
+    let combined = zyn::format_ident!("{}_{}", label, name_str);
     zyn::zyn!(fn {{ combined }}() {})
 }
 
@@ -22,7 +22,7 @@ fn attr_with_matching_attribute() {
     let input: zyn::Input = syn::parse_str("#[my_attr(rename = \"custom\")] struct Foo;").unwrap();
     let result = zyn::Render::render(
         &AttrElement {
-            label: zyn::quote::format_ident!("hello"),
+            label: zyn::format_ident!("hello"),
         },
         &input,
     );
@@ -36,7 +36,7 @@ fn attr_with_matching_attribute() {
 fn attr_absent_uses_default() {
     let result = zyn::Render::render(
         &AttrElement {
-            label: zyn::quote::format_ident!("hello"),
+            label: zyn::format_ident!("hello"),
         },
         &Default::default(),
     );
@@ -47,9 +47,7 @@ fn attr_absent_uses_default() {
 }
 
 #[zyn::element]
-fn extract_ident_element(
-    #[zyn(input)] ident: zyn::Extract<zyn::proc_macro2::Ident>,
-) -> zyn::proc_macro2::TokenStream {
+fn extract_ident_element(#[zyn(input)] ident: zyn::Extract<zyn::syn::Ident>) -> zyn::TokenStream {
     zyn::zyn!(
         const NAME: &str = { { ident | str } };
     )
@@ -66,7 +64,7 @@ fn extract_ident() {
 }
 
 #[zyn::element]
-fn fields_element(#[zyn(input)] fields: zyn::Fields) -> zyn::proc_macro2::TokenStream {
+fn fields_element(#[zyn(input)] fields: zyn::Fields) -> zyn::TokenStream {
     let count = fields.len();
     zyn::zyn!(
         const COUNT: usize = { { count } };
@@ -86,7 +84,7 @@ fn fields() {
 #[zyn::element]
 fn named_fields_element(
     #[zyn(input)] fields: zyn::Fields<zyn::syn::FieldsNamed>,
-) -> zyn::proc_macro2::TokenStream {
+) -> zyn::TokenStream {
     let count = fields.named.len();
     zyn::zyn!(
         const COUNT: usize = { { count } };
@@ -104,7 +102,7 @@ fn fields_named() {
 }
 
 #[zyn::element]
-fn variants_element(#[zyn(input)] variants: zyn::Variants) -> zyn::proc_macro2::TokenStream {
+fn variants_element(#[zyn(input)] variants: zyn::Variants) -> zyn::TokenStream {
     let count = variants.len();
     zyn::zyn!(
         const COUNT: usize = { { count } };
@@ -122,9 +120,7 @@ fn variants() {
 }
 
 #[zyn::element]
-fn data_struct_element(
-    #[zyn(input)] data: zyn::Data<zyn::syn::DataStruct>,
-) -> zyn::proc_macro2::TokenStream {
+fn data_struct_element(#[zyn(input)] data: zyn::Data<zyn::syn::DataStruct>) -> zyn::TokenStream {
     let count = data.fields.len();
     zyn::zyn!(
         const COUNT: usize = { { count } };
@@ -142,7 +138,7 @@ fn data_struct() {
 }
 
 #[zyn::element]
-fn derive_input_element(#[zyn(input)] d: zyn::syn::DeriveInput) -> zyn::proc_macro2::TokenStream {
+fn derive_input_element(#[zyn(input)] d: zyn::syn::DeriveInput) -> zyn::TokenStream {
     let name = &d.ident;
     zyn::zyn!(
         const NAME: &str = { { name | str } };
@@ -160,7 +156,7 @@ fn derive_input() {
 }
 
 #[zyn::element]
-fn data_enum_element(#[zyn(input)] e: zyn::syn::DataEnum) -> zyn::proc_macro2::TokenStream {
+fn data_enum_element(#[zyn(input)] e: zyn::syn::DataEnum) -> zyn::TokenStream {
     let count = e.variants.len();
     zyn::zyn!(
         const COUNT: usize = { { count } };
@@ -178,7 +174,7 @@ fn data_enum() {
 }
 
 #[zyn::element]
-fn data_union_element(#[zyn(input)] u: zyn::syn::DataUnion) -> zyn::proc_macro2::TokenStream {
+fn data_union_element(#[zyn(input)] u: zyn::syn::DataUnion) -> zyn::TokenStream {
     let count = u.fields.named.len();
     zyn::zyn!(
         const COUNT: usize = { { count } };
@@ -196,7 +192,7 @@ fn data_union() {
 }
 
 #[zyn::element]
-fn item_fn_element(#[zyn(input)] item: zyn::syn::ItemFn) -> zyn::proc_macro2::TokenStream {
+fn item_fn_element(#[zyn(input)] item: zyn::syn::ItemFn) -> zyn::TokenStream {
     let name = &item.sig.ident;
     zyn::zyn!(
         const NAME: &str = { { name | str } };
@@ -214,7 +210,7 @@ fn item_fn() {
 }
 
 #[zyn::element]
-fn item_element(#[zyn(input)] item: zyn::syn::Item) -> zyn::proc_macro2::TokenStream {
+fn item_element(#[zyn(input)] item: zyn::syn::Item) -> zyn::TokenStream {
     let name = match &item {
         syn::Item::Fn(f) => &f.sig.ident,
         _ => panic!("expected fn"),

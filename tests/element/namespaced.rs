@@ -1,11 +1,8 @@
-use zyn::quote::quote;
+use zyn::__private::quote::quote;
 
 pub mod components {
     #[zyn::element]
-    pub fn field_decl(
-        name: zyn::proc_macro2::Ident,
-        ty: zyn::proc_macro2::Ident,
-    ) -> zyn::proc_macro2::TokenStream {
+    pub fn field_decl(name: zyn::syn::Ident, ty: zyn::syn::Ident) -> zyn::TokenStream {
         zyn::zyn!({{ name }}: {{ ty }},)
     }
 }
@@ -14,8 +11,8 @@ pub mod components {
 fn namespaced_element() {
     let result = zyn::zyn!(
         @components::field_decl(
-            name = zyn::quote::format_ident!("age"),
-            ty = zyn::quote::format_ident!("u32"),
+            name = zyn::format_ident!("age"),
+            ty = zyn::format_ident!("u32"),
         )
     );
     let expected = quote!(age: u32,);

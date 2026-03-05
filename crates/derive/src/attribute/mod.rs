@@ -2,7 +2,7 @@ mod emit;
 mod enums;
 mod structs;
 
-use zyn_core::proc_macro2::TokenStream;
+use zyn_core::__private::proc_macro2::TokenStream;
 use zyn_core::syn;
 
 pub fn expand(input: TokenStream) -> TokenStream {

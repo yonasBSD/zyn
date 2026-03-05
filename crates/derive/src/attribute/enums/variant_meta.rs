@@ -1,4 +1,4 @@
-use zyn_core::proc_macro2::TokenStream;
+use zyn_core::__private::proc_macro2::TokenStream;
 use zyn_core::syn;
 
 pub enum VariantKind {
@@ -56,7 +56,9 @@ impl VariantMeta {
             VariantKind::Unit => {
                 let name = &self.snake_name;
                 let ident = &self.ident;
-                Some(zyn_core::quote::quote! { #name => ::std::result::Result::Ok(Self::#ident) })
+                Some(
+                    zyn_core::__private::quote::quote! { #name => ::std::result::Result::Ok(Self::#ident) },
+                )
             }
             _ => None,
         }
@@ -69,7 +71,7 @@ impl VariantMeta {
                 let ident = &self.ident;
                 let field_inits: Vec<TokenStream> = fields.iter().map(|(field_ident, field_ty)| {
                     let key = field_ident.to_string();
-                    zyn_core::quote::quote! {
+                    zyn_core::__private::quote::quote! {
                         #field_ident: match args.get(#key) {
                             ::std::option::Option::Some(arg) => <#field_ty as ::zyn::FromArg>::from_arg(arg)?,
                             ::std::option::Option::None => return ::std::result::Result::Err(
@@ -81,7 +83,7 @@ impl VariantMeta {
                         }
                     }
                 }).collect();
-                Some(zyn_core::quote::quote! {
+                Some(zyn_core::__private::quote::quote! {
                     #name => ::std::result::Result::Ok(Self::#ident {
                         #(#field_inits,)*
                     })
@@ -94,12 +96,12 @@ impl VariantMeta {
                     .iter()
                     .enumerate()
                     .map(|(i, ty)| {
-                        zyn_core::quote::quote! {
+                        zyn_core::__private::quote::quote! {
                             <#ty as ::zyn::FromArg>::from_arg(&args[#i])?
                         }
                     })
                     .collect();
-                Some(zyn_core::quote::quote! {
+                Some(zyn_core::__private::quote::quote! {
                     #name => ::std::result::Result::Ok(Self::#ident(#(#field_inits,)*))
                 })
             }
@@ -113,7 +115,7 @@ impl VariantMeta {
                 let name = &self.snake_name;
                 let ident = &self.ident;
                 let ty = &tys[0];
-                Some(zyn_core::quote::quote! {
+                Some(zyn_core::__private::quote::quote! {
                     #name => ::std::result::Result::Ok(Self::#ident(
                         ::std::convert::Into::into(<#ty as ::zyn::FromArg>::from_arg(arg)?)
                     ))

@@ -24,11 +24,11 @@ Import the prelude and use the `zyn!` macro:
 use zyn::prelude::*;
 
 let name = &input.ident;
-let output: proc_macro2::TokenStream = zyn! {
+let output: zyn::TokenStream = zyn! {
     pub struct {{ name }} {
         id: u64,
     }
 };
 ```
 
-The `zyn!` macro returns a `proc_macro2::TokenStream`. Everything outside `{{ }}` and `@` directives passes through as literal tokens, just like `quote!`.
+The `zyn!` macro returns a `zyn::TokenStream`. Everything outside `{{ }}` and `@` directives passes through as literal tokens, just like `quote!`.

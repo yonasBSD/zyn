@@ -1,4 +1,4 @@
-use zyn_core::proc_macro2::Span;
+use zyn_core::__private::proc_macro2::Span;
 use zyn_core::syn;
 
 use zyn_core::meta::Arg;

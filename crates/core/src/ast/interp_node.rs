@@ -64,7 +64,7 @@ impl Expand for InterpNode {
 
         if self.pipes.is_empty() {
             return quote! {
-                ::zyn::quote::ToTokens::to_tokens(&(#expr), &mut #output);
+                ::zyn::__private::quote::ToTokens::to_tokens(&(#expr), &mut #output);
             };
         }
 
@@ -81,7 +81,7 @@ impl Expand for InterpNode {
         quote! {
             {
                 #(#steps)*
-                ::zyn::quote::ToTokens::to_tokens(&__zyn_val, &mut #output);
+                ::zyn::__private::quote::ToTokens::to_tokens(&__zyn_val, &mut #output);
             }
         }
     }

@@ -5,10 +5,10 @@ Extractors are types implementing `FromInput` that pull structured data from a p
 ```rust
 #[zyn::element]
 fn my_element(
-    #[zyn(input)] item: zyn::DeriveStruct,          // auto-resolved from input
+    #[zyn(input)] item: zyn::syn::DeriveInput,          // auto-resolved from input
     #[zyn(input)] fields: zyn::Fields,               // auto-resolved from input
-    label: zyn::proc_macro2::Ident,                  // prop — passed at @call site
-) -> zyn::proc_macro2::TokenStream {
+    label: zyn::syn::Ident,                  // prop — passed at @call site
+) -> zyn::TokenStream {
     // item, fields available via Deref; label from self
     zyn::zyn! { /* ... */ }
 }
@@ -23,4 +23,4 @@ All extractors implement `Deref` and `DerefMut` to their inner type, plus an `in
 - [Fields](./fields.md) — struct field extraction
 - [Variants](./variants.md) — enum variant extraction
 - [Data](./data.md) — derive data extraction (`syn::DataStruct`, etc.)
-- [Element Inputs](./element-inputs.md) — `ItemFn`, `DeriveStruct`, `ItemInput`, and all input types
+- [Element Inputs](./element-inputs.md) — `syn::ItemFn`, `syn::DeriveInput`, `syn::Item`, and all input types

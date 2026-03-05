@@ -1,17 +1,17 @@
 mod extract;
 mod namespaced;
 
-use zyn::quote::quote;
+use zyn::__private::quote::quote;
 
 #[zyn::element]
-fn greeting(name: zyn::proc_macro2::Ident) -> zyn::proc_macro2::TokenStream {
+fn greeting(name: zyn::syn::Ident) -> zyn::TokenStream {
     zyn::zyn!(fn {{ name }}() {})
 }
 
 #[test]
 fn basic_element() {
     let result = zyn::zyn!(
-        @greeting(name = zyn::quote::format_ident!("hello"))
+        @greeting(name = zyn::format_ident!("hello"))
     );
     let expected = quote!(
         fn hello() {}
@@ -20,17 +20,14 @@ fn basic_element() {
 }
 
 #[zyn::element]
-fn wrapper(
-    name: zyn::proc_macro2::Ident,
-    children: zyn::proc_macro2::TokenStream,
-) -> zyn::proc_macro2::TokenStream {
-    zyn::quote::quote!(struct #name { #children })
+fn wrapper(name: zyn::syn::Ident, children: zyn::TokenStream) -> zyn::TokenStream {
+    zyn::__private::quote::quote!(struct #name { #children })
 }
 
 #[test]
 fn element_with_children() {
     let result = zyn::zyn!(
-        @wrapper(name = zyn::quote::format_ident!("Foo")) {
+        @wrapper(name = zyn::format_ident!("Foo")) {
             x: i32,
         }
     );
@@ -43,14 +40,14 @@ fn element_with_children() {
 }
 
 #[zyn::element("say_hello")]
-fn get_greeting(name: zyn::proc_macro2::Ident) -> zyn::proc_macro2::TokenStream {
+fn get_greeting(name: zyn::syn::Ident) -> zyn::TokenStream {
     zyn::zyn!(fn {{ name }}() {})
 }
 
 #[test]
 fn custom_name_override() {
     let result = zyn::zyn!(
-        @say_hello(name = zyn::quote::format_ident!("world"))
+        @say_hello(name = zyn::format_ident!("world"))
     );
     let expected = quote!(
         fn world() {}
@@ -59,7 +56,7 @@ fn custom_name_override() {
 }
 
 #[zyn::element]
-fn divider() -> zyn::proc_macro2::TokenStream {
+fn divider() -> zyn::TokenStream {
     zyn::zyn!(
         const DIVIDER: &str = "---";
     )
@@ -84,8 +81,8 @@ fn zero_param_with_parens() {
 }
 
 #[zyn::element]
-fn container(children: zyn::proc_macro2::TokenStream) -> zyn::proc_macro2::TokenStream {
-    zyn::quote::quote!(mod container { #children })
+fn container(children: zyn::TokenStream) -> zyn::TokenStream {
+    zyn::__private::quote::quote!(mod container { #children })
 }
 
 #[test]
@@ -105,10 +102,7 @@ fn children_without_parens() {
 
 #[test]
 fn element_inside_for_loop() {
-    let names = vec![
-        zyn::quote::format_ident!("foo"),
-        zyn::quote::format_ident!("bar"),
-    ];
+    let names = vec![zyn::format_ident!("foo"), zyn::format_ident!("bar")];
     let result = zyn::zyn!(
         @for (name in names) {
             @greeting(name = name.clone())

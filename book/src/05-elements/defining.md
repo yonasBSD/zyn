@@ -1,10 +1,10 @@
 # Defining
 
-Annotate a function with `#[zyn::element]`. Parameters become struct fields (props); the function must return `proc_macro2::TokenStream`:
+Annotate a function with `#[zyn::element]`. Parameters become struct fields (props); the function must return `zyn::TokenStream`:
 
 ```rust,zyn
 #[zyn::element]
-fn field_decl(vis: syn::Visibility, name: syn::Ident, ty: syn::Type) -> proc_macro2::TokenStream {
+fn field_decl(vis: syn::Visibility, name: syn::Ident, ty: syn::Type) -> zyn::TokenStream {
     zyn::zyn! {
         {{ vis }} {{ name }}: {{ ty }},
     }
@@ -22,7 +22,7 @@ pub struct FieldDecl {
 }
 
 impl zyn::Render for FieldDecl {
-    fn render(&self, input: &zyn::Input) -> proc_macro2::TokenStream {
+    fn render(&self, input: &zyn::Input) -> zyn::TokenStream {
         let vis = &self.vis;
         let name = &self.name;
         let ty = &self.ty;
@@ -41,7 +41,7 @@ Every element's `render` body has an `input: &zyn::Input` in scope. This is the 
 
 ```rust,zyn
 #[zyn::element]
-fn my_element(name: syn::Ident) -> proc_macro2::TokenStream {
+fn my_element(name: syn::Ident) -> zyn::TokenStream {
     // `input` is always in scope — use it directly
     let ident = input.ident();
     let fields = zyn::Fields::from_input(input).unwrap_or_default();
@@ -83,8 +83,8 @@ struct MyConfig {
 fn my_element(
     #[zyn(input)] cfg: zyn::Attr<MyConfig>,        // extractor — resolved from input, not a prop
     #[zyn(input)] fields: zyn::Fields,             // extractor — resolved from input, not a prop
-    label: zyn::proc_macro2::Ident,  // prop — passed at @my_element(label = ...)
-) -> zyn::proc_macro2::TokenStream {
+    label: zyn::syn::Ident,  // prop — passed at @my_element(label = ...)
+) -> zyn::TokenStream {
     // cfg.skip, cfg.rename, fields, label all available via Deref
     zyn::zyn! { /* ... */ }
 }
@@ -102,7 +102,7 @@ Element bodies use `zyn!` for template rendering:
 
 ```rust,zyn
 #[zyn::element]
-fn wrapper(name: proc_macro2::Ident, children: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
+fn wrapper(name: zyn::syn::Ident, children: zyn::TokenStream) -> zyn::TokenStream {
     zyn::zyn! {
         pub mod {{ name }} {
             {{ children }}

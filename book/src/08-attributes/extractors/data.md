@@ -15,7 +15,7 @@ Implements `Deref` and `DerefMut` to `T`. Only works with derive inputs — erro
 #[zyn::element]
 fn struct_data_element(
     #[zyn(input)] data: zyn::Data<zyn::syn::DataStruct>,
-) -> zyn::proc_macro2::TokenStream {
+) -> zyn::TokenStream {
     let count = data.fields.len();
     zyn::zyn!(const FIELD_COUNT: usize = {{ count }};)
 }

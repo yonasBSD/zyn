@@ -25,7 +25,7 @@ fn example(
     cfg: zyn::Attr<MyAttr>,      // extractor — resolved from input, not a prop
     fields: zyn::Fields,         // extractor — resolved from input, not a prop
     label: String,               // prop — passed at @example(label = val)
-) -> zyn::proc_macro2::TokenStream {
+) -> zyn::TokenStream {
     // cfg.0, fields.0, label all available
     zyn::zyn! { ... }
 }
@@ -39,7 +39,7 @@ fn example(
 
 ```rust
 impl ::zyn::Render for Example {
-    fn render(&self, input: &::zyn::Input) -> ::zyn::proc_macro2::TokenStream {
+    fn render(&self, input: &::zyn::Input) -> ::zyn::TokenStream {
         let cfg = match <zyn::Attr<MyAttr> as ::zyn::FromInput>::from_input(input) {
             Ok(v) => v,
             Err(e) => { let __err: ::zyn::syn::Error = e.into(); return __err.to_compile_error(); }

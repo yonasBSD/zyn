@@ -8,7 +8,7 @@ Implements `Deref` and `DerefMut` to `Vec<syn::Variant>`.
 #[zyn::element]
 fn enum_element(
     #[zyn(input)] variants: zyn::Variants,
-) -> zyn::proc_macro2::TokenStream {
+) -> zyn::TokenStream {
     let count = variants.len();
     zyn::zyn!(const COUNT: usize = {{ count }};)
 }
@@ -20,7 +20,7 @@ Iterate over variants:
 #[zyn::element]
 fn variant_names(
     #[zyn(input)] variants: zyn::Variants,
-) -> zyn::proc_macro2::TokenStream {
+) -> zyn::TokenStream {
     zyn::zyn! {
         @for (v in variants.iter()) {
             const {{ v.ident | screaming }}: &str = {{ v.ident | str }};

@@ -1,6 +1,6 @@
 # Diagnostics
 
-Elements handle all diagnostics through **template syntax** — `@throw`, `@warn`, `@note`, and `@help` directives. Elements always return `proc_macro2::TokenStream` and are infallible; any errors or warnings are expressed inline in the template.
+Elements handle all diagnostics through **template syntax** — `@throw`, `@warn`, `@note`, and `@help` directives. Elements always return `zyn::TokenStream` and are infallible; any errors or warnings are expressed inline in the template.
 
 ## Compile Errors
 
@@ -8,7 +8,7 @@ Use `@throw` inside an element to halt compilation with an error:
 
 ```rust,zyn
 #[zyn::element]
-fn validated(name: proc_macro2::Ident) -> proc_macro2::TokenStream {
+fn validated(name: zyn::syn::Ident) -> zyn::TokenStream {
     zyn::zyn! {
         @if (name.to_string() == "forbidden") {
             @throw "reserved identifier"
@@ -33,7 +33,7 @@ Attach notes and help suggestions using a body block:
 
 ```rust,zyn
 #[zyn::element]
-fn validated(name: proc_macro2::Ident) -> proc_macro2::TokenStream {
+fn validated(name: zyn::syn::Ident) -> zyn::TokenStream {
     zyn::zyn! {
         @if (name.to_string() == "forbidden") {
             @throw "reserved identifier" {
@@ -63,7 +63,7 @@ Use `@warn` to emit a non-fatal warning:
 
 ```rust,zyn
 #[zyn::element]
-fn legacy(name: proc_macro2::Ident) -> proc_macro2::TokenStream {
+fn legacy(name: zyn::syn::Ident) -> zyn::TokenStream {
     zyn::zyn! {
         @warn "deprecated, use `new_elem` instead" {
             @help "replace `@legacy` with `@new_elem`"

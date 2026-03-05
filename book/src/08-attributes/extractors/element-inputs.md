@@ -10,7 +10,7 @@ For derive macros (`#[derive(...)]`):
 #[zyn::element]
 fn struct_element(
     #[zyn(input)] d: zyn::syn::DeriveInput,
-) -> zyn::proc_macro2::TokenStream {
+) -> zyn::TokenStream {
     let name = &d.ident;
     zyn::zyn! { /* ... */ }
 }
@@ -31,7 +31,7 @@ For attribute macros and other item-level macros:
 #[zyn::element]
 fn fn_element(
     #[zyn(input)] item: zyn::syn::ItemFn,
-) -> zyn::proc_macro2::TokenStream {
+) -> zyn::TokenStream {
     let name = &item.sig.ident;
     let args = &item.sig.inputs;
     zyn::zyn! { /* ... */ }
@@ -63,7 +63,7 @@ fn fn_element(
 #[zyn::element]
 fn struct_element(
     #[zyn(input)] s: zyn::syn::ItemStruct,
-) -> zyn::proc_macro2::TokenStream {
+) -> zyn::TokenStream {
     // Works whether input is Input::Item or Input::Derive
     let name = &s.ident;
     zyn::zyn! { /* ... */ }

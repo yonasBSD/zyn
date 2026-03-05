@@ -4,7 +4,7 @@
 
 ```rust
 pub trait Render {
-    fn render(&self, input: &Input) -> proc_macro2::TokenStream;
+    fn render(&self, input: &Input) -> zyn::TokenStream;
 }
 ```
 
@@ -23,7 +23,7 @@ pub trait FromInput: Sized {
 
 Extracts typed data from an `Input` context. Implemented by:
 - `#[derive(Attribute)]` structs (attribute mode) — searches `input.attrs()` for a named attribute
-- `proc_macro2::Ident` — returns `input.ident()`
+- `zyn::syn::Ident` — returns `input.ident()`
 - `syn::Generics` — returns `input.generics()`
 - `syn::Visibility` — returns `input.vis()`
 - `Fields<T>` — extracts struct fields
@@ -72,9 +72,9 @@ All built-in pipes accept `String` as `Input`. Custom pipes in a chain also rece
 pub trait Expand {
     fn expand(
         &self,
-        output: &proc_macro2::Ident,
+        output: &zyn::syn::Ident,
         idents: &mut ident::Iter,
-    ) -> proc_macro2::TokenStream;
+    ) -> zyn::TokenStream;
 }
 ```
 

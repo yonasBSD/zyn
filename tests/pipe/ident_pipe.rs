@@ -1,8 +1,8 @@
-use zyn::quote::quote;
+use zyn::__private::quote::quote;
 
 #[test]
 fn prefix_pattern() {
-    let name = zyn::quote::format_ident!("hello");
+    let name = zyn::format_ident!("hello");
     let result = zyn::zyn!({{ name | ident:"get_{}" }});
     let expected = quote!(get_hello);
     assert_eq!(result.to_string(), expected.to_string());
@@ -10,7 +10,7 @@ fn prefix_pattern() {
 
 #[test]
 fn suffix_pattern() {
-    let name = zyn::quote::format_ident!("hello");
+    let name = zyn::format_ident!("hello");
     let result = zyn::zyn!({{ name | ident:"{}_impl" }});
     let expected = quote!(hello_impl);
     assert_eq!(result.to_string(), expected.to_string());
@@ -18,7 +18,7 @@ fn suffix_pattern() {
 
 #[test]
 fn chained_with_case() {
-    let name = zyn::quote::format_ident!("HelloWorld");
+    let name = zyn::format_ident!("HelloWorld");
     let result = zyn::zyn!({{ name | snake | ident:"get_{}" }});
     let expected = quote!(get_hello_world);
     assert_eq!(result.to_string(), expected.to_string());

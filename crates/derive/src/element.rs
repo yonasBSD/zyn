@@ -1,6 +1,6 @@
+use zyn_core::__private::proc_macro2::TokenStream;
+use zyn_core::__private::quote::quote;
 use zyn_core::pascal;
-use zyn_core::proc_macro2::TokenStream;
-use zyn_core::quote::quote;
 use zyn_core::syn;
 use zyn_core::syn::FnArg;
 use zyn_core::syn::ItemFn;
@@ -114,7 +114,7 @@ fn expand_element(item: ItemFn, custom_name: Option<zyn_core::syn::LitStr>) -> T
         }
 
         impl ::zyn::Render for #struct_name {
-            fn render(&self, input: &::zyn::Input) -> ::zyn::proc_macro2::TokenStream {
+            fn render(&self, input: &::zyn::Input) -> ::zyn::__private::proc_macro2::TokenStream {
                 #(#extractor_bindings)*
                 #(#prop_bindings)*
                 #body
