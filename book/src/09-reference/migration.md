@@ -25,7 +25,7 @@ Common `quote`, `syn`, and `proc_macro2` patterns and their zyn equivalents. Use
 
 ## No Zyn Alternative (use raw APIs)
 
-These patterns have no template-level equivalent and require direct use of `syn`, `quote`, or `proc_macro2` via `zyn::syn`, `zyn::quote`, `zyn::proc_macro2`:
+These patterns have no template-level equivalent and require direct use of `syn` via `zyn::syn`, plus re-exported helpers like `zyn::format_ident` and `zyn::TokenStream`:
 
 | Pattern | Why |
 |---|---|
