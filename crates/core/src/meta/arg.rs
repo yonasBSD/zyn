@@ -11,6 +11,7 @@ use syn::parse::ParseStream;
 
 use super::Args;
 
+#[derive(Clone)]
 pub enum Arg {
     Flag(Ident),
     Expr(Ident, Expr),

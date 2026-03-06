@@ -147,14 +147,16 @@ impl Pipe for Str {
     }
 }
 
-pub struct Trim;
+pub struct Trim(pub &'static str, pub &'static str);
 
 impl Pipe for Trim {
     type Input = String;
     type Output = proc_macro2::Ident;
 
     fn pipe(&self, input: String) -> proc_macro2::Ident {
-        let trimmed = input.trim_matches('_');
+        let trimmed = input
+            .trim_start_matches(|c: char| self.0.contains(c))
+            .trim_end_matches(|c: char| self.1.contains(c));
         proc_macro2::Ident::new(trimmed, proc_macro2::Span::call_site())
     }
 }
@@ -166,7 +168,20 @@ impl Pipe for Plural {
     type Output = proc_macro2::Ident;
 
     fn pipe(&self, input: String) -> proc_macro2::Ident {
-        let result = if input.ends_with('s') {
+        let result = if input.ends_with('y')
+            && input
+                .chars()
+                .rev()
+                .nth(1)
+                .is_some_and(|c| !"aeiou".contains(c))
+        {
+            format!("{}ies", &input[..input.len() - 1])
+        } else if input.ends_with('s')
+            || input.ends_with('x')
+            || input.ends_with('z')
+            || input.ends_with("ch")
+            || input.ends_with("sh")
+        {
             format!("{}es", input)
         } else {
             format!("{}s", input)
@@ -182,11 +197,20 @@ impl Pipe for Singular {
     type Output = proc_macro2::Ident;
 
     fn pipe(&self, input: String) -> proc_macro2::Ident {
-        let result = if input.ends_with('s') && !input.ends_with("ss") {
-            &input[..input.len() - 1]
+        let result = if input.ends_with("ies") {
+            format!("{}y", &input[..input.len() - 3])
+        } else if input.ends_with("ses")
+            || input.ends_with("xes")
+            || input.ends_with("zes")
+            || input.ends_with("ches")
+            || input.ends_with("shes")
+        {
+            input[..input.len() - 2].to_string()
+        } else if input.ends_with('s') && !input.ends_with("ss") {
+            input[..input.len() - 1].to_string()
         } else {
-            &input
+            input
         };
-        proc_macro2::Ident::new(result, proc_macro2::Span::call_site())
+        proc_macro2::Ident::new(&result, proc_macro2::Span::call_site())
     }
 }

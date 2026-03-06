@@ -48,7 +48,7 @@ zyn! {
     {{ name | pascal }}                        // hello_world -> HelloWorld
     {{ name | kebab }}                         // HelloWorld -> "hello-world"
     {{ name | str }}                           // hello -> "hello"
-    {{ name | trim }}                          // __foo -> foo
+    {{ name | trim:"_" }}                      // __foo -> foo
     {{ name | plural }}                        // User -> Users
     {{ name | singular }}                      // users -> user
     {{ name | snake | upper }}                 // HelloWorld -> HELLO_WORLD

@@ -71,7 +71,20 @@ impl Expand for PipeNode {
         let is_builtin = BUILTIN_PIPES.contains(&self.name.to_string().as_str());
 
         if is_builtin {
-            if self.args.is_empty() {
+            if self.name == "trim" {
+                match self.args.as_slice() {
+                    [] => {
+                        quote! { let __zyn_val = ::zyn::Pipe::pipe(&(::zyn::pipes::Trim(" ", " ")), __zyn_val); }
+                    }
+                    [a] => {
+                        quote! { let __zyn_val = ::zyn::Pipe::pipe(&(::zyn::pipes::Trim(#a, #a)), __zyn_val); }
+                    }
+                    [a, b] => {
+                        quote! { let __zyn_val = ::zyn::Pipe::pipe(&(::zyn::pipes::Trim(#a, #b)), __zyn_val); }
+                    }
+                    _ => quote! { compile_error!("trim pipe accepts at most 2 arguments"); },
+                }
+            } else if self.args.is_empty() {
                 quote! { let __zyn_val = ::zyn::Pipe::pipe(&(::zyn::pipes::#pascal_name), __zyn_val); }
             } else {
                 let args = &self.args;

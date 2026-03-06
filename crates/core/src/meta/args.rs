@@ -9,7 +9,7 @@ use syn::parse::ParseStream;
 
 use super::Arg;
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct Args(Vec<Arg>);
 
 impl Args {
@@ -59,19 +59,15 @@ impl Args {
                 continue;
             }
 
-            result.push(clone_arg(arg));
+            result.push(arg.clone());
         }
 
         for arg in &other.0 {
-            result.push(clone_arg(arg));
+            result.push(arg.clone());
         }
 
         Args(result)
     }
-}
-
-fn clone_arg(arg: &Arg) -> Arg {
-    syn::parse2(arg.to_token_stream()).unwrap()
 }
 
 impl Index<usize> for Args {

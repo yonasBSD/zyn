@@ -40,7 +40,7 @@ impl Diagnostics {
         self.0
             .iter()
             .map(|d| d.level())
-            .max_by_key(|l| level_ord(*l))
+            .max_by_key(|l| Self::level_ord(*l))
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &Diagnostic> {
@@ -56,15 +56,15 @@ impl Diagnostics {
 
         tokens
     }
-}
 
-fn level_ord(level: Level) -> u8 {
-    match level {
-        Level::Note => 0,
-        Level::Help => 1,
-        Level::Warning => 2,
-        Level::Error => 3,
-        _ => 4,
+    fn level_ord(level: Level) -> u8 {
+        match level {
+            Level::Note => 0,
+            Level::Help => 1,
+            Level::Warning => 2,
+            Level::Error => 3,
+            _ => 4,
+        }
     }
 }
 

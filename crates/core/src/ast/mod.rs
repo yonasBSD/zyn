@@ -225,13 +225,13 @@ impl Parse for Element {
 
         while !input.is_empty() {
             if input.peek(Token![@]) {
-                flush(&mut pending, &mut nodes);
+                Self::flush(&mut pending, &mut nodes);
                 nodes.push(input.parse::<AtNode>()?.into());
             } else if input.peek(syn::token::Brace) {
-                flush(&mut pending, &mut nodes);
+                Self::flush(&mut pending, &mut nodes);
                 nodes.push(Node::parse_brace(input)?);
             } else if input.peek(syn::token::Paren) || input.peek(syn::token::Bracket) {
-                flush(&mut pending, &mut nodes);
+                Self::flush(&mut pending, &mut nodes);
                 nodes.push(input.parse::<GroupNode>()?.into());
             } else {
                 let tt: TokenTree = input.parse()?;
@@ -239,30 +239,32 @@ impl Parse for Element {
             }
         }
 
-        flush(&mut pending, &mut nodes);
+        Self::flush(&mut pending, &mut nodes);
         Ok(Self { nodes })
     }
 }
 
-fn flush(pending: &mut TokenStream, nodes: &mut Vec<Node>) {
-    if pending.is_empty() {
-        return;
-    }
-
-    let span = pending
-        .clone()
-        .into_iter()
-        .next()
-        .map(|tt| tt.span())
-        .unwrap_or_else(Span::call_site);
-
-    nodes.push(
-        TokensNode {
-            span,
-            stream: pending.clone(),
+impl Element {
+    fn flush(pending: &mut TokenStream, nodes: &mut Vec<Node>) {
+        if pending.is_empty() {
+            return;
         }
-        .into(),
-    );
 
-    *pending = TokenStream::new();
+        let span = pending
+            .clone()
+            .into_iter()
+            .next()
+            .map(|tt| tt.span())
+            .unwrap_or_else(Span::call_site);
+
+        nodes.push(
+            TokensNode {
+                span,
+                stream: pending.clone(),
+            }
+            .into(),
+        );
+
+        *pending = TokenStream::new();
+    }
 }
