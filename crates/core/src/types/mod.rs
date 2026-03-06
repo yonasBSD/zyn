@@ -3,6 +3,7 @@ mod item;
 
 use quote::ToTokens;
 
+/// The proc macro input context. Wraps either a `DeriveInput` or an `Item`.
 pub enum Input {
     Derive(syn::DeriveInput),
     Item(syn::Item),

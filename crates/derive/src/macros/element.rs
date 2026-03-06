@@ -101,9 +101,11 @@ fn expand_element(item: ItemFn, custom_name: Option<zyn_core::syn::LitStr>) -> T
                 #(#extractor_bindings)*
                 #(#prop_bindings)*
                 let __body = #body;
+
                 if diagnostics.has_errors() {
                     return diagnostics.emit();
                 }
+
                 __body
             }
         }

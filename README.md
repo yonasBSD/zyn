@@ -1,6 +1,6 @@
 # zyn
 
-A template engine for Rust procedural macros. Write code-generation templates with control flow, interpolation pipes, and composable elements.
+A template engine for Rust procedural macros. Write code-generation templates with control flow, interpolation pipes, composable elements, and proc macro entry points (`#[zyn::derive]`, `#[zyn::attribute]`).
 
 <a href="https://aacebo.github.io/zyn" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
@@ -182,6 +182,45 @@ fn builder_method(
     let method = zyn::format_ident!("{}", cfg.method);
     zyn::zyn! { pub fn {{ method }}(self) -> Self { self } }
 }
+```
+
+### Proc Macro Entry Points
+
+Replace `#[proc_macro_derive]` and `#[proc_macro_attribute]` with zyn equivalents that auto-parse input and provide diagnostics:
+
+```rust
+#[zyn::derive]
+fn my_derive(
+    #[zyn(input)] fields: zyn::Fields,
+    #[zyn(input)] ident: zyn::Extract<zyn::syn::Ident>,
+) -> zyn::TokenStream {
+    zyn::zyn!(
+        impl {{ ident }} {
+            @for (field in fields.iter()) {
+                // ...
+            }
+        }
+    )
+}
+
+#[zyn::attribute]
+fn my_attr(
+    #[zyn(input)] item: zyn::syn::ItemFn,
+    args: zyn::Args,
+) -> zyn::TokenStream {
+    // args is the attribute arguments, item is extracted from input
+    zyn::zyn!({ { item } })
+}
+```
+
+### Debugging
+
+`zyn::debug!` is a drop-in replacement for `zyn!` that prints what the template produces:
+
+```rust
+zyn::debug! { struct {{ name }} {} }               // pretty (default)
+zyn::debug! { raw => struct {{ name }} {} }         // expansion code
+zyn::debug! { ast => struct {{ name }} {} }         // parsed AST
 ```
 
 ### Case Conversion

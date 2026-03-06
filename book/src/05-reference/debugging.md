@@ -1,11 +1,11 @@
-# Debugging with `expand!`
+# Debugging with `debug!`
 
-`zyn::expand!` is a drop-in replacement for `zyn!` that prints what the template produces, then returns the same tokens. Use it to see exactly what code your template generates.
+`zyn::debug!` is a drop-in replacement for `zyn!` that prints what the template produces, then returns the same tokens. Use it to see exactly what code your template generates.
 
 ## Basic Usage
 
 ```rust
-let tokens = zyn::expand! {
+let tokens = zyn::debug! {
     struct {{ name }} {
         @for (field in fields.iter()) {
             {{ field.ident }}: {{ field.ty }},
@@ -15,7 +15,7 @@ let tokens = zyn::expand! {
 ```
 
 ```bash
-zyn::expand! ─── pretty
+zyn::debug! ─── pretty
 struct MyStruct {
     name: String,
     age: u32,
@@ -31,7 +31,7 @@ Specify a mode before `=>` to control the output format:
 Shows the **final Rust code** your template produces — the actual output, formatted with indentation.
 
 ```rust
-zyn::expand! { pretty =>
+zyn::debug! { pretty =>
     @if (is_pub) { pub }
     fn {{ name | snake }}() {}
 }
@@ -40,7 +40,7 @@ zyn::expand! { pretty =>
 When no mode is specified, `pretty` is used:
 
 ```rust
-zyn::expand! {
+zyn::debug! {
     fn {{ name }}() {}
 }
 ```
@@ -52,13 +52,13 @@ The output appears on `stderr` at runtime (when the proc macro executes), so it'
 Shows the **expansion code** — the token-building machinery that `zyn!` generates behind the scenes. Emitted as a compile-time diagnostic (zero runtime cost).
 
 ```rust
-zyn::expand! { raw =>
+zyn::debug! { raw =>
     struct {{ name }} {}
 }
 ```
 
 ```bash
-note: zyn::expand! ─── raw
+note: zyn::debug! ─── raw
 
 {
     let mut output = TokenStream::new();
@@ -76,16 +76,16 @@ The output is cleaned up for readability — `__zyn_ts_0` becomes `output`, full
 Shows the **parsed template structure** — which AST nodes the parser created. Emitted as a compile-time diagnostic.
 
 ```rust
-zyn::expand! { ast =>
+zyn::debug! { ast =>
     @if (is_pub) { pub }
     struct {{ name }} {}
 }
 ```
 
 ```bash
-note: zyn::expand! ─── ast
+note: zyn::debug! ─── ast
 
-Element [
+Template [
   At(If)
   Tokens("struct")
   Interp { ... }

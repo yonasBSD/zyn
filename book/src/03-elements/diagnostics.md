@@ -1,6 +1,6 @@
 # Diagnostics
 
-The `#[element]` attribute generates `error!`, `warn!`, `note!`, `help!`, and `bail!` macros that push diagnostics to an auto-injected `diagnostics` accumulator.
+The `#[zyn::element]` attribute generates `error!`, `warn!`, `note!`, `help!`, and `bail!` macros that push diagnostics to an auto-injected `diagnostics` accumulator.
 
 ## `error!` — Compile Error
 

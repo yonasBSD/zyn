@@ -1,9 +1,9 @@
 # Grammar
 
-Formal EBNF grammar for the zyn template language. `zyn!(...)` accepts an `Element` as input.
+Formal EBNF grammar for the zyn template language. `zyn!(...)` accepts a `Template` as input.
 
 ```ebnf
-Element     = Node*
+Template     = Node*
 
 Node        = TokensNode
             | InterpNode
@@ -23,29 +23,29 @@ Pipe        = ident (':' PipeArg)*
 PipeArg     = token_tree+
             (* tokens until the next ':' or '|' *)
 
-GroupNode   = '(' Element ')'
-            | '[' Element ']'
-            | '{' Element '}'    (* only when brace disambiguation fails *)
+GroupNode   = '(' Template ')'
+            | '[' Template ']'
+            | '{' Template '}'    (* only when brace disambiguation fails *)
 
 AtNode      = '@' 'if'    IfBody
             | '@' 'for'   ForBody
             | '@' 'match' MatchBody
             | '@' ElementName ElementBody
 
-IfBody      = '(' Expr ')' '{' Element '}' ElseClause*
-ElseClause  = '@' 'else' 'if' '(' Expr ')' '{' Element '}'
-            | '@' 'else' '{' Element '}'
+IfBody      = '(' Expr ')' '{' Template '}' ElseClause*
+ElseClause  = '@' 'else' 'if' '(' Expr ')' '{' Template '}'
+            | '@' 'else' '{' Template '}'
 
-ForBody     = '(' ident 'in' Expr ')' '{' Element '}'
-            | '(' Expr ')' '{' Element '}'
+ForBody     = '(' ident 'in' Expr ')' '{' Template '}'
+            | '(' Expr ')' '{' Template '}'
             (* classic form: @for (count) { body } expands to for _ in 0..count *)
 
 MatchBody   = '(' Expr ')' '{' MatchArm* '}'
-MatchArm    = Pattern '=>' '{' Element '}' ','?
+MatchArm    = Pattern '=>' '{' Template '}' ','?
 Pattern     = token_tree+    (* all tokens before '=>' *)
 
 ElementName = ident ('::' ident)*
-ElementBody = ('(' Props ')')? ('{' Element '}')?
+ElementBody = ('(' Props ')')? ('{' Template '}')?
 Props       = PropField (',' PropField)* ','?
 PropField   = ident '=' PropValue
 PropValue   = token_tree+    (* all tokens until ',' or ')' *)
@@ -53,7 +53,7 @@ PropValue   = token_tree+    (* all tokens until ',' or ')' *)
 
 ## Parsing Model
 
-`Element::parse` is the root parser. It reads token trees in a loop, dispatching on the leading token:
+`Template::parse` is the root parser. It reads token trees in a loop, dispatching on the leading token:
 
 | Leading token | Action |
 |---|---|

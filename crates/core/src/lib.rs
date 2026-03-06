@@ -20,6 +20,7 @@ pub use types::Input;
 
 pub type Result<T> = diagnostic::Result<T>;
 
+/// Parses tokens or string literals into a type. Wraps `syn::parse_str` and `syn::parse2`.
 #[macro_export]
 macro_rules! parse {
     ($s:literal => $ty:ty) => {
@@ -36,6 +37,7 @@ macro_rules! parse {
     };
 }
 
+/// Parses a `proc_macro::TokenStream` in a proc macro entry point. Wraps `syn::parse_macro_input!`.
 #[macro_export]
 macro_rules! parse_input {
     ($($tt:tt)*) => { $crate::syn::parse_macro_input!($($tt)*) }
@@ -48,6 +50,7 @@ pub use proc_macro2;
 pub use quote;
 pub use syn;
 
+/// Internal trait for AST node expansion. Not part of the public API.
 pub trait Expand {
     fn expand(
         &self,
@@ -56,10 +59,12 @@ pub trait Expand {
     ) -> proc_macro2::TokenStream;
 }
 
+/// Implemented by `#[zyn::element]` types. Renders the element with the given `Input` context.
 pub trait Render {
     fn render(&self, input: &types::Input) -> proc_macro2::TokenStream;
 }
 
+/// Implemented by `#[zyn::pipe]` types. Transforms a value in a pipe chain.
 pub trait Pipe {
     type Input;
     type Output: quote::ToTokens;

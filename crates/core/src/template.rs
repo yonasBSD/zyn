@@ -18,6 +18,7 @@ use crate::ast::TokensNode;
 use crate::ident;
 use crate::types::Input;
 
+/// A parsed template AST. Created by parsing template syntax via `syn::parse2::<Template>(tokens)`.
 pub struct Template {
     pub nodes: Vec<Node>,
 }
@@ -30,6 +31,7 @@ impl Template {
             .unwrap_or_else(Span::call_site)
     }
 
+    /// Expands the template into a `TokenStream` without an `Input` binding.
     pub fn to_token_stream(&self) -> TokenStream {
         let mut idents = ident::Iter::new();
         let output = idents.next().unwrap();
@@ -44,6 +46,7 @@ impl Template {
         }
     }
 
+    /// Expands the template with the given `Input` bound as `input` in the generated code.
     pub fn render(&self, input: &Input) -> TokenStream {
         let expanded = self.to_token_stream();
         quote! {

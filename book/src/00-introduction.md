@@ -321,10 +321,12 @@ zyn! {
 | **Control flow** | `@if`, `@for`, `@match` directives inline — no `.iter().map().collect()` |
 | **Case conversion** | Built-in pipes: `{{ name \| snake }}`, `{{ name \| pascal }}`, `{{ name \| screaming }}` — no extra crate |
 | **Name formatting** | `{{ name \| ident:"get_{}" }}` — one expression, no `let` binding |
-| **Diagnostics** | `error!`, `warn!`, `note!`, `help!`, `bail!` macros in [`#[element]`](./03-elements/diagnostics.md) bodies — one API for all diagnostic levels |
+| **Diagnostics** | `error!`, `warn!`, `note!`, `help!`, `bail!` macros in [`#[zyn::element]`](./03-elements/diagnostics.md) bodies — one API for all diagnostic levels |
 | **Attribute parsing** | `Arg`, `Args`, `AttrExt`, `AttrsExt` — built-in, no `darling` dependency |
 | **Reusable codegen** | `#[zyn::element]` — composable template components invoked with `@name(props)` |
 | **Value transforms** | `#[zyn::pipe]` — custom pipes that chain with built-ins |
+| **Proc macro entry points** | `#[zyn::derive]` and `#[zyn::attribute]` — replace `#[proc_macro_derive]`/`#[proc_macro_attribute]` with auto-parsed `Input` and diagnostics |
+| **Debugging** | `zyn::debug!` — drop-in `zyn!` replacement that prints the expansion (`pretty`, `raw`, `ast` modes) |
 | **String output** | `{{ name \| str }}` — stringify to a `LitStr` without ceremony |
 
 One dependency. No runtime cost. Everything expands at compile time into the same `TokenStream`-building code you'd write by hand — just without the boilerplate.
@@ -336,8 +338,10 @@ One dependency. No runtime cost. Everything expands at compile time into the sam
 - **Interpolation** — `{{ expr }}` inserts any `ToTokens` value, with field access and method calls
 - **Pipes** — `{{ name | snake }}`, `{{ name | ident:"get_{}" }}`, `{{ name | str }}` — 13 built-in pipes plus custom
 - **Control flow** — `@if`, `@for`, `@match` with full nesting
-- **Diagnostics** — `error!`, `warn!`, `note!`, `help!`, `bail!` macros in [`#[element]`](./03-elements/diagnostics.md) bodies
+- **Diagnostics** — `error!`, `warn!`, `note!`, `help!`, `bail!` macros in [`#[zyn::element]`](./03-elements/diagnostics.md) bodies
 - **Elements** — reusable template components via `#[zyn::element]`
 - **Custom pipes** — define transforms with `#[zyn::pipe]`
+- **Proc macro entry points** — `#[zyn::derive]` and `#[zyn::attribute]` with auto-parsed input, extractors, and diagnostics
+- **Debugging** — `zyn::debug!` with `pretty`, `raw`, and `ast` modes
 - **Attribute parsing** — `Arg`, `Args`, `AttrExt`, `AttrsExt` for structured attribute handling
 - **Case conversion** — `snake`, `camel`, `pascal`, `screaming`, `kebab`, `upper`, `lower`, `trim`, `plural`, `singular`

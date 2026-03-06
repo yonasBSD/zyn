@@ -34,7 +34,7 @@ pub fn raw(tokens: &TokenStream) -> String {
 
 pub fn ast(element: &crate::template::Template) -> String {
     let mut lines = Vec::new();
-    lines.push("Element [".to_string());
+    lines.push("Template [".to_string());
 
     for node in &element.nodes {
         let desc = match node {

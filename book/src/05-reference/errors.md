@@ -33,6 +33,6 @@ All errors are collected and returned together as a single `Diagnostics` value.
 
 ## Element Diagnostic Macros
 
-`#[element]` generates local `error!`, `warn!`, `note!`, `help!`, and `bail!` macros that push diagnostics to the element's `diagnostics` accumulator. `bail!` returns early if errors exist. All accept `format!`-style arguments and an optional `; span = expr` suffix. These macros are only available inside `#[element]` bodies.
+`#[zyn::element]` generates local `error!`, `warn!`, `note!`, `help!`, and `bail!` macros that push diagnostics to the element's `diagnostics` accumulator. `bail!` returns early if errors exist. All accept `format!`-style arguments and an optional `; span = expr` suffix. These macros are only available inside `#[zyn::element]` bodies.
 
 See [Diagnostics](../03-elements/diagnostics.md) for usage examples.

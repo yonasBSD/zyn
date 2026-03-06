@@ -18,8 +18,8 @@ Common `quote`, `syn`, and `proc_macro2` patterns and their zyn equivalents. Use
 | `if cond { quote!(...) } else { quote!() }` | `@if (cond) { ... } @else { ... }` |
 | `items.iter().map(\|i\| quote!(...)).collect()` + `#(#tokens)*` | `@for (item in items) { ... }` |
 | `match kind { A => quote!(...), _ => quote!() }` | `@match (kind) { A => { ... } _ => {} }` |
-| `syn::Error::new(...).to_compile_error()` | `error!("msg"); bail!();` inside `#[element]` |
-| Manual `#[deprecated]` trick for warnings | `warn!("msg")` inside `#[element]` |
+| `syn::Error::new(...).to_compile_error()` | `error!("msg"); bail!();` inside `#[zyn::element]` |
+| Manual `#[deprecated]` trick for warnings | `warn!("msg")` inside `#[zyn::element]` |
 | Reusable `fn render(...) -> TokenStream` | `#[zyn::element]` |
 | Reusable `fn transform(input: String) -> Ident` | `#[zyn::pipe]` |
 
