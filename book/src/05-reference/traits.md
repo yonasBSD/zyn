@@ -30,16 +30,6 @@ Extracts typed data from an `Input` context. Implemented by:
 - `Data<T: FromData>` — re-parses the full input as `T`
 - `Extract<T: FromInput>` and `Attr<T: FromInput>` — wrapper delegates to `T`
 
-## `FromArg`
-
-```rust
-pub trait FromArg: Sized {
-    fn from_arg(arg: &Arg) -> zyn::Result<Self>;
-}
-```
-
-Extracts a typed value from a single `Arg`. Used internally by `#[derive(Attribute)]` codegen. Implemented for `bool`, `String`, integer types, float types, `char`, `syn::Ident`, `syn::Path`, `syn::Expr`, `syn::LitStr`, `syn::LitInt`, `Option<T>`, `Vec<T>`, `Args`.
-
 ## `FromFields`
 
 ```rust

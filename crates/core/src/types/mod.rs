@@ -4,9 +4,36 @@ mod item;
 use quote::ToTokens;
 
 /// The proc macro input context. Wraps either a `DeriveInput` or an `Item`.
+#[derive(Clone)]
 pub enum Input {
     Derive(syn::DeriveInput),
     Item(syn::Item),
+}
+
+impl Input {
+    pub fn is_derive(&self) -> bool {
+        matches!(self, Self::Derive(_))
+    }
+
+    pub fn is_item(&self) -> bool {
+        matches!(self, Self::Item(_))
+    }
+}
+
+impl Input {
+    pub fn as_derive(&self) -> Option<&syn::DeriveInput> {
+        match self {
+            Self::Derive(d) => Some(d),
+            _ => None,
+        }
+    }
+
+    pub fn as_item(&self) -> Option<&syn::Item> {
+        match self {
+            Self::Item(i) => Some(i),
+            _ => None,
+        }
+    }
 }
 
 impl Input {

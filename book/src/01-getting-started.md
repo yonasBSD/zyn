@@ -14,7 +14,7 @@ zyn = "0.1.0"
 | Feature | Default | Description |
 |---------|---------|-------------|
 | `derive` | yes | Template macros (`zyn!`, `debug!`), component macros (`#[zyn::element]`, `#[zyn::pipe]`), proc macro entry points (`#[zyn::derive]`, `#[zyn::attribute]`), `#[derive(Attribute)]`, extractors (`Attr<T>`, `Extract<T>`, `Fields<T>`, `Variants`, `Data<T>`), and diagnostics (`error!`, `warn!`, `note!`, `help!`, `bail!`) |
-| `ext` | no | `AttrExt` and `AttrsExt` traits for `syn::Attribute` parsing (`Arg`/`Args` are always available) |
+| `ext` | no | `AttrExt` and `AttrsExt` traits for `syn::Attribute` parsing |
 
 ## Basic Usage
 

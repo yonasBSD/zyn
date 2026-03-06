@@ -47,6 +47,9 @@ fn let_trace(pat: Pat, init: Expr, ident: Ident) -> TokenStream2 {
 #[zyn::attribute]
 fn trace_var(#[zyn(input)] item: zyn::syn::ItemFn, args: zyn::Args) -> TokenStream2 {
     let vars: HashSet<Ident> = args.iter().filter_map(|a| a.name().cloned()).collect();
-    let mut folder = TraceVarFolder { input, vars };
+    let mut folder = TraceVarFolder {
+        input: &input,
+        vars,
+    };
     zyn::zyn!({ { folder.fold_item_fn(item) } })
 }

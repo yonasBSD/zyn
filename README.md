@@ -206,9 +206,9 @@ fn my_derive(
 #[zyn::attribute]
 fn my_attr(
     #[zyn(input)] item: zyn::syn::ItemFn,
-    args: zyn::Args,
+    args: zyn::syn::LitStr,
 ) -> zyn::TokenStream {
-    // args is the attribute arguments, item is extracted from input
+    let _name = args.value();
     zyn::zyn!({ { item } })
 }
 ```

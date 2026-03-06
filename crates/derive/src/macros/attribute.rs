@@ -79,10 +79,7 @@ fn expand_attribute(item: ItemFn) -> TokenStream {
             __zyn_args: proc_macro::TokenStream,
             __zyn_input: proc_macro::TokenStream,
         ) -> proc_macro::TokenStream {
-            let __zyn_parsed_input: ::zyn::Input = ::zyn::Input::Item(
-                ::zyn::parse_input!(__zyn_input as ::zyn::syn::Item)
-            );
-            let input = &__zyn_parsed_input;
+            let input = ::zyn::parse_input!(__zyn_input as ::zyn::syn::Item);
             #args_binding
 
             let __zyn_result: ::zyn::proc_macro2::TokenStream = (|| {

@@ -40,8 +40,7 @@ struct SerdeConfig {
 ```
 
 Generated methods:
-- `from_args(args: &Args) -> zyn::Result<Self>` — extract from a parsed `Args`; accumulates all errors
-- `from_input(input: &Input) -> zyn::Result<Self>` — implements `FromInput`
+- `from_input(input: &Input) -> zyn::Result<Self>` — implements `FromInput`; accumulates all errors
 - `about() -> &'static str` — human-readable description
 
 ### Error Accumulation
@@ -120,10 +119,10 @@ struct Config {
 ```
 
 Variant dispatch by snake_case name:
-- **Unit variants** → `Arg::Flag`: `fast` → `Mode::Fast`
-- **Struct variants** → `Arg::List`: `custom(speed = 5)` → `Mode::Custom { speed: 5 }`
-- **Single-field tuple** → `Arg::Expr`: `name = "blue"` → `Color::Named("blue".into())`
-- **Multi-field tuple** → `Arg::List` with positional args
+- **Unit variants** — `fast` → `Mode::Fast`
+- **Struct variants** — `custom(speed = 5)` → `Mode::Custom { speed: 5 }`
+- **Single-field tuple** — `name = "blue"` → `Color::Named("blue".into())`
+- **Multi-field tuple** — `rgb(255, 0, 0)` → `Color::Rgb(255, 0, 0)`
 
 ## Using with Elements
 

@@ -15,7 +15,7 @@ use crate::AssignTrace;
 use crate::LetTrace;
 
 pub struct TraceVarFolder<'a> {
-    pub input: &'a zyn::Input,
+    pub input: &'a zyn::syn::Item,
     pub vars: HashSet<Ident>,
 }
 

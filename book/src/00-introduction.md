@@ -322,7 +322,7 @@ zyn! {
 | **Case conversion** | Built-in pipes: `{{ name \| snake }}`, `{{ name \| pascal }}`, `{{ name \| screaming }}` — no extra crate |
 | **Name formatting** | `{{ name \| ident:"get_{}" }}` — one expression, no `let` binding |
 | **Diagnostics** | `error!`, `warn!`, `note!`, `help!`, `bail!` macros in [`#[zyn::element]`](./03-elements/diagnostics.md) bodies — one API for all diagnostic levels |
-| **Attribute parsing** | `Arg`, `Args`, `AttrExt`, `AttrsExt` — built-in, no `darling` dependency |
+| **Attribute parsing** | `#[derive(Attribute)]` for typed attribute structs — built-in, no `darling` dependency |
 | **Reusable codegen** | `#[zyn::element]` — composable template components invoked with `@name(props)` |
 | **Value transforms** | `#[zyn::pipe]` — custom pipes that chain with built-ins |
 | **Proc macro entry points** | `#[zyn::derive]` and `#[zyn::attribute]` — replace `#[proc_macro_derive]`/`#[proc_macro_attribute]` with auto-parsed `Input` and diagnostics |
@@ -343,5 +343,5 @@ One dependency. No runtime cost. Everything expands at compile time into the sam
 - **Custom pipes** — define transforms with `#[zyn::pipe]`
 - **Proc macro entry points** — `#[zyn::derive]` and `#[zyn::attribute]` with auto-parsed input, extractors, and diagnostics
 - **Debugging** — `zyn::debug!` with `pretty`, `raw`, and `ast` modes
-- **Attribute parsing** — `Arg`, `Args`, `AttrExt`, `AttrsExt` for structured attribute handling
+- **Attribute parsing** — `#[derive(Attribute)]` for typed attribute structs
 - **Case conversion** — `snake`, `camel`, `pascal`, `screaming`, `kebab`, `upper`, `lower`, `trim`, `plural`, `singular`

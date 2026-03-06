@@ -8,7 +8,7 @@ pub fn bindings(names: &[syn::Ident], types: &[syn::Type]) -> Vec<TokenStream> {
         .zip(types.iter())
         .map(|(name, ty)| {
             quote! {
-                let #name = match <#ty as ::zyn::FromInput>::from_input(input) {
+                let #name = match <#ty as ::zyn::FromInput>::from_input(&::zyn::Input::from(input.clone())) {
                     ::std::result::Result::Ok(v) => v,
                     ::std::result::Result::Err(e) => {
                         diagnostics.extend(e);

@@ -79,7 +79,7 @@ fn my_element(name: syn::Ident) -> zyn::TokenStream {
 }
 ```
 
-When calling `zyn!` from a proc macro, shadow the default `input` with your real input:
+When using `#[zyn::derive]` or `#[zyn::attribute]`, `input` is provided automatically. For manual usage, define `let input: zyn::Input = ...;` before calling `zyn!`:
 
 ```rust
 let input: zyn::Input = real_derive_input.into();
@@ -87,6 +87,8 @@ zyn::zyn! {
     @my_element(name = ident)
 }
 ```
+
+See [Proc Macro Entry Points](../06-macros/README.md) for the recommended approach.
 
 ## Extractor Params
 
