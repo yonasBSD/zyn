@@ -294,7 +294,7 @@ proc-macro-error = "1"
 
 ```toml
 [dependencies]
-zyn = "0.1"
+zyn = "0.3"
 ```
 
 </td>
