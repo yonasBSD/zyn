@@ -23,15 +23,6 @@ pub fn expand(args: TokenStream, input: TokenStream) -> TokenStream {
     }
 }
 
-fn has_input_attr(attrs: &[syn::Attribute]) -> bool {
-    attrs.iter().any(|a| {
-        a.path().is_ident("zyn")
-            && a.parse_args::<syn::Ident>()
-                .map(|i| i == "input")
-                .unwrap_or(false)
-    })
-}
-
 fn expand_element(item: ItemFn, custom_name: Option<zyn_core::syn::LitStr>) -> TokenStream {
     let vis = &item.vis;
     let body = &item.block;
@@ -67,7 +58,7 @@ fn expand_element(item: ItemFn, custom_name: Option<zyn_core::syn::LitStr>) -> T
 
                 let ty = pat_type.ty.as_ref().clone();
 
-                if has_input_attr(&pat_type.attrs) {
+                if crate::common::attrs::exists(&pat_type.attrs) {
                     extractor_names.push(ident.clone());
                     extractor_types.push(ty);
                 } else {
@@ -87,21 +78,9 @@ fn expand_element(item: ItemFn, custom_name: Option<zyn_core::syn::LitStr>) -> T
         quote! { use #struct_name as #alias_name; }
     });
 
-    let extractor_bindings: Vec<TokenStream> = extractor_names
-        .iter()
-        .zip(extractor_types.iter())
-        .map(|(name, ty)| {
-            quote! {
-                let #name = match <#ty as ::zyn::FromInput>::from_input(input) {
-                    ::std::result::Result::Ok(v) => v,
-                    ::std::result::Result::Err(e) => {
-                        diagnostics.extend(e);
-                        return diagnostics.emit();
-                    }
-                };
-            }
-        })
-        .collect();
+    let diagnostic_macros = crate::common::diagnostics::macros();
+    let extractor_bindings =
+        crate::common::extractors::bindings(&extractor_names, &extractor_types);
 
     let prop_bindings: Vec<TokenStream> = prop_names
         .iter()
@@ -117,77 +96,7 @@ fn expand_element(item: ItemFn, custom_name: Option<zyn_core::syn::LitStr>) -> T
             fn render(&self, input: &::zyn::Input) -> ::zyn::proc_macro2::TokenStream {
                 let mut diagnostics = ::zyn::Diagnostics::new();
 
-                macro_rules! error {
-                    ($fmt:literal $(, $arg:expr)* ; span = $span:expr) => {
-                        diagnostics.push(::zyn::Diagnostic::spanned(
-                            $span, ::zyn::Level::Error, format!($fmt $(, $arg)*)
-                        ))
-                    };
-                    ($fmt:literal $(, $arg:expr)* $(,)?) => {
-                        diagnostics.push(::zyn::Diagnostic::spanned(
-                            ::zyn::Span::call_site(), ::zyn::Level::Error, format!($fmt $(, $arg)*)
-                        ))
-                    };
-                }
-
-                macro_rules! warn {
-                    ($fmt:literal $(, $arg:expr)* ; span = $span:expr) => {
-                        diagnostics.push(::zyn::Diagnostic::spanned(
-                            $span, ::zyn::Level::Warning, format!($fmt $(, $arg)*)
-                        ))
-                    };
-                    ($fmt:literal $(, $arg:expr)* $(,)?) => {
-                        diagnostics.push(::zyn::Diagnostic::spanned(
-                            ::zyn::Span::call_site(), ::zyn::Level::Warning, format!($fmt $(, $arg)*)
-                        ))
-                    };
-                }
-
-                macro_rules! note {
-                    ($fmt:literal $(, $arg:expr)* ; span = $span:expr) => {
-                        diagnostics.push(::zyn::Diagnostic::spanned(
-                            $span, ::zyn::Level::Note, format!($fmt $(, $arg)*)
-                        ))
-                    };
-                    ($fmt:literal $(, $arg:expr)* $(,)?) => {
-                        diagnostics.push(::zyn::Diagnostic::spanned(
-                            ::zyn::Span::call_site(), ::zyn::Level::Note, format!($fmt $(, $arg)*)
-                        ))
-                    };
-                }
-
-                macro_rules! help {
-                    ($fmt:literal $(, $arg:expr)* ; span = $span:expr) => {
-                        diagnostics.push(::zyn::Diagnostic::spanned(
-                            $span, ::zyn::Level::Help, format!($fmt $(, $arg)*)
-                        ))
-                    };
-                    ($fmt:literal $(, $arg:expr)* $(,)?) => {
-                        diagnostics.push(::zyn::Diagnostic::spanned(
-                            ::zyn::Span::call_site(), ::zyn::Level::Help, format!($fmt $(, $arg)*)
-                        ))
-                    };
-                }
-
-                macro_rules! bail {
-                    () => {
-                        if diagnostics.has_errors() {
-                            return diagnostics.emit();
-                        }
-                    };
-                    ($fmt:literal $(, $arg:expr)* ; span = $span:expr) => {{
-                        diagnostics.push(::zyn::Diagnostic::spanned(
-                            $span, ::zyn::Level::Error, format!($fmt $(, $arg)*)
-                        ));
-                        return diagnostics.emit();
-                    }};
-                    ($fmt:literal $(, $arg:expr)* $(,)?) => {{
-                        diagnostics.push(::zyn::Diagnostic::spanned(
-                            ::zyn::Span::call_site(), ::zyn::Level::Error, format!($fmt $(, $arg)*)
-                        ));
-                        return diagnostics.emit();
-                    }};
-                }
+                #diagnostic_macros
 
                 #(#extractor_bindings)*
                 #(#prop_bindings)*
