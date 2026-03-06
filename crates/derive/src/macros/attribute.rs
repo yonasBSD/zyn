@@ -79,21 +79,29 @@ fn expand_attribute(item: ItemFn) -> TokenStream {
             __zyn_args: proc_macro::TokenStream,
             __zyn_input: proc_macro::TokenStream,
         ) -> proc_macro::TokenStream {
-            let input: ::zyn::Input = ::zyn::Input::Item(
+            let __zyn_parsed_input: ::zyn::Input = ::zyn::Input::Item(
                 ::zyn::parse_input!(__zyn_input as ::zyn::syn::Item)
             );
-            let mut diagnostics = ::zyn::Diagnostics::new();
-
-            #diagnostic_macros
-
-            #(#extractor_bindings)*
+            let input = &__zyn_parsed_input;
             #args_binding
 
-            let __body = #body;
-            if diagnostics.has_errors() {
-                return diagnostics.emit().into();
-            }
-            __body.into()
+            let __zyn_result: ::zyn::proc_macro2::TokenStream = (|| {
+                let mut diagnostics = ::zyn::Diagnostics::new();
+
+                #diagnostic_macros
+
+                #(#extractor_bindings)*
+
+                let __body = #body;
+
+                if diagnostics.has_errors() {
+                    return diagnostics.emit();
+                }
+
+                __body
+            })();
+
+            __zyn_result.into()
         }
     }
 }

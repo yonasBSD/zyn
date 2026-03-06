@@ -134,20 +134,26 @@ fn expand_derive(item: ItemFn, args: DeriveArgs) -> TokenStream {
     quote! {
         #derive_attr
         pub fn #fn_name(__zyn_input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-            let input: ::zyn::Input = ::zyn::Input::from(
+            let __zyn_parsed_input: ::zyn::Input = ::zyn::Input::from(
                 ::zyn::parse_input!(__zyn_input as ::zyn::syn::DeriveInput)
             );
-            let mut diagnostics = ::zyn::Diagnostics::new();
+            let input = &__zyn_parsed_input;
 
-            #diagnostic_macros
+            let __zyn_result: ::zyn::proc_macro2::TokenStream = (|| {
+                let mut diagnostics = ::zyn::Diagnostics::new();
 
-            #(#extractor_bindings)*
+                #diagnostic_macros
 
-            let __body = #body;
-            if diagnostics.has_errors() {
-                return diagnostics.emit().into();
-            }
-            __body.into()
+                #(#extractor_bindings)*
+
+                let __body = #body;
+                if diagnostics.has_errors() {
+                    return diagnostics.emit();
+                }
+                __body
+            })();
+
+            __zyn_result.into()
         }
     }
 }

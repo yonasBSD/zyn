@@ -14,11 +14,12 @@ use zyn::syn::fold::Fold;
 use crate::AssignTrace;
 use crate::LetTrace;
 
-pub struct TraceVarFolder {
+pub struct TraceVarFolder<'a> {
+    pub input: &'a zyn::Input,
     pub vars: HashSet<Ident>,
 }
 
-impl TraceVarFolder {
+impl TraceVarFolder<'_> {
     fn is_traced_expr(&self, e: &Expr) -> bool {
         match e {
             Expr::Path(e) => {
@@ -39,9 +40,9 @@ impl TraceVarFolder {
     }
 }
 
-impl Fold for TraceVarFolder {
+impl Fold for TraceVarFolder<'_> {
     fn fold_expr(&mut self, e: Expr) -> Expr {
-        let input: zyn::Input = Default::default();
+        let input = self.input;
 
         match e {
             Expr::Assign(ExprAssign {
@@ -98,7 +99,7 @@ impl Fold for TraceVarFolder {
     }
 
     fn fold_stmt(&mut self, s: Stmt) -> Stmt {
-        let input: zyn::Input = Default::default();
+        let input = self.input;
 
         match s {
             Stmt::Local(ref local) if local.init.is_some() && self.is_traced_pat(&local.pat) => {

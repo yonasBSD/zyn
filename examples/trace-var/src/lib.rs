@@ -2,8 +2,6 @@ mod folder;
 
 use std::collections::HashSet;
 
-use proc_macro::TokenStream;
-use zyn::Args;
 use zyn::TokenStream as TokenStream2;
 use zyn::syn::Expr;
 use zyn::syn::Ident;
@@ -46,19 +44,9 @@ fn let_trace(pat: Pat, init: Expr, ident: Ident) -> TokenStream2 {
     )
 }
 
-#[zyn::element]
-fn trace_var_element(#[zyn(input)] item: zyn::syn::ItemFn, vars: HashSet<Ident>) -> TokenStream2 {
-    let mut folder = TraceVarFolder { vars: vars.clone() };
+#[zyn::attribute]
+fn trace_var(#[zyn(input)] item: zyn::syn::ItemFn, args: zyn::Args) -> TokenStream2 {
+    let vars: HashSet<Ident> = args.iter().filter_map(|a| a.name().cloned()).collect();
+    let mut folder = TraceVarFolder { input, vars };
     zyn::zyn!({ { folder.fold_item_fn(item) } })
-}
-
-#[proc_macro_attribute]
-pub fn trace_var(args: TokenStream, input: TokenStream) -> TokenStream {
-    let ext_args = zyn::parse_input!(args as Args);
-    let vars: HashSet<Ident> = ext_args.iter().filter_map(|a| a.name().cloned()).collect();
-    let input: zyn::Input = zyn::Input::Item(zyn::parse_input!(input as zyn::syn::Item));
-    zyn::zyn!(
-        @trace_var_element(vars = vars)
-    )
-    .into()
 }
