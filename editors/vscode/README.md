@@ -13,9 +13,7 @@ Syntax highlighting for [zyn](https://github.com/aacebo/zyn) template macros in 
 ## Install from source
 
 ```sh
-cd editors/vscode
-npm install -g @vscode/vsce
-vsce package
+npx @vscode/vsce package
 code --install-extension zyn-0.0.1.vsix
 ```
 
