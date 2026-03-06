@@ -6,6 +6,7 @@ pub mod extract;
 pub mod ident;
 pub mod meta;
 pub mod pipes;
+pub mod template;
 pub mod types;
 
 #[cfg(feature = "ext")]
@@ -14,6 +15,7 @@ pub mod ext;
 pub use diagnostic::*;
 pub use extract::*;
 pub use meta::*;
+pub use template::Template;
 pub use types::Input;
 
 pub type Result<T> = diagnostic::Result<T>;

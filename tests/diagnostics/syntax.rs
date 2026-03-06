@@ -1,8 +1,8 @@
-use zyn_core::ast::Element;
+use zyn_core::Template;
 
 macro_rules! expect_err {
     ($s:literal) => {
-        match zyn::parse!($s => Element) {
+        match zyn::parse!($s => Template) {
             Err(e) => e.to_string(),
             Ok(_) => panic!("expected parse error for: {}", $s),
         }
@@ -23,10 +23,10 @@ fn else_without_if() {
 
 #[test]
 fn element_no_parens() {
-    assert!(zyn::parse!("@my_element" => Element).is_ok());
+    assert!(zyn::parse!("@my_element" => Template).is_ok());
 }
 
 #[test]
 fn element_empty_parens() {
-    assert!(zyn::parse!("@my_element()" => Element).is_ok());
+    assert!(zyn::parse!("@my_element()" => Template).is_ok());
 }

@@ -10,14 +10,14 @@ use syn::Token;
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 
-use super::super::Element;
+use crate::template::Template;
 
 use crate::Expand;
 
 pub struct MatchNode {
     pub span: Span,
     pub expr: TokenStream,
-    pub arms: Vec<(TokenStream, Element)>,
+    pub arms: Vec<(TokenStream, Template)>,
 }
 
 impl MatchNode {
@@ -52,7 +52,7 @@ impl Parse for MatchNode {
 
             let body_content;
             syn::braced!(body_content in arms_content);
-            let body = body_content.parse::<Element>()?;
+            let body = body_content.parse::<Template>()?;
 
             arms.push((pattern, body));
 

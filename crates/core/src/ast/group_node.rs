@@ -8,14 +8,14 @@ use quote::quote;
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 
-use super::Element;
+use crate::template::Template;
 
 use crate::Expand;
 
 pub struct GroupNode {
     pub span: Span,
     pub delimiter: Delimiter,
-    pub body: Box<Element>,
+    pub body: Box<Template>,
 }
 
 impl GroupNode {
@@ -29,7 +29,7 @@ impl Parse for GroupNode {
         if input.peek(syn::token::Paren) {
             let content;
             let paren = syn::parenthesized!(content in input);
-            let body = content.parse::<Element>()?;
+            let body = content.parse::<Template>()?;
 
             Ok(Self {
                 span: paren.span.join(),
@@ -39,7 +39,7 @@ impl Parse for GroupNode {
         } else if input.peek(syn::token::Bracket) {
             let content;
             let bracket = syn::bracketed!(content in input);
-            let body = content.parse::<Element>()?;
+            let body = content.parse::<Template>()?;
 
             Ok(Self {
                 span: bracket.span.join(),

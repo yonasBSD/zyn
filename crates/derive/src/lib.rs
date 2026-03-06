@@ -39,17 +39,8 @@ pub fn derive_attribute(input: proc_macro::TokenStream) -> proc_macro::TokenStre
 }
 
 fn expand_template(input: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
-    match zyn_core::parse!(input => zyn_core::ast::Element) {
-        Ok(element) => {
-            let expanded = element.to_token_stream();
-            quote! {
-                {
-                    #[allow(unused_variables)]
-                    let input: ::zyn::Input = ::std::default::Default::default();
-                    #expanded
-                }
-            }
-        }
+    match zyn_core::parse!(input => zyn_core::Template) {
+        Ok(element) => element.to_token_stream(),
         Err(e) => e.to_compile_error(),
     }
 }
@@ -60,7 +51,7 @@ fn expand_debug(input: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
     let mode = parse_mode(&mut tokens);
     let body: proc_macro2::TokenStream = tokens.collect();
 
-    let element = match zyn_core::parse!(body => zyn_core::ast::Element) {
+    let element = match zyn_core::parse!(body => zyn_core::Template) {
         Ok(el) => el,
         Err(e) => return e.to_compile_error(),
     };

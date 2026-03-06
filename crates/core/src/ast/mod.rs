@@ -16,10 +16,8 @@ use proc_macro2::TokenStream;
 use proc_macro2::TokenTree;
 
 use quote::ToTokens;
-use quote::quote;
 
 use syn::Token;
-use syn::parse::Parse;
 use syn::parse::ParseStream;
 
 use crate::Expand;
@@ -155,7 +153,7 @@ impl Node {
 
             Ok(InterpNode { span, expr, pipes }.into())
         } else {
-            let body = content.parse::<Element>()?;
+            let body = content.parse::<crate::template::Template>()?;
             Ok(GroupNode {
                 span,
                 delimiter: proc_macro2::Delimiter::Brace,
@@ -174,97 +172,5 @@ impl Expand for Node {
             Self::At(v) => v.expand(output, idents),
             Self::Group(v) => v.expand(output, idents),
         }
-    }
-}
-
-pub struct Element {
-    pub nodes: Vec<Node>,
-}
-
-impl Element {
-    pub fn span(&self) -> Span {
-        self.nodes
-            .first()
-            .map(|n| n.span())
-            .unwrap_or_else(Span::call_site)
-    }
-}
-
-impl Expand for Element {
-    fn expand(&self, output: &Ident, idents: &mut ident::Iter) -> TokenStream {
-        let mut result = TokenStream::new();
-
-        for node in &self.nodes {
-            result.extend(node.expand(output, idents));
-        }
-
-        result
-    }
-}
-
-impl Element {
-    pub fn to_token_stream(&self) -> TokenStream {
-        let mut idents = ident::Iter::new();
-        let output = idents.next().unwrap();
-        let expanded = self.expand(&output, &mut idents);
-
-        quote! {
-            {
-                let mut #output = ::zyn::proc_macro2::TokenStream::new();
-                #expanded
-                #output
-            }
-        }
-    }
-}
-
-impl Parse for Element {
-    fn parse(input: ParseStream) -> syn::Result<Self> {
-        let mut nodes = Vec::new();
-        let mut pending = TokenStream::new();
-
-        while !input.is_empty() {
-            if input.peek(Token![@]) {
-                Self::flush(&mut pending, &mut nodes);
-                nodes.push(input.parse::<AtNode>()?.into());
-            } else if input.peek(syn::token::Brace) {
-                Self::flush(&mut pending, &mut nodes);
-                nodes.push(Node::parse_brace(input)?);
-            } else if input.peek(syn::token::Paren) || input.peek(syn::token::Bracket) {
-                Self::flush(&mut pending, &mut nodes);
-                nodes.push(input.parse::<GroupNode>()?.into());
-            } else {
-                let tt: TokenTree = input.parse()?;
-                tt.to_tokens(&mut pending);
-            }
-        }
-
-        Self::flush(&mut pending, &mut nodes);
-        Ok(Self { nodes })
-    }
-}
-
-impl Element {
-    fn flush(pending: &mut TokenStream, nodes: &mut Vec<Node>) {
-        if pending.is_empty() {
-            return;
-        }
-
-        let span = pending
-            .clone()
-            .into_iter()
-            .next()
-            .map(|tt| tt.span())
-            .unwrap_or_else(Span::call_site);
-
-        nodes.push(
-            TokensNode {
-                span,
-                stream: pending.clone(),
-            }
-            .into(),
-        );
-
-        *pending = TokenStream::new();
     }
 }

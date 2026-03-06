@@ -1,12 +1,10 @@
 use std::collections::HashSet;
 
-use zyn::Render;
 use zyn::syn::BinOp;
 use zyn::syn::Expr;
 use zyn::syn::ExprAssign;
 use zyn::syn::ExprBinary;
 use zyn::syn::Ident;
-use zyn::syn::ItemFn;
 use zyn::syn::Local;
 use zyn::syn::Pat;
 use zyn::syn::Stmt;
@@ -17,15 +15,10 @@ use crate::AssignTrace;
 use crate::LetTrace;
 
 pub struct TraceVarFolder {
-    pub input: ItemFn,
     pub vars: HashSet<Ident>,
 }
 
-struct TraceVarFolderInner {
-    vars: HashSet<Ident>,
-}
-
-impl TraceVarFolderInner {
+impl TraceVarFolder {
     fn is_traced_expr(&self, e: &Expr) -> bool {
         match e {
             Expr::Path(e) => {
@@ -46,8 +39,10 @@ impl TraceVarFolderInner {
     }
 }
 
-impl Fold for TraceVarFolderInner {
+impl Fold for TraceVarFolder {
     fn fold_expr(&mut self, e: Expr) -> Expr {
+        let input: zyn::Input = Default::default();
+
         match e {
             Expr::Assign(ExprAssign {
                 attrs,
@@ -103,6 +98,8 @@ impl Fold for TraceVarFolderInner {
     }
 
     fn fold_stmt(&mut self, s: Stmt) -> Stmt {
+        let input: zyn::Input = Default::default();
+
         match s {
             Stmt::Local(ref local) if local.init.is_some() && self.is_traced_pat(&local.pat) => {
                 let Stmt::Local(local) = s else {
@@ -119,15 +116,6 @@ impl Fold for TraceVarFolderInner {
             }
             _ => fold::fold_stmt(self, s),
         }
-    }
-}
-
-impl Render for TraceVarFolder {
-    fn render(&self, _input: &zyn::Input) -> zyn::TokenStream {
-        let mut folder = TraceVarFolderInner {
-            vars: self.vars.clone(),
-        };
-        zyn::zyn!({ { folder.fold_item_fn(self.input.clone()) } })
     }
 }
 

@@ -7,14 +7,19 @@ pub mod components {
     }
 }
 
-#[test]
-fn namespaced_element() {
-    let result = zyn::zyn!(
+fn derive_field_decl(tokens: &str) -> zyn::TokenStream {
+    let input: zyn::Input = zyn::syn::parse_str(tokens).unwrap();
+    zyn::zyn!(
         @components::field_decl(
             name = zyn::format_ident!("age"),
             ty = zyn::format_ident!("u32"),
         )
-    );
+    )
+}
+
+#[test]
+fn namespaced_element() {
+    let result = derive_field_decl("struct Foo;");
     let expected = quote!(age: u32,);
     assert_eq!(result.to_string(), expected.to_string());
 }

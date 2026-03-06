@@ -10,7 +10,7 @@ use syn::Token;
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 
-use super::super::Element;
+use crate::template::Template;
 
 use crate::Expand;
 use crate::pascal;
@@ -19,7 +19,7 @@ pub struct ElementNode {
     pub span: Span,
     pub name: TokenStream,
     pub props: Vec<(syn::Ident, TokenStream)>,
-    pub children: Option<Box<Element>>,
+    pub children: Option<Box<Template>>,
 }
 
 impl ElementNode {
@@ -130,7 +130,7 @@ fn parse_props_and_children(
     let children = if input.peek(syn::token::Brace) {
         let children_content;
         syn::braced!(children_content in input);
-        Some(Box::new(children_content.parse::<Element>()?))
+        Some(Box::new(children_content.parse::<Template>()?))
     } else {
         None
     };

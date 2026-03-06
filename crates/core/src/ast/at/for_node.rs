@@ -8,7 +8,7 @@ use syn::ext::IdentExt;
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 
-use super::super::Element;
+use crate::template::Template;
 
 use crate::Expand;
 
@@ -16,7 +16,7 @@ pub struct ForNode {
     pub span: Span,
     pub binding: syn::Ident,
     pub iter: TokenStream,
-    pub body: Box<Element>,
+    pub body: Box<Template>,
 }
 
 impl ForNode {
@@ -50,7 +50,7 @@ impl Parse for ForNode {
 
         let body_content;
         syn::braced!(body_content in input);
-        let body = body_content.parse::<Element>()?;
+        let body = body_content.parse::<Template>()?;
 
         Ok(Self {
             span: Span::call_site(),
@@ -69,7 +69,7 @@ impl ForNode {
 
         let body_content;
         syn::braced!(body_content in input);
-        let body = body_content.parse::<Element>()?;
+        let body = body_content.parse::<Template>()?;
 
         Ok(Self {
             span: Span::call_site(),

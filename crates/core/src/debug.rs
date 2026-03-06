@@ -32,7 +32,7 @@ pub fn raw(tokens: &TokenStream) -> String {
     fmt(&cleaned)
 }
 
-pub fn ast(element: &ast::Element) -> String {
+pub fn ast(element: &crate::template::Template) -> String {
     let mut lines = Vec::new();
     lines.push("Element [".to_string());
 

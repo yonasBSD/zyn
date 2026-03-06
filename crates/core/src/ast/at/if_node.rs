@@ -9,14 +9,14 @@ use syn::ext::IdentExt;
 use syn::parse::Parse;
 use syn::parse::ParseStream;
 
-use super::super::Element;
+use crate::template::Template;
 
 use crate::Expand;
 
 pub struct IfNode {
     pub span: Span,
-    pub branches: Vec<(TokenStream, Element)>,
-    pub else_body: Option<Box<Element>>,
+    pub branches: Vec<(TokenStream, Template)>,
+    pub else_body: Option<Box<Template>>,
 }
 
 impl IfNode {
@@ -36,7 +36,7 @@ impl Parse for IfNode {
 
         let body_content;
         syn::braced!(body_content in input);
-        let body = body_content.parse::<Element>()?;
+        let body = body_content.parse::<Template>()?;
 
         branches.push((condition, body));
 
@@ -53,13 +53,13 @@ impl Parse for IfNode {
 
                 let body_content;
                 syn::braced!(body_content in input);
-                let body = body_content.parse::<Element>()?;
+                let body = body_content.parse::<Template>()?;
 
                 branches.push((condition, body));
             } else {
                 let body_content;
                 syn::braced!(body_content in input);
-                else_body = Some(Box::new(body_content.parse::<Element>()?));
+                else_body = Some(Box::new(body_content.parse::<Template>()?));
                 break;
             }
         }
