@@ -1,192 +1,148 @@
-# zyn
+# zyn — a template engine for Rust proc macros
 
-A template engine for Rust procedural macros. Write code-generation templates with control flow, interpolation pipes, composable elements, and proc macro entry points (`#[zyn::derive]`, `#[zyn::attribute]`).
+I kept rebuilding the same proc macro scaffolding across my own crates — `syn` for parsing, `quote` for codegen, `heck` for case conversion, `proc-macro-error` for diagnostics, hand-rolled attribute parsing, and a pile of helper functions returning `TokenStream`. Every project was the same patchwork. zyn started as a way to stop repeating myself, and turned into a framework that replaces all of it with a single crate.
 
 <a href="https://aacebo.github.io/zyn" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
 
-## Quick Start
+`cargo add zyn`
+
+## What it looks like
+
+### Templates with control flow
+
+With `quote!`, every conditional or loop forces you out of the template:
 
 ```rust
-use zyn::prelude::*;
+let fields_ts: Vec<_> = fields
+    .iter()
+    .map(|f| {
+        let name = &f.ident;
+        let ty = &f.ty;
+        quote! { #name: #ty, }
+    })
+    .collect();
 
-zyn! {
-    @if (input.vis == syn::Visibility::Public(..)) { pub }
-    fn {{ input.ident | snake }}() {
-        println!("hello!");
+quote! {
+    struct #ident {
+        #(#fields_ts)*
     }
 }
-// output: pub fn hello_world() { println!("hello!"); }
 ```
 
-## Template Syntax
-
-### Interpolation
-
-Insert any expression — field access, method calls, anything that implements `ToTokens`:
+With zyn:
 
 ```rust
 zyn! {
-    fn {{ input.ident }}() -> {{ field.ty }} {}
-    {{ input.ident | str }}
-    {{ fields.len() }}
-}
-```
-
-### Pipes
-
-Transform values inline:
-
-```rust
-zyn! {
-    fn {{ name | snake }}() {}                 // HelloWorld -> hello_world
-    const {{ name | screaming }}: &str = "";   // HelloWorld -> HELLO_WORLD
-    {{ name | upper }}                         // hello -> HELLO
-    {{ name | lower }}                         // HELLO -> hello
-    {{ name | camel }}                         // hello_world -> helloWorld
-    {{ name | pascal }}                        // hello_world -> HelloWorld
-    {{ name | kebab }}                         // HelloWorld -> "hello-world"
-    {{ name | str }}                           // hello -> "hello"
-    {{ name | trim:"_" }}                      // __foo -> foo
-    {{ name | plural }}                        // User -> Users
-    {{ name | singular }}                      // users -> user
-    {{ name | snake | upper }}                 // HelloWorld -> HELLO_WORLD
-    fn {{ name | ident:"get_{}" }}() {}        // hello -> get_hello
-    const X: &str = {{ name | fmt:"{}!" }};    // hello -> "hello!"
-}
-```
-
-### Control Flow
-
-```rust
-zyn! {
-    @if (input.is_pub) { pub }
-    @else if (input.is_crate) { pub(crate) }
-
-    struct {{ input.ident }} {
+    struct {{ ident }} {
         @for (field in fields.iter()) {
             {{ field.ident }}: {{ field.ty }},
         }
     }
-
-    @match (input.kind) {
-        Kind::Struct => { impl {{ input.ident }} {} }
-        _ => {}
-    }
-
-    @for (fields.len()) {
-        ,
-    }
 }
+// generates: struct User { name: String, age: u32, }
 ```
 
-### Elements
+`@if`, `@for`, and `@match` all work inline. No `.iter().map().collect()`.
 
-Reusable template components:
+### Case conversion and formatting
+
+Before:
+
+```rust
+use heck::ToSnakeCase;
+
+let getter = format_ident!(
+    "get_{}",
+    name.to_string().to_snake_case()
+);
+```
+
+After:
+
+```rust
+{{ name | snake | ident:"get_{}" }}
+// HelloWorld -> get_hello_world
+```
+
+13 built-in pipes: `snake`, `camel`, `pascal`, `screaming`, `kebab`, `upper`, `lower`, `str`, `trim`, `plural`, `singular`, `ident`, `fmt`. They chain.
+
+### Reusable components
+
+`#[zyn::element]` turns a template into a callable component:
 
 ```rust
 #[zyn::element]
-fn field_decl(
-    vis: syn::Visibility,
-    name: syn::Ident,
-    ty: syn::Type,
-) -> zyn::TokenStream {
-    zyn::zyn! { {{ vis }} {{ name }}: {{ ty }}, }
+fn getter(name: syn::Ident, ty: syn::Type) -> zyn::TokenStream {
+    zyn::zyn! {
+        pub fn {{ name | snake | ident:"get_{}" }}(&self) -> &{{ ty }} {
+            &self.{{ name }}
+        }
+    }
 }
 
 zyn! {
-    struct {{ input.ident }} {
+    impl {{ ident }} {
         @for (field in fields.iter()) {
-            @field_decl(
-                vis = field.vis.clone(),
+            @getter(
                 name = field.ident.clone().unwrap(),
                 ty = field.ty.clone(),
             )
         }
     }
 }
-// output: struct User { pub name: String, pub age: u32, }
+// generates:
+// impl User {
+//     pub fn get_name(&self) -> &String { &self.name }
+//     pub fn get_age(&self) -> &u32 { &self.age }
+// }
 ```
 
-Children:
+Elements accept typed parameters, can receive children blocks, and compose with each other.
+
+### Proc macro entry points
+
+`#[zyn::derive]` and `#[zyn::attribute]` replace the raw `#[proc_macro_derive]` / `#[proc_macro_attribute]` annotations. Input is auto-parsed and extractors pull what you need:
 
 ```rust
-#[zyn::element]
-fn wrapper(
-    vis: syn::Visibility,
-    children: zyn::TokenStream,
+#[zyn::derive]
+fn my_getters(
+    #[zyn(input)] ident: zyn::Extract<zyn::syn::Ident>,
+    #[zyn(input)] fields: zyn::Fields,
 ) -> zyn::TokenStream {
-    zyn::zyn! { {{ vis }} struct Foo { {{ children }} } }
-}
-
-zyn! {
-    @wrapper(vis = input.vis.clone()) {
-        name: String,
+    zyn::zyn! {
+        impl {{ ident }} {
+            @for (field in fields.iter()) {
+                @getter(
+                    name = field.ident.clone().unwrap(),
+                    ty = field.ty.clone(),
+                )
+            }
+        }
     }
 }
 ```
 
-Zero parameters:
+Users write `#[derive(MyGetters)]` — the function name auto-converts to PascalCase:
 
 ```rust
-#[zyn::element]
-fn divider() -> zyn::TokenStream {
-    zyn::zyn!(const DIVIDER: &str = "---";)
+#[derive(MyGetters)]
+struct User {
+    name: String,
+    age: u32,
 }
 
-zyn! { @divider }
+// generates:
+// impl User {
+//     pub fn get_name(&self) -> &String { &self.name }
+//     pub fn get_age(&self) -> &u32 { &self.age }
+// }
 ```
 
-### Custom Pipes
+### Diagnostics
 
-```rust
-#[zyn::pipe]
-fn prefix(input: String) -> syn::Ident {
-    syn::Ident::new(
-        &format!("pfx_{}", input),
-        zyn::Span::call_site(),
-    )
-}
-
-zyn! { {{ name | prefix }} }
-// hello -> pfx_hello
-```
-
-### Attribute Parsing
-
-Derive typed attribute structs — `FromInput` handles extraction automatically:
-
-```rust
-#[derive(zyn::Attribute)]
-#[zyn("builder", about = "Configure the builder derive")]
-struct BuilderConfig {
-    #[zyn(default = "build".to_string())]
-    method: String,
-    skip: bool,
-}
-
-// In your proc macro:
-let input: zyn::Input = real_derive_input.into();
-let cfg = BuilderConfig::from_input(&input)?;
-```
-
-For element params, use `zyn::Attr<T>` to auto-resolve from the `input` context:
-
-```rust
-#[zyn::element]
-fn builder_method(
-    #[zyn(input)] cfg: zyn::Attr<BuilderConfig>,   // auto-resolved from input, not a prop
-    name: syn::Ident,                  // regular prop, passed at @call site
-) -> zyn::TokenStream {
-    let method = zyn::format_ident!("{}", cfg.method);
-    zyn::zyn! { pub fn {{ method }}(self) -> Self { self } }
-}
-```
-
-### Proc Macro Entry Points
-
-Replace `#[proc_macro_derive]` and `#[proc_macro_attribute]` with zyn equivalents that auto-parse input and provide diagnostics:
+`error!`, `warn!`, `note!`, `help!`, and `bail!` work inside `#[zyn::element]`, `#[zyn::derive]`, and `#[zyn::attribute]` bodies:
 
 ```rust
 #[zyn::derive]
@@ -194,46 +150,82 @@ fn my_derive(
     #[zyn(input)] fields: zyn::Fields,
     #[zyn(input)] ident: zyn::Extract<zyn::syn::Ident>,
 ) -> zyn::TokenStream {
-    zyn::zyn!(
-        impl {{ ident }} {
-            @for (field in fields.iter()) {
-                // ...
-            }
-        }
-    )
+    if fields.is_empty() {
+        bail!("at least one field is required");
+    }
+
+    zyn::zyn!(impl {{ ident }} {})
+}
+```
+
+The compiler output:
+
+```
+error: at least one field is required
+ --> src/main.rs:3:10
+  |
+3 | #[derive(MyDerive)]
+  |          ^^^^^^^^
+```
+
+No `syn::Error` ceremony, no external crate for warnings.
+
+### Typed attribute parsing
+
+`#[derive(Attribute)]` generates a typed struct from helper attributes:
+
+```rust
+#[derive(zyn::Attribute)]
+#[zyn("builder")]
+struct BuilderConfig {
+    #[zyn(default)]
+    skip: bool,
+    #[zyn(default = "build".to_string())]
+    method: String,
 }
 
-#[zyn::attribute]
-fn my_attr(
-    #[zyn(input)] item: zyn::syn::ItemFn,
-    args: zyn::syn::LitStr,
+#[zyn::derive("Builder", attributes(builder))]
+fn builder(
+    #[zyn(input)] ident: zyn::Extract<zyn::syn::Ident>,
+    #[zyn(input)] fields: zyn::Fields,
+    #[zyn(input)] cfg: zyn::Attr<BuilderConfig>,
 ) -> zyn::TokenStream {
-    let _name = args.value();
-    zyn::zyn!({ { item } })
+    if cfg.skip {
+        return zyn::zyn!();
+    }
+
+    let method = zyn::format_ident!("{}", cfg.method);
+    zyn::zyn! {
+        impl {{ ident }} {
+            pub fn {{ method }}(self) -> Self { self }
+        }
+    }
 }
 ```
 
-### Debugging
+`zyn::Attr<BuilderConfig>` auto-resolves from the input context — fields are parsed and defaulted automatically. Users write `#[builder(skip)]` or `#[builder(method = "create")]` on their structs.
 
-`zyn::debug!` is a drop-in replacement for `zyn!` that prints what the template produces:
+## Full feature list
 
-```rust
-zyn::debug! { struct {{ name }} {} }               // pretty (default)
-zyn::debug! { raw => struct {{ name }} {} }         // expansion code
-zyn::debug! { ast => struct {{ name }} {} }         // parsed AST
-```
+- `zyn!` template macro with `{{ }}` interpolation
+- `@if` / `@for` / `@match` control flow
+- 13 built-in pipes + custom pipes via `#[zyn::pipe]`
+- `#[zyn::element]` — reusable template components with typed params and children
+- `#[zyn::derive]` / `#[zyn::attribute]` — proc macro entry points with auto-parsed input
+- Extractor system: `Extract<T>`, `Attr<T>`, `Fields`, `Variants`, `Data<T>`
+- `error!`, `warn!`, `note!`, `help!`, `bail!` diagnostics
+- `#[derive(Attribute)]` for typed attribute parsing
+- `zyn::debug!` — drop-in `zyn!` replacement that prints expansions (`pretty`, `raw`, `ast` modes)
+- Case conversion functions available outside templates (`zyn::case::to_snake()`, etc.)
+- Re-exports `syn`, `quote`, and `proc-macro2` — one dependency in your `Cargo.toml`
 
-### Case Conversion
+## Links
 
-Available outside templates via the `case` module:
+- GitHub: https://github.com/aacebo/zyn
+- Docs / Book: https://aacebo.github.io/zyn
+- crates.io: https://crates.io/crates/zyn
 
-```rust
-zyn::case::to_snake("HelloWorld")     // "hello_world"
-zyn::case::to_pascal("hello_world")   // "HelloWorld"
-zyn::case::to_camel("hello_world")    // "helloWorld"
-zyn::case::to_screaming("HelloWorld") // "HELLO_WORLD"
-zyn::case::to_kebab("HelloWorld")     // "hello-world"
-```
+This is v0.3.0. I'd appreciate any feedback — on the API design, the template syntax, the docs, or anything else. Happy to answer questions.
 
 ## License
 
