@@ -81,22 +81,6 @@ zyn! {
 }
 ```
 
-### Diagnostics
-
-```rust
-zyn! {
-    @if (fields.is_empty()) {
-        @throw "expected at least one field" {
-            @note "empty structs are not supported"
-            @help "add a field to the struct"
-        }
-    }
-    @if (input.is_legacy) {
-        @warn "this derive is deprecated"
-    }
-}
-```
-
 ### Elements
 
 Reusable template components:
