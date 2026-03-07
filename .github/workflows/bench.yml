@@ -30,7 +30,6 @@ jobs:
           --threshold-measure latency \
           --threshold-test t_test \
           --threshold-upper-boundary 0.95 \
-          --err \
           cargo bench -p zyn
 
   bench-pr:
