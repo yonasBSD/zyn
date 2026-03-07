@@ -1,43 +1,38 @@
-use criterion::{Criterion, black_box, criterion_group, criterion_main};
+#![feature(test)]
+
+extern crate test;
+
 use heck::{ToLowerCamelCase, ToPascalCase, ToSnakeCase};
+use test::{Bencher, black_box};
 
 const INPUT: &str = "first_name_field";
 
-fn snake(c: &mut Criterion) {
-    let mut group = c.benchmark_group("snake");
-
-    group.bench_function("heck", |b| b.iter(|| black_box(INPUT).to_snake_case()));
-    group.bench_function("zyn", |b| {
-        b.iter(|| zyn_core::case::to_snake(black_box(INPUT)))
-    });
-
-    group.finish();
+#[bench]
+fn snake_heck(b: &mut Bencher) {
+    b.iter(|| black_box(INPUT).to_snake_case())
 }
 
-fn pascal(c: &mut Criterion) {
-    let mut group = c.benchmark_group("pascal");
-
-    group.bench_function("heck", |b| b.iter(|| black_box(INPUT).to_pascal_case()));
-    group.bench_function("zyn", |b| {
-        b.iter(|| zyn_core::case::to_pascal(black_box(INPUT)))
-    });
-
-    group.finish();
+#[bench]
+fn snake_zyn(b: &mut Bencher) {
+    b.iter(|| zyn_core::case::to_snake(black_box(INPUT)))
 }
 
-fn camel(c: &mut Criterion) {
-    let mut group = c.benchmark_group("camel");
-
-    group.bench_function("heck", |b| {
-        b.iter(|| black_box(INPUT).to_lower_camel_case())
-    });
-
-    group.bench_function("zyn", |b| {
-        b.iter(|| zyn_core::case::to_camel(black_box(INPUT)))
-    });
-
-    group.finish();
+#[bench]
+fn pascal_heck(b: &mut Bencher) {
+    b.iter(|| black_box(INPUT).to_pascal_case())
 }
 
-criterion_group!(benches, snake, pascal, camel);
-criterion_main!(benches);
+#[bench]
+fn pascal_zyn(b: &mut Bencher) {
+    b.iter(|| zyn_core::case::to_pascal(black_box(INPUT)))
+}
+
+#[bench]
+fn camel_heck(b: &mut Bencher) {
+    b.iter(|| black_box(INPUT).to_lower_camel_case())
+}
+
+#[bench]
+fn camel_zyn(b: &mut Bencher) {
+    b.iter(|| zyn_core::case::to_camel(black_box(INPUT)))
+}

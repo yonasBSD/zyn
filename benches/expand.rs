@@ -1,6 +1,10 @@
-use criterion::{Criterion, black_box, criterion_group, criterion_main};
+#![feature(test)]
+
+extern crate test;
+
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
+use test::{Bencher, black_box};
 use zyn_core::{Fields, FromInput, Input, Pipe, pipes};
 
 fn make_input() -> TokenStream {
@@ -15,141 +19,113 @@ fn make_input() -> TokenStream {
     }
 }
 
-fn parse_group(c: &mut Criterion) {
+#[bench]
+fn parse_vanilla(b: &mut Bencher) {
     let ts = make_input();
-    let mut group = c.benchmark_group("parse");
-
-    group.bench_function("vanilla", |b| {
-        b.iter(|| syn::parse2::<syn::DeriveInput>(black_box(ts.clone())).unwrap())
-    });
-
-    group.bench_function("zyn", |b| {
-        b.iter(|| syn::parse2::<Input>(black_box(ts.clone())).unwrap())
-    });
-
-    group.finish();
+    b.iter(|| syn::parse2::<syn::DeriveInput>(black_box(ts.clone())).unwrap())
 }
 
-fn extract_group(c: &mut Criterion) {
+#[bench]
+fn parse_zyn(b: &mut Bencher) {
     let ts = make_input();
-    let derive: syn::DeriveInput = syn::parse2(ts.clone()).unwrap();
-    let input: Input = syn::parse2(ts).unwrap();
-    let mut group = c.benchmark_group("extract");
-
-    group.bench_function("vanilla", |b| {
-        b.iter(|| {
-            let syn::Data::Struct(ref s) = black_box(&derive).data else {
-                panic!()
-            };
-
-            let syn::Fields::Named(ref n) = s.fields else {
-                panic!()
-            };
-
-            black_box(n.clone())
-        })
-    });
-
-    group.bench_function("zyn", |b| {
-        b.iter(|| black_box(Fields::<syn::FieldsNamed>::from_input(black_box(&input)).unwrap()))
-    });
-
-    group.finish();
+    b.iter(|| syn::parse2::<Input>(black_box(ts.clone())).unwrap())
 }
 
-fn codegen_group(c: &mut Criterion) {
+#[bench]
+fn extract_vanilla(b: &mut Bencher) {
     let ts = make_input();
-    let derive: syn::DeriveInput = syn::parse2(ts.clone()).unwrap();
+    let derive: syn::DeriveInput = syn::parse2(ts).unwrap();
+    b.iter(|| {
+        let syn::Data::Struct(ref s) = black_box(&derive).data else {
+            panic!()
+        };
+        let syn::Fields::Named(ref n) = s.fields else {
+            panic!()
+        };
+        black_box(n.clone())
+    })
+}
+
+#[bench]
+fn extract_zyn(b: &mut Bencher) {
+    let ts = make_input();
     let input: Input = syn::parse2(ts).unwrap();
+    b.iter(|| black_box(Fields::<syn::FieldsNamed>::from_input(black_box(&input)).unwrap()))
+}
+
+#[bench]
+fn codegen_vanilla(b: &mut Bencher) {
+    let ts = make_input();
+    let derive: syn::DeriveInput = syn::parse2(ts).unwrap();
     let syn::Data::Struct(ref data) = derive.data else {
         panic!()
     };
     let syn::Fields::Named(ref named) = data.fields else {
         panic!()
     };
-    let fields = Fields::<syn::FieldsNamed>::from_input(&input).unwrap();
-    let mut group = c.benchmark_group("codegen");
-
-    group.bench_function("vanilla", |b| {
-        b.iter(|| {
-            let methods = named.named.iter().map(|f| {
-                let fname = f.ident.as_ref().unwrap();
-                let getter = format_ident!("get_{}", fname);
-                let ty = &f.ty;
-                quote! { pub fn #getter(&self) -> &#ty { &self.#fname } }
-            });
-
-            black_box(quote! { impl UserRecord { #(#methods)* } })
-        })
-    });
-
-    group.bench_function("zyn", |b| {
-        b.iter(|| {
-            let methods = fields.named.iter().map(|f| {
-                let fname = f.ident.as_ref().unwrap();
-                let getter = pipes::Ident("get_{}").pipe(fname.to_string());
-                let ty = &f.ty;
-                quote! { pub fn #getter(&self) -> &#ty { &self.#fname } }
-            });
-
-            black_box(quote! { impl UserRecord { #(#methods)* } })
-        })
-    });
-
-    group.finish();
+    let named = named.clone();
+    b.iter(|| {
+        let methods = named.named.iter().map(|f| {
+            let fname = f.ident.as_ref().unwrap();
+            let getter = format_ident!("get_{}", fname);
+            let ty = &f.ty;
+            quote! { pub fn #getter(&self) -> &#ty { &self.#fname } }
+        });
+        black_box(quote! { impl UserRecord { #(#methods)* } })
+    })
 }
 
-fn full_group(c: &mut Criterion) {
+#[bench]
+fn codegen_zyn(b: &mut Bencher) {
     let ts = make_input();
-    let mut group = c.benchmark_group("full");
-
-    group.bench_function("vanilla", |b| {
-        b.iter(|| {
-            let derive: syn::DeriveInput = syn::parse2(ts.clone()).unwrap();
-            let name = &derive.ident;
-            let syn::Data::Struct(ref data) = derive.data else {
-                panic!()
-            };
-
-            let syn::Fields::Named(ref named) = data.fields else {
-                panic!()
-            };
-
-            let methods = named.named.iter().map(|f| {
-                let fname = f.ident.as_ref().unwrap();
-                let getter = format_ident!("get_{}", fname);
-                let ty = &f.ty;
-                quote! { pub fn #getter(&self) -> &#ty { &self.#fname } }
-            });
-
-            black_box(quote! { impl #name { #(#methods)* } })
-        })
-    });
-
-    group.bench_function("zyn", |b| {
-        b.iter(|| {
-            let input: Input = syn::parse2(ts.clone()).unwrap();
-            let name = input.ident();
-            let fields = Fields::<syn::FieldsNamed>::from_input(&input).unwrap();
-            let methods = fields.named.iter().map(|f| {
-                let fname = f.ident.as_ref().unwrap();
-                let getter = pipes::Ident("get_{}").pipe(fname.to_string());
-                let ty = &f.ty;
-                quote! { pub fn #getter(&self) -> &#ty { &self.#fname } }
-            });
-
-            black_box(quote! { impl #name { #(#methods)* } })
-        })
-    });
-
-    group.finish();
+    let input: Input = syn::parse2(ts).unwrap();
+    let fields = Fields::<syn::FieldsNamed>::from_input(&input).unwrap();
+    b.iter(|| {
+        let methods = fields.named.iter().map(|f| {
+            let fname = f.ident.as_ref().unwrap();
+            let getter = pipes::Ident("get_{}").pipe(fname.to_string());
+            let ty = &f.ty;
+            quote! { pub fn #getter(&self) -> &#ty { &self.#fname } }
+        });
+        black_box(quote! { impl UserRecord { #(#methods)* } })
+    })
 }
 
-criterion_group!(
-    benches,
-    parse_group,
-    extract_group,
-    codegen_group,
-    full_group
-);
-criterion_main!(benches);
+#[bench]
+fn full_vanilla(b: &mut Bencher) {
+    let ts = make_input();
+    b.iter(|| {
+        let derive: syn::DeriveInput = syn::parse2(ts.clone()).unwrap();
+        let name = &derive.ident;
+        let syn::Data::Struct(ref data) = derive.data else {
+            panic!()
+        };
+        let syn::Fields::Named(ref named) = data.fields else {
+            panic!()
+        };
+        let methods = named.named.iter().map(|f| {
+            let fname = f.ident.as_ref().unwrap();
+            let getter = format_ident!("get_{}", fname);
+            let ty = &f.ty;
+            quote! { pub fn #getter(&self) -> &#ty { &self.#fname } }
+        });
+        black_box(quote! { impl #name { #(#methods)* } })
+    })
+}
+
+#[bench]
+fn full_zyn(b: &mut Bencher) {
+    let ts = make_input();
+    b.iter(|| {
+        let input: Input = syn::parse2(ts.clone()).unwrap();
+        let name = input.ident();
+        let fields = Fields::<syn::FieldsNamed>::from_input(&input).unwrap();
+        let methods = fields.named.iter().map(|f| {
+            let fname = f.ident.as_ref().unwrap();
+            let getter = pipes::Ident("get_{}").pipe(fname.to_string());
+            let ty = &f.ty;
+            quote! { pub fn #getter(&self) -> &#ty { &self.#fname } }
+        });
+        black_box(quote! { impl #name { #(#methods)* } })
+    })
+}
