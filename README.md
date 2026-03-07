@@ -5,6 +5,12 @@ I kept rebuilding the same proc macro scaffolding across my own crates — `syn`
 <a href="https://aacebo.github.io/zyn" target="_blank">
     <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
 </a>
+<a href="https://docs.rs/zyn" target="_blank">
+    <img src="https://img.shields.io/docsrs/zyn" alt="docs.rs" />
+</a>
+<a href="https://crates.io/crates/zyn" target="_blank">
+    <img src="https://img.shields.io/crates/v/zyn" alt="crates.io" />
+</a>
 
 `cargo add zyn`
 
@@ -228,13 +234,7 @@ darling and faster than the raw `syn::parse2` baseline. The full derive pipeline
 
 Full results, methodology, and charts: [`benches/RESULTS.md`](benches/RESULTS.md)
 
-## Links
-
-- GitHub: https://github.com/aacebo/zyn
-- Docs / Book: https://aacebo.github.io/zyn
-- crates.io: https://crates.io/crates/zyn
-
-This is v0.3.2. I'd appreciate any feedback — on the API design, the template syntax, the docs, or anything else. Happy to answer questions.
+I'd appreciate any feedback — on the API design, the template syntax, the docs, or anything else. Happy to answer questions.
 
 ## License
 
