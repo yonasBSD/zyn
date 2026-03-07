@@ -1,5 +1,7 @@
 # zyn — a template engine for Rust proc macros
 
+[Benchmarks](./BENCH.md)
+
 I kept rebuilding the same proc macro scaffolding across my own crates — `syn` for parsing, `quote` for codegen, `heck` for case conversion, `proc-macro-error` for diagnostics, hand-rolled attribute parsing, and a pile of helper functions returning `TokenStream`. Every project was the same patchwork. zyn started as a way to stop repeating myself, and turned into a framework that replaces all of it with a single crate.
 
 <a href="https://aacebo.github.io/zyn" target="_blank">
@@ -224,10 +226,6 @@ fn builder(
 - `zyn::debug!` — drop-in `zyn!` replacement that prints expansions (`pretty`, `raw`, `ast` modes)
 - Case conversion functions available outside templates (`zyn::case::to_snake()`, etc.)
 - Re-exports `syn`, `quote`, and `proc-macro2` — one dependency in your `Cargo.toml`
-
-## Benchmarks
-
-<a href="https://bencher.dev/perf/zyn?key=true&reports_per_page=4&branches_per_page=8&testbeds_per_page=8&benchmarks_per_page=8&plots_per_page=8&reports_page=1&branches_page=1&testbeds_page=1&benchmarks_page=1&plots_page=1&report=872580c2-e3b1-493e-9aa2-bb78ba32b1b9&branches=d618e093-bbbc-439f-82af-4502c72cd2bd&heads=10a98bfb-f445-44d8-a7af-70c646b41b9e&testbeds=dbe8a0e5-b945-4f98-9cd3-303f96426cd4&benchmarks=a9077c45-a5ab-4fa8-8eea-5712bf3fa2dd%2Cb3e8cab4-ade2-4d10-9360-68543924b15c%2C41f60875-5055-48df-a59c-a4aa52aa2d85%2C9e76f3fb-c6c7-4825-a86a-f5574f6c0839%2C14f880fe-debb-4aa1-bc6f-e61b010e4aad%2Cf84312b5-0a93-4583-8cf0-34aecbb11289%2C0d1b6cd4-ddad-45c3-8024-98f531e45436%2Cf1682dba-4253-4336-b828-e4acd505254a%2C37568f5d-9b92-4dd8-971f-65a2d3c23efb%2C19886ff1-468f-4126-a1a8-01b680c66df3&measures=f051294e-7710-4809-a4b7-1181628e464b&start_time=1770321345000&end_time=1772913383000&lower_boundary=false&upper_boundary=false&clear=true&utm_medium=share&utm_source=bencher&utm_content=img&utm_campaign=perf%2Bimg&utm_term=zyn"><img src="https://api.bencher.dev/v0/projects/zyn/perf/img?branches=d618e093-bbbc-439f-82af-4502c72cd2bd&heads=10a98bfb-f445-44d8-a7af-70c646b41b9e&testbeds=dbe8a0e5-b945-4f98-9cd3-303f96426cd4&specs=&benchmarks=a9077c45-a5ab-4fa8-8eea-5712bf3fa2dd%2Cb3e8cab4-ade2-4d10-9360-68543924b15c%2C41f60875-5055-48df-a59c-a4aa52aa2d85%2C9e76f3fb-c6c7-4825-a86a-f5574f6c0839%2C14f880fe-debb-4aa1-bc6f-e61b010e4aad%2Cf84312b5-0a93-4583-8cf0-34aecbb11289%2C0d1b6cd4-ddad-45c3-8024-98f531e45436%2Cf1682dba-4253-4336-b828-e4acd505254a%2C37568f5d-9b92-4dd8-971f-65a2d3c23efb%2C19886ff1-468f-4126-a1a8-01b680c66df3&measures=f051294e-7710-4809-a4b7-1181628e464b&start_time=1770321345000&end_time=1772913383000" title="zyn" alt="zyn - Bencher" /></a>
 
 I'd appreciate any feedback — on the API design, the template syntax, the docs, or anything else. Happy to answer questions.
 
