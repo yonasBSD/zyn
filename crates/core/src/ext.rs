@@ -1,3 +1,20 @@
+//! Extension traits for `syn::Attribute` parsing.
+//!
+//! Requires the `ext` feature (`zyn = { features = ["ext"] }`).
+//!
+//! # Examples
+//!
+//! ```ignore
+//! use zyn::ext::{AttrExt, AttrsExt};
+//!
+//! if attr.is("serde") {
+//!     let args = attr.args().unwrap();
+//!     // args → parsed key-value pairs from #[serde(...)]
+//! }
+//!
+//! let args = item.attrs.find_args("derive").unwrap();
+//! ```
+
 use syn::Attribute;
 
 use crate::meta::Args;

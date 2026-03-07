@@ -1,3 +1,39 @@
+//! Diagnostic accumulation and emission.
+//!
+//! [`Diagnostics`] collects errors, warnings, notes, and help messages and emits
+//! them as span-aware compiler diagnostics. Multiple diagnostics can be accumulated
+//! so all errors in a single macro invocation are reported together.
+//!
+//! # Examples
+//!
+//! Inside a `#[zyn::derive]` or `#[zyn::element]` body, use the shorthand macros:
+//!
+//! ```ignore
+//! #[zyn::derive]
+//! fn my_derive(#[zyn(input)] fields: zyn::Fields) -> zyn::TokenStream {
+//!     if fields.is_empty() {
+//!         bail!("at least one field is required");
+//!         // compiler output:
+//!         // error: at least one field is required
+//!         //  --> src/lib.rs:3:10
+//!         //   |
+//!         // 3 | #[derive(MyDerive)]
+//!         //   |          ^^^^^^^^
+//!     }
+//!     zyn::zyn!()
+//! }
+//! ```
+//!
+//! Building diagnostics directly:
+//!
+//! ```ignore
+//! use zyn_core::diagnostic::Diagnostics;
+//!
+//! let mut d = Diagnostics::new();
+//! d.push(Diagnostics::error(span, "something went wrong"));
+//! d.emit();
+//! ```
+
 pub use proc_macro2_diagnostics::Diagnostic;
 pub use proc_macro2_diagnostics::Level;
 pub use proc_macro2_diagnostics::SpanDiagnosticExt;

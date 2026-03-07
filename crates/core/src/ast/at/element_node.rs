@@ -15,10 +15,23 @@ use crate::template::Template;
 use crate::Expand;
 use crate::pascal;
 
+/// A `#[zyn::element]` component invocation.
+///
+/// ```text
+/// @my_getter(name = field.ident.clone(), ty = field.ty.clone())
+/// @wrapper(title = "hello") { nested content }
+/// ```
+///
+/// At expand time the name is PascalCase-converted, a struct literal is constructed
+/// with the given props, and [`crate::Render::render`] is called on it.
 pub struct ElementNode {
+    /// Source span of the `@` token.
     pub span: Span,
+    /// The element name (may include `::` path separators).
     pub name: TokenStream,
+    /// Named props as `(name, value)` pairs from `(prop = val, ...)`.
     pub props: Vec<(syn::Ident, TokenStream)>,
+    /// Optional children block passed to the element's `children` field.
     pub children: Option<Box<Template>>,
 }
 

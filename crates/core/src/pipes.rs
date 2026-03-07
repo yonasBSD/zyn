@@ -1,3 +1,36 @@
+//! Built-in pipe transforms for template value interpolation.
+//!
+//! Each pipe is a zero-sized struct implementing [`crate::Pipe`]. Pipes are applied
+//! in `{{ expr | pipe }}` expressions inside `zyn!` templates and can be chained.
+//!
+//! # Template usage
+//!
+//! ```ignore
+//! // Single pipe
+//! zyn::zyn! { fn {{ name | snake }}() {} }
+//! // name = "HelloWorld" → fn hello_world() {}
+//!
+//! // Chained pipes
+//! zyn::zyn! { fn {{ name | snake | ident:"get_{}" }}() {} }
+//! // name = "HelloWorld" → fn get_hello_world() {}
+//!
+//! // Pipe to string literal
+//! zyn::zyn! { const PATH: &str = {{ name | kebab }}; }
+//! // name = "MyComponent" → const PATH: &str = "my-component";
+//! ```
+//!
+//! # Using pipes outside templates
+//!
+//! ```ignore
+//! use zyn_core::{Pipe, pipes};
+//!
+//! let ident = pipes::Snake.pipe("HelloWorld".to_string());
+//! // → hello_world (proc_macro2::Ident)
+//!
+//! let lit = pipes::Fmt("error_{}.rs").pipe("not_found".to_string());
+//! // → "error_not_found.rs" (syn::LitStr)
+//! ```
+
 use crate::Pipe;
 use crate::case;
 

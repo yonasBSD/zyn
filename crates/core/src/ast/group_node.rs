@@ -12,9 +12,15 @@ use crate::template::Template;
 
 use crate::Expand;
 
+/// A delimited group in a zyn template: `(...)`, `[...]`, or `{...}`.
+///
+/// The body is expanded recursively and wrapped in the appropriate delimiter.
 pub struct GroupNode {
+    /// Source span.
     pub span: Span,
+    /// The delimiter kind: parenthesis, bracket, or brace.
     pub delimiter: Delimiter,
+    /// The template body inside the delimiters.
     pub body: Box<Template>,
 }
 

@@ -13,9 +13,24 @@ use crate::template::Template;
 
 use crate::Expand;
 
+/// An `@if` / `@else if` / `@else` conditional block.
+///
+/// ```text
+/// @if (condition) {
+///     // then branch
+/// } @else if (other) {
+///     // else-if branch
+/// } @else {
+///     // else branch
+/// }
+/// ```
 pub struct IfNode {
+    /// Source span of the `@` token.
     pub span: Span,
+    /// One or more `(condition, body)` pairs. The first is the `@if` branch;
+    /// subsequent pairs are `@else if` branches.
     pub branches: Vec<(TokenStream, Template)>,
+    /// Body of the trailing `@else` block, if present.
     pub else_body: Option<Box<Template>>,
 }
 

@@ -13,9 +13,21 @@ use syn::parse::ParseStream;
 use crate::Expand;
 use crate::pascal;
 
+/// A single pipe stage in a `{{ expr | pipe }}` interpolation.
+///
+/// At expand time, the name is matched against the built-in pipe list. Unrecognised
+/// names are assumed to be custom pipe structs and are PascalCase-converted.
+///
+/// ```text
+/// {{ name | snake }}          → PipeNode { name: "snake", args: [] }
+/// {{ name | ident:"get_{}" }} → PipeNode { name: "ident", args: ["get_{}"] }
+/// ```
 pub struct PipeNode {
+    /// Source span of the pipe name.
     pub span: Span,
+    /// The pipe name as written, e.g. `snake`, `ident`, `my_custom_pipe`.
     pub name: syn::Ident,
+    /// Colon-separated arguments following the name.
     pub args: Vec<TokenStream>,
 }
 

@@ -6,8 +6,14 @@ use quote::quote;
 
 use crate::Expand;
 
+/// Literal Rust tokens passed through unchanged in a zyn template.
+///
+/// In `zyn! { fn {{ name }}() {} }`, the tokens `fn`, `(`, `)`, `{`, `}` each
+/// contribute to a `TokensNode`.
 pub struct TokensNode {
+    /// Source span.
     pub span: Span,
+    /// The literal token stream.
     pub stream: TokenStream,
 }
 

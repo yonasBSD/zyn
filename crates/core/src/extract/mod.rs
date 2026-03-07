@@ -1,3 +1,53 @@
+//! Extractors for resolving typed values from proc macro input.
+//!
+//! [`FromInput`] is the core extraction trait. Built-in extractors handle the most
+//! common patterns — pass `&Input` to resolve them:
+//!
+//! | Extractor | Resolves |
+//! |-----------|---------|
+//! | [`Fields<T>`] | Named or unnamed struct fields |
+//! | [`Attr<T>`] | A typed `#[derive(Attribute)]` struct from helper attrs |
+//! | [`Variants`] | Enum variants |
+//! | [`Data<T>`] | Re-parsed full input |
+//! | [`Extract<T>`] | Any `FromInput` impl |
+//!
+//! # Examples
+//!
+//! Extracting fields and an ident in an element (extractors are detected by type
+//! name — no attribute needed):
+//!
+//! ```ignore
+//! #[zyn::element]
+//! fn my_impl(
+//!     ident: zyn::Extract<zyn::syn::Ident>,
+//!     fields: zyn::Fields<zyn::syn::FieldsNamed>,
+//! ) -> zyn::TokenStream {
+//!     zyn::zyn! {
+//!         impl {{ ident }} {
+//!             @for (f in fields.named.iter()) {
+//!                 pub fn {{ f.ident }}_ref(&self) -> &{{ f.ty }} {
+//!                     &self.{{ f.ident }}
+//!                 }
+//!             }
+//!         }
+//!     }
+//! }
+//! ```
+//!
+//! Implementing `FromInput` manually:
+//!
+//! ```ignore
+//! use zyn_core::{FromInput, Input, Result};
+//!
+//! struct MyExtractor(String);
+//!
+//! impl FromInput for MyExtractor {
+//!     fn from_input(input: &Input) -> Result<Self> {
+//!         Ok(MyExtractor(input.ident().to_string()))
+//!     }
+//! }
+//! ```
+
 use quote::ToTokens;
 use syn::Lit;
 use syn::spanned::Spanned;

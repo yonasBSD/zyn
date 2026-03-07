@@ -1,3 +1,31 @@
+//! Procedural macros for the zyn framework.
+//!
+//! Re-exported through the root `zyn` crate. All macros are accessed as
+//! `zyn::zyn!`, `#[zyn::element]`, etc.
+//!
+//! # Quick reference
+//!
+//! ```ignore
+//! // Template expansion
+//! zyn::zyn! { fn {{ name | snake }}() {} }
+//!
+//! // Reusable component
+//! #[zyn::element]
+//! fn my_getter(name: syn::Ident, ty: syn::Type) -> zyn::TokenStream { ... }
+//!
+//! // Derive macro entry point
+//! #[zyn::derive]
+//! fn my_derive(
+//!     #[zyn(input)] ident: zyn::Extract<zyn::syn::Ident>,
+//!     #[zyn(input)] fields: zyn::Fields,
+//! ) -> zyn::TokenStream { ... }
+//!
+//! // Typed attribute parsing
+//! #[derive(zyn::Attribute)]
+//! #[zyn("my_attr")]
+//! struct MyAttr { skip: bool, rename: Option<String> }
+//! ```
+
 mod attribute;
 mod common;
 mod macros;

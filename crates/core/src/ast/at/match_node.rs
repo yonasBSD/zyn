@@ -14,9 +14,20 @@ use crate::template::Template;
 
 use crate::Expand;
 
+/// A `@match` expression.
+///
+/// ```text
+/// @match (expr) {
+///     Some(v) => { {{ v }} },
+///     None    => { default },
+/// }
+/// ```
 pub struct MatchNode {
+    /// Source span of the `@` token.
     pub span: Span,
+    /// The expression to match on.
     pub expr: TokenStream,
+    /// Match arms as `(pattern, body)` pairs.
     pub arms: Vec<(TokenStream, Template)>,
 }
 

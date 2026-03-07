@@ -1,3 +1,17 @@
+//! Internal identifier generation for template expansion.
+//!
+//! [`Iter`] produces sequential hygienic identifiers (`__zyn_ts_0`, `__zyn_ts_1`,
+//! ...) used by the template expander to name temporaries in expanded code. Not
+//! intended for direct use by proc macro authors.
+//!
+//! # Example
+//!
+//! ```ignore
+//! let mut iter = zyn_core::ident::Iter::new();
+//! assert_eq!(iter.next().unwrap().to_string(), "__zyn_ts_0");
+//! assert_eq!(iter.next().unwrap().to_string(), "__zyn_ts_1");
+//! ```
+
 use proc_macro2::Ident;
 use proc_macro2::Span;
 

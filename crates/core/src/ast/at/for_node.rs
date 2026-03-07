@@ -12,10 +12,25 @@ use crate::template::Template;
 
 use crate::Expand;
 
+/// A `@for` loop.
+///
+/// Iterator form:
+/// ```text
+/// @for (item in fields.iter()) { {{ item.ident }}, }
+/// ```
+///
+/// Classic repeat form (repeats N times with no binding):
+/// ```text
+/// @for (3) { x, }   // → x, x, x,
+/// ```
 pub struct ForNode {
+    /// Source span of the `@` token.
     pub span: Span,
+    /// The loop binding identifier. `_` for the classic repeat form.
     pub binding: syn::Ident,
+    /// The iterator expression, e.g. `fields.iter()` or `0..3`.
     pub iter: TokenStream,
+    /// The loop body template.
     pub body: Box<Template>,
 }
 

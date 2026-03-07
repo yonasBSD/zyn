@@ -1,3 +1,26 @@
+//! Template parsing and expansion.
+//!
+//! In normal use, the `zyn!` proc macro compiles templates at macro-expansion time.
+//! [`Template`] is primarily useful for inspecting the parsed AST or building
+//! templates dynamically.
+//!
+//! # Examples
+//!
+//! Parsing a template and inspecting its nodes:
+//!
+//! ```ignore
+//! use zyn_core::template::Template;
+//!
+//! let tmpl: Template = syn::parse_str("fn {{ name }}() {}").unwrap();
+//! // tmpl.nodes → [Tokens("fn"), Interp(name), Tokens("() {}")]
+//! assert_eq!(tmpl.nodes.len(), 3);
+//! ```
+//!
+//! `to_token_stream()` and `render(&input)` produce proc macro output code —
+//! `TokenStream` that, when returned from a proc macro, generates the expanded
+//! template in the user's crate. `render` additionally binds `input` in scope
+//! so templates can reference it directly.
+
 use proc_macro2::Ident;
 use proc_macro2::Span;
 use proc_macro2::TokenStream;

@@ -1,3 +1,16 @@
+//! Debug formatting and printing for template expansions.
+//!
+//! Used by the `#[zyn::debug]` macro to print expanded token streams or the
+//! template AST to stderr during development. Not intended for production use.
+//!
+//! # Example
+//!
+//! ```ignore
+//! // Replace zyn! with zyn::debug! to print the expansion to stderr:
+//! zyn::debug! { fn {{ name | snake }}() {} }
+//! // stderr: fn hello_world() {}
+//! ```
+
 use proc_macro2::TokenStream;
 
 use crate::ast;

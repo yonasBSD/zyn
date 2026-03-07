@@ -1,3 +1,18 @@
+//! Template AST node types.
+//!
+//! A [`crate::template::Template`] is a flat sequence of [`Node`]s. The node type
+//! is determined by the template syntax:
+//!
+//! | Template syntax | Node variant |
+//! |----------------|-------------|
+//! | `fn foo() {}` (literal tokens) | [`Node::Tokens`] |
+//! | `{{ name \| snake }}` | [`Node::Interp`] |
+//! | `@if`, `@for`, `@match`, `@element` | [`Node::At`] |
+//! | `(...)`, `[...]`, `{...}` groups | [`Node::Group`] |
+//!
+//! These types are public for inspection but are not typically used directly —
+//! the `zyn!` macro handles parsing and expansion internally.
+
 pub mod at;
 mod group_node;
 mod interp_node;
@@ -23,32 +38,44 @@ use syn::parse::ParseStream;
 use crate::Expand;
 use crate::ident;
 
+/// A single node in a parsed zyn template.
+///
+/// See the [`ast`](crate::ast) module for the full node taxonomy.
 pub enum Node {
+    /// Literal Rust tokens passed through unchanged.
     Tokens(TokensNode),
+    /// An interpolation expression: `{{ expr }}` or `{{ expr | pipe | ... }}`.
     Interp(InterpNode),
+    /// An `@`-prefixed control-flow or element statement.
     At(AtNode),
+    /// A delimited group: `(...)`, `[...]`, or `{...}`.
     Group(GroupNode),
 }
 
 impl Node {
+    /// Returns `true` if this is a [`Node::Tokens`] variant.
     pub fn is_tokens(&self) -> bool {
         matches!(self, Self::Tokens(_))
     }
 
+    /// Returns `true` if this is a [`Node::Interp`] variant.
     pub fn is_interp(&self) -> bool {
         matches!(self, Self::Interp(_))
     }
 
+    /// Returns `true` if this is a [`Node::At`] variant.
     pub fn is_at(&self) -> bool {
         matches!(self, Self::At(_))
     }
 
+    /// Returns `true` if this is a [`Node::Group`] variant.
     pub fn is_group(&self) -> bool {
         matches!(self, Self::Group(_))
     }
 }
 
 impl Node {
+    /// Returns the inner [`TokensNode`]. Panics if not a `Tokens` variant.
     pub fn as_tokens(&self) -> &TokensNode {
         match self {
             Self::Tokens(v) => v,
@@ -56,6 +83,7 @@ impl Node {
         }
     }
 
+    /// Returns the inner [`InterpNode`]. Panics if not an `Interp` variant.
     pub fn as_interp(&self) -> &InterpNode {
         match self {
             Self::Interp(v) => v,
@@ -63,6 +91,7 @@ impl Node {
         }
     }
 
+    /// Returns the inner [`AtNode`]. Panics if not an `At` variant.
     pub fn as_at(&self) -> &AtNode {
         match self {
             Self::At(v) => v,
@@ -70,6 +99,7 @@ impl Node {
         }
     }
 
+    /// Returns the inner [`GroupNode`]. Panics if not a `Group` variant.
     pub fn as_group(&self) -> &GroupNode {
         match self {
             Self::Group(v) => v,
@@ -79,6 +109,7 @@ impl Node {
 }
 
 impl Node {
+    /// Returns the source span of this node.
     pub fn span(&self) -> Span {
         match self {
             Self::Tokens(v) => v.span(),

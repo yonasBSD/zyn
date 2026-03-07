@@ -14,9 +14,16 @@ use super::PipeNode;
 
 use crate::Expand;
 
+/// An interpolation expression: `{{ expr }}` or `{{ expr | pipe | ... }}`.
+///
+/// The expression is evaluated at expand time and emitted into the output token
+/// stream, optionally transformed through a chain of [`PipeNode`]s.
 pub struct InterpNode {
+    /// Source span of the `{{ ... }}` delimiters.
     pub span: Span,
+    /// The expression to interpolate, e.g. `name` or `field.ty`.
     pub expr: TokenStream,
+    /// Pipe transforms applied in order, e.g. `[snake, ident:"get_{}"]`.
     pub pipes: Vec<PipeNode>,
 }
 

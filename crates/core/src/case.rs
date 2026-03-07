@@ -1,3 +1,31 @@
+//! Case conversion functions and macros.
+//!
+//! zyn ships its own case conversion — no dependency on `heck`.
+//!
+//! # Functions
+//!
+//! ```ignore
+//! use zyn_core::case;
+//!
+//! assert_eq!(case::to_snake("HelloWorld"),   "hello_world");
+//! assert_eq!(case::to_pascal("hello_world"), "HelloWorld");
+//! assert_eq!(case::to_camel("hello_world"),  "helloWorld");
+//! assert_eq!(case::to_screaming("fooBar"),   "FOO_BAR");
+//! assert_eq!(case::to_kebab("FooBar"),       "foo-bar");
+//! ```
+//!
+//! # Macros
+//!
+//! ```ignore
+//! // String form
+//! let s: String = zyn_core::snake!("HelloWorld");
+//! // → "hello_world"
+//!
+//! // Ident form (preserves span)
+//! let id: syn::Ident = zyn_core::pascal!(my_ident => ident);
+//! // my_ident = `foo_bar` → `FooBar`
+//! ```
+
 /// Converts a string to PascalCase.
 ///
 /// Handles snake_case, camelCase, PascalCase, and SCREAMING_SNAKE_CASE inputs.

@@ -1,3 +1,15 @@
+//! `@`-prefixed control-flow and component nodes.
+//!
+//! An [`AtNode`] is produced whenever the parser encounters `@` in a template.
+//! The keyword or identifier following `@` determines the variant:
+//!
+//! | Syntax | Variant |
+//! |--------|---------|
+//! | `@if (cond) { ... }` | [`AtNode::If`] |
+//! | `@for (x in iter) { ... }` | [`AtNode::For`] |
+//! | `@match (expr) { ... }` | [`AtNode::Match`] |
+//! | `@my_element(...)` | [`AtNode::Element`] |
+
 mod element_node;
 mod for_node;
 mod if_node;
@@ -19,32 +31,44 @@ use syn::parse::ParseStream;
 
 use crate::Expand;
 
+/// An `@`-prefixed statement in a zyn template.
+///
+/// See the [`at`](crate::ast::at) module for the syntax of each variant.
 pub enum AtNode {
+    /// `@if (cond) { ... } @else if (...) { ... } @else { ... }`
     If(IfNode),
+    /// `@for (item in expr) { ... }` or `@for (count) { ... }`
     For(ForNode),
+    /// `@match (expr) { pattern => { ... }, ... }`
     Match(MatchNode),
+    /// `@component_name(prop = val, ...) { children }`
     Element(ElementNode),
 }
 
 impl AtNode {
+    /// Returns `true` if this is an [`AtNode::If`] variant.
     pub fn is_if(&self) -> bool {
         matches!(self, Self::If(_))
     }
 
+    /// Returns `true` if this is an [`AtNode::For`] variant.
     pub fn is_for(&self) -> bool {
         matches!(self, Self::For(_))
     }
 
+    /// Returns `true` if this is an [`AtNode::Match`] variant.
     pub fn is_match(&self) -> bool {
         matches!(self, Self::Match(_))
     }
 
+    /// Returns `true` if this is an [`AtNode::Element`] variant.
     pub fn is_element(&self) -> bool {
         matches!(self, Self::Element(_))
     }
 }
 
 impl AtNode {
+    /// Returns the inner [`IfNode`]. Panics if not an `If` variant.
     pub fn as_if(&self) -> &IfNode {
         match self {
             Self::If(v) => v,
@@ -52,6 +76,7 @@ impl AtNode {
         }
     }
 
+    /// Returns the inner [`ForNode`]. Panics if not a `For` variant.
     pub fn as_for(&self) -> &ForNode {
         match self {
             Self::For(v) => v,
@@ -59,6 +84,7 @@ impl AtNode {
         }
     }
 
+    /// Returns the inner [`MatchNode`]. Panics if not a `Match` variant.
     pub fn as_match(&self) -> &MatchNode {
         match self {
             Self::Match(v) => v,
@@ -66,6 +92,7 @@ impl AtNode {
         }
     }
 
+    /// Returns the inner [`ElementNode`]. Panics if not an `Element` variant.
     pub fn as_element(&self) -> &ElementNode {
         match self {
             Self::Element(v) => v,
@@ -75,6 +102,7 @@ impl AtNode {
 }
 
 impl AtNode {
+    /// Returns the source span of this node.
     pub fn span(&self) -> Span {
         match self {
             Self::If(v) => v.span(),

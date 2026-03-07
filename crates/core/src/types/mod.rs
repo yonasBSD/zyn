@@ -1,3 +1,32 @@
+//! Proc macro input types.
+//!
+//! [`Input`] is the unified wrapper for both derive and attribute macro input.
+//! It wraps either a [`syn::DeriveInput`] or a [`syn::Item`] and exposes a
+//! common accessor surface.
+//!
+//! # Examples
+//!
+//! Parsing a struct definition into `Input`:
+//!
+//! ```ignore
+//! use zyn_core::Input;
+//!
+//! let ts = quote::quote! { pub struct Foo<T> { value: T } };
+//! let input: Input = syn::parse2(ts).unwrap();
+//!
+//! assert_eq!(input.ident().to_string(), "Foo");
+//! // input.generics() → <T>
+//! // input.vis()      → pub
+//! ```
+//!
+//! `Input` implements `Default` for use in tests — the default is a struct named
+//! `__ZynDefault` with no fields or generics:
+//!
+//! ```ignore
+//! let input = Input::default();
+//! assert_eq!(input.ident().to_string(), "__ZynDefault");
+//! ```
+
 mod derive;
 mod item;
 
