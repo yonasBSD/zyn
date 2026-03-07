@@ -234,7 +234,7 @@ Full results, methodology, and charts: [`benches/RESULTS.md`](benches/RESULTS.md
 - Docs / Book: https://aacebo.github.io/zyn
 - crates.io: https://crates.io/crates/zyn
 
-This is v0.3.1. I'd appreciate any feedback — on the API design, the template syntax, the docs, or anything else. Happy to answer questions.
+This is v0.3.2. I'd appreciate any feedback — on the API design, the template syntax, the docs, or anything else. Happy to answer questions.
 
 ## License
 
