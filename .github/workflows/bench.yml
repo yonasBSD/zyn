@@ -3,6 +3,9 @@ name: Benchmarks
 on:
   push:
     branches: [main]
+  schedule:
+    # Run once per hour at the beginning of the hour (UTC)
+    - cron: "0 * * * *"
   pull_request:
   workflow_dispatch:
   workflow_call:
