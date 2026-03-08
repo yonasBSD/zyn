@@ -4,6 +4,9 @@ publish = false
 version = "0.0.0"
 edition = "2024"
 
+[package.metadata.release]
+release = false
+
 [lib]
 doctest = false
 proc-macro = true
