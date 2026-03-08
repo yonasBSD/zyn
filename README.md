@@ -232,6 +232,12 @@ fn builder(
 
 I'd appreciate any feedback — on the API design, the template syntax, the docs, or anything else. Happy to answer questions.
 
+## Performance
+
+The performance overhead of using zyn over vanilla `syn` + `quote` is negligible — single-digit microseconds in the full proc macro pipeline for both structs and enums. Where zyn replaces external crates, it's actually faster: case conversion is ~6x faster than `heck`, and attribute parsing is ~14% faster than `darling`.
+
+[Live benchmark charts on bencher.dev](./BENCH.md)
+
 ## License
 
 MIT
