@@ -7,7 +7,7 @@ I kept rebuilding the same proc macro scaffolding across my own crates — `syn`
 > ⚡ Everything in zyn is compile-time, type-safe, and zero-overhead — templates, pipes, extractors, and control flow all expand to the same `TokenStream`-building code you'd write by hand.
 
 <a href="https://aacebo.github.io/zyn" target="_blank">
-    <img src="https://img.shields.io/badge/📖 Getting Started-blue?style=for-the-badge" />
+    <img src="https://img.shields.io/badge/📖 Getting Started-blue" />
 </a>
 <a href="https://docs.rs/zyn" target="_blank">
     <img src="https://img.shields.io/docsrs/zyn" alt="docs.rs" />
