@@ -154,28 +154,105 @@ pub fn zyn(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 
 /// Expands a zyn template with diagnostic output for debugging.
 ///
-/// Behaves identically to [`zyn!`] but emits a compile-time diagnostic showing
-/// the expanded token stream. Accepts an optional mode prefix before `=>`.
+/// Behaves identically to [`zyn!`] — returns the same [`TokenStream`] — but
+/// also emits a compile-time diagnostic describing the expansion. Accepts an
+/// optional mode keyword followed by `=>` before the template body; defaults
+/// to `pretty`.
 ///
-/// # Modes
+/// # `pretty` (default) — final rendered tokens, to stderr
 ///
-/// | Mode | Description |
-/// |------|-------------|
-/// | `pretty` (default) | Pretty-printed token stream |
-/// | `raw` | Raw token stream debug output |
-/// | `ast` | AST node debug output |
-/// | `print` | Prints to stdout at compile time |
-///
-/// # Examples
+/// Emits the expanded token stream to stderr at build time, formatted with
+/// indentation. Replace `zyn!` with `zyn::debug!` when you want to see exactly
+/// what your template produces.
 ///
 /// ```ignore
-/// // Default (pretty) mode
-/// let ts = zyn::debug! { struct Foo; };
-///
-/// // Explicit mode
-/// let ts = zyn::debug! { raw => struct Foo; };
-/// let ts = zyn::debug! { ast => @if (flag) { struct Foo; } };
+/// let name = format_ident!("UserStore");
+/// let is_pub = true;
+/// zyn::debug! {
+///     @if (is_pub) { pub }
+///     struct {{ name }} {
+///         id: u64,
+///         email: String,
+///     }
+/// }
 /// ```
+///
+/// ```text
+/// zyn::debug! ─── pretty
+/// pub struct UserStore {
+///     id: u64,
+///     email: String,
+/// }
+/// ```
+///
+/// # `raw` — intermediate generated code, as a compiler note
+///
+/// Shows the Rust code the template compiles to — the code that actually runs
+/// inside your proc macro and builds the output token stream. Internal names
+/// (`__zyn_ts_0`, `__zyn_val`, `::zyn::quote::quote!`, …) are replaced with
+/// readable aliases (`output`, `value`, `quote!`, …).
+///
+/// ```ignore
+/// let name = format_ident!("Greet");
+/// zyn::debug! { raw =>
+///     fn {{ name | snake }}() -> &'static str {
+///         "hello"
+///     }
+/// }
+/// ```
+///
+/// ```text
+/// note: zyn::debug! ─── raw
+///
+/// {
+///     let mut output = TokenStream::new();
+///     quote! {
+///         fn
+///     }.to_tokens(&mut output);
+///     let value = &name;
+///     let value = Pipe::pipe(&snake, &value.to_string());
+///     ToTokens::to_tokens(&value, &mut output);
+///     quote! {
+///         () -> & 'static str {
+///             "hello"
+///         }
+///     }.to_tokens(&mut output);
+///     output
+/// }
+/// ```
+///
+/// # `ast` — template parse tree, as a compiler note
+///
+/// Shows the sequence of [`Node`] variants the template parser produced
+/// *before* any expansion. Each node is one line: `Tokens(...)`,
+/// `Interp { ... }`, `At(If)`, `At(For)`, `At(Match)`, `At(Element)`,
+/// or `Group { ... }`.
+///
+/// ```ignore
+/// zyn::debug! { ast =>
+///     @if (is_pub) { pub }
+///     struct {{ name }} {
+///         @for (field in fields.iter()) {
+///             {{ field.ident }}: {{ field.ty }},
+///         }
+///     }
+/// }
+/// ```
+///
+/// ```text
+/// note: zyn::debug! ─── ast
+///
+/// Template [
+///   At(If)
+///   Tokens("struct")
+///   Interp { ... }
+///   Group { ... }
+/// ]
+/// ```
+///
+/// Each `@if`, `@for`, `@match`, or element call is a single `At(...)` node
+/// regardless of how many tokens are inside it. Bare token runs become
+/// `Tokens(...)` and `{{ }}` blocks become `Interp { ... }`.
 #[proc_macro]
 pub fn debug(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     macros::debug::expand(input.into()).into()
