@@ -13,9 +13,15 @@ use folder::TraceVarFolder;
 #[zyn::element]
 fn assign_trace(left: Expr, op: TokenStream2, right: Expr) -> TokenStream2 {
     zyn::zyn!({
-        {{ left }}
-        {{ op }}
-        {{ right }};
+        {
+            { left }
+        }
+        {
+            { op }
+        }
+        {
+            { right }
+        };
         ::std::println!(
             ::std::concat!(::std::stringify!({ { left } }), " = {:?}"),
             { { left } },
