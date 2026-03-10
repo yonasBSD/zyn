@@ -1,3 +1,5 @@
+<img src="https://raw.githubusercontent.com/aacebo/zyn/refs/heads/main/assets/banner.svg" style="border-radius:10px">
+
 # zyn — a template engine for Rust proc macros
 
 [Benchmarks](./BENCH.md)
