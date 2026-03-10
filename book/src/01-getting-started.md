@@ -16,7 +16,7 @@ Zyn re-exports `syn`, `quote`, and `proc-macro2` — you don't need to add them 
 | Feature | Default | Description |
 |---------|---------|-------------|
 | `derive` | yes | Proc macros (`zyn!`, `debug!`, `#[zyn::element]`, `#[zyn::pipe]`, `#[zyn::derive]`, `#[zyn::attribute]`), extractors (`Extract<T>`, `Attr<T>`, `Fields`, `Variants`, `Data<T>`), diagnostics (`error!`, `warn!`, `note!`, `help!`, `bail!`), and `#[derive(Attribute)]` |
-| `ext` | no | `AttrExt` and `AttrsExt` traits for parsing `syn::Attribute` values |
+| `ext` | no | Extension traits (`AttrExt`, `MetaExt`, `FieldExt`, `FieldsExt`, `TypeExt`, `DataExt`, `ItemExt`, `VariantExt`) for working with `syn` AST types |
 
 To enable `ext`:
 

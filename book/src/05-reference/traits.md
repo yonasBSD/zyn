@@ -29,6 +29,10 @@ Extracts typed data from an `Input` context. Implemented by:
 - `Variants` — extracts enum variants
 - `Data<T: FromData>` — re-parses the full input as `T`
 - `Extract<T: FromInput>` and `Attr<T: FromInput>` — wrapper delegates to `T`
+- `syn::DeriveInput` — returns the full derive input
+- `syn::DataStruct`, `syn::DataEnum`, `syn::DataUnion` — extracts derive data variant
+- `syn::Item` and specific item types (`syn::ItemFn`, `syn::ItemStruct`, etc.) — extracts from item input
+- `syn::ItemStruct`, `syn::ItemEnum`, `syn::ItemUnion` — also work with derive inputs via reconstruction
 
 ## `FromFields`
 
@@ -39,6 +43,16 @@ pub trait FromFields: Sized {
 ```
 
 Converts `syn::Fields` into a specific shape. Implemented for `syn::Fields` (identity), `syn::FieldsNamed` (errors on non-named), `syn::FieldsUnnamed` (errors on non-unnamed). Used as the type parameter of `Fields<T>`.
+
+## `FromData`
+
+```rust
+pub trait FromData: Sized {
+    fn from_data(data: syn::Data) -> zyn::Result<Self>;
+}
+```
+
+Converts `syn::Data` into a specific data representation. Implemented for `syn::Data` (any kind), `syn::DataStruct` (errors on non-struct), `syn::DataEnum` (errors on non-enum), `syn::DataUnion` (errors on non-union). Used as the type parameter of `Data<T>`.
 
 ## `Pipe`
 
