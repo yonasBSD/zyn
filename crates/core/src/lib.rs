@@ -22,6 +22,8 @@ pub mod pipes;
 pub mod template;
 /// Proc macro input types.
 pub mod types;
+/// Types and implementations for marking spans.
+pub mod mark;
 
 /// Extension traits for common `syn` AST types.
 #[cfg(feature = "ext")]
