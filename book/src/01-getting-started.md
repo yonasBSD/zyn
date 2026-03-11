@@ -126,7 +126,7 @@ zyn! {
 }
 ```
 
-Elements are compiled like function calls — they accept typed parameters and return a `TokenStream`. See [Elements](./03-elements/README.md) for children, extractors, and diagnostics.
+Elements are compiled like function calls — they accept typed parameters and return a `TokenStream`. See [Elements](./03-elements/index.html) for children, extractors, and diagnostics.
 
 ## Wiring it up
 
@@ -176,13 +176,13 @@ struct User {
 // }
 ```
 
-See [Proc Macro Entry Points](./06-macros/README.md) for `#[zyn::attribute]`, custom names, helper attributes, and more.
+See [Proc Macro Entry Points](./06-macros/index.html) for `#[zyn::attribute]`, custom names, helper attributes, and more.
 
 ## Next steps
 
-- [Templates](./02-templates/README.md) — interpolation, control flow, pipes, case conversion
-- [Elements](./03-elements/README.md) — children, extractors, input context, advanced patterns
+- [Templates](./02-templates/index.html) — interpolation, control flow, pipes, case conversion
+- [Elements](./03-elements/index.html) — children, extractors, input context, advanced patterns
 - [Diagnostics](./03-elements/diagnostics.md) — `error!`, `warn!`, `note!`, `help!`, `bail!`
-- [derive(Attribute)](./04-attributes/README.md) — typed attribute parsing with `#[derive(Attribute)]`
-- [Proc Macro Entry Points](./06-macros/README.md) — `#[zyn::derive]` and `#[zyn::attribute]`
+- [derive(Attribute)](./04-attributes/index.html) — typed attribute parsing with `#[derive(Attribute)]`
+- [Proc Macro Entry Points](./06-macros/index.html) — `#[zyn::derive]` and `#[zyn::attribute]`
 - [Debugging](./05-reference/debugging.md) — `debug` attribute arg with `ZYN_DEBUG` env var

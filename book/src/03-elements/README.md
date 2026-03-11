@@ -88,7 +88,7 @@ zyn::zyn! {
 }
 ```
 
-See [Proc Macro Entry Points](../06-macros/README.md) for the recommended approach.
+See [Proc Macro Entry Points](../06-macros/index.html) for the recommended approach.
 
 ## Extractor Params
 

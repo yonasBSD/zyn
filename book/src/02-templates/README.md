@@ -21,4 +21,4 @@ Everything outside `{{ }}` and `@` directives passes through as literal tokens, 
 | `{{ expr }}` | [Interpolation](./interpolation.md) — insert any `ToTokens` value |
 | `{{ expr \| pipe }}` | [Pipes](./pipes.md) — transform values (case conversion, formatting) |
 | `@if` / `@for` / `@match` | [Control flow](./control-flow.md) — conditionals, loops, pattern matching |
-| `@element_name(props)` | [Element invocation](../03-elements/README.md) — reusable template components |
+| `@element_name(props)` | [Element invocation](../03-elements/index.html) — reusable template components |

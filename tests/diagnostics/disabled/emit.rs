@@ -1,12 +1,3 @@
-use zyn::Render;
-use zyn::syn;
-
-fn dummy_input() -> zyn::Input {
-    zyn::parse!("struct Test;" => syn::DeriveInput)
-        .unwrap()
-        .into()
-}
-
 #[zyn::element]
 fn emit_error() -> zyn::TokenStream {
     bail!("broken input");
@@ -15,7 +6,10 @@ fn emit_error() -> zyn::TokenStream {
 
 #[test]
 fn fallback_emits_compile_error() {
-    let output = EmitError.render(&dummy_input());
+    let input: zyn::Input = zyn::parse!("struct Test;" => zyn::syn::DeriveInput)
+        .unwrap()
+        .into();
+    let output = zyn::zyn!(@emit_error());
     zyn::assert_diagnostic_error!(output, "broken input");
     zyn::assert_tokens_contain!(output, "compile_error");
 }
@@ -29,7 +23,10 @@ fn emit_warning() -> zyn::TokenStream {
 
 #[test]
 fn fallback_warning_prefixes_message() {
-    let output = EmitWarning.render(&dummy_input());
+    let input: zyn::Input = zyn::parse!("struct Test;" => zyn::syn::DeriveInput)
+        .unwrap()
+        .into();
+    let output = zyn::zyn!(@emit_warning());
     zyn::assert_diagnostic_warning!(output, "deprecated usage");
     zyn::assert_tokens_contain!(output, "warning:");
 }
@@ -43,7 +40,10 @@ fn emit_note() -> zyn::TokenStream {
 
 #[test]
 fn fallback_note_prefixes_message() {
-    let output = EmitNote.render(&dummy_input());
+    let input: zyn::Input = zyn::parse!("struct Test;" => zyn::syn::DeriveInput)
+        .unwrap()
+        .into();
+    let output = zyn::zyn!(@emit_note());
     zyn::assert_diagnostic_note!(output, "see documentation");
     zyn::assert_tokens_contain!(output, "note:");
 }
@@ -57,7 +57,10 @@ fn emit_help() -> zyn::TokenStream {
 
 #[test]
 fn fallback_help_prefixes_message() {
-    let output = EmitHelp.render(&dummy_input());
+    let input: zyn::Input = zyn::parse!("struct Test;" => zyn::syn::DeriveInput)
+        .unwrap()
+        .into();
+    let output = zyn::zyn!(@emit_help());
     zyn::assert_diagnostic_help!(output, "try this instead");
     zyn::assert_tokens_contain!(output, "help:");
 }
@@ -72,7 +75,10 @@ fn emit_multiple() -> zyn::TokenStream {
 
 #[test]
 fn fallback_multiple_errors() {
-    let output = EmitMultiple.render(&dummy_input());
+    let input: zyn::Input = zyn::parse!("struct Test;" => zyn::syn::DeriveInput)
+        .unwrap()
+        .into();
+    let output = zyn::zyn!(@emit_multiple());
     zyn::assert_diagnostic_error!(output, "first");
     zyn::assert_diagnostic_error!(output, "second");
 }
