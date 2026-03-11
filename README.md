@@ -29,6 +29,7 @@ cargo add zyn
 - [Pipes](#pipes)
 - [Attributes](#attributes)
   - [Auto-suggest](#auto-suggest)
+- [Testing](#testing)
 - [Features](#features)
   - [ext](#ext)
   - [pretty](#pretty)
@@ -242,6 +243,44 @@ fn my_attr(#[zyn(input)] item: zyn::syn::ItemFn, args: zyn::Args) -> zyn::TokenS
 
 ---
 
+## Testing
+
+`zyn!` returns [`Output`](https://docs.rs/zyn/latest/zyn/struct.Output.html) — test both tokens and diagnostics directly:
+
+```rust
+#[test]
+fn generates_function() {
+    let input: zyn::Input = zyn::parse!("struct Foo;" => zyn::syn::DeriveInput).unwrap().into();
+    let output = zyn::zyn!(fn hello() {});
+    let expected = zyn::quote::quote!(fn hello() {});
+    zyn::assert_tokens!(output, expected);
+}
+```
+
+Diagnostic assertions check error messages from `error!`, `warn!`, `bail!`:
+
+```rust
+#[test]
+fn rejects_forbidden_name() {
+    let input: zyn::Input = zyn::parse!("struct Foo;" => zyn::syn::DeriveInput).unwrap().into();
+    let output = zyn::zyn!(@validated(name = zyn::format_ident!("forbidden")));
+    zyn::assert_diagnostic_error!(output, "reserved identifier");
+}
+```
+
+| Macro | Purpose |
+|-------|---------|
+| `assert_tokens!` | Compare two token streams |
+| `assert_tokens_empty!` | Assert no tokens produced |
+| `assert_tokens_contain!` | Check for substring in output |
+| `assert_diagnostic_error!` | Assert error diagnostic with message |
+| `assert_diagnostic_warning!` | Assert warning diagnostic |
+| `assert_diagnostic_note!` | Assert note diagnostic |
+| `assert_diagnostic_help!` | Assert help diagnostic |
+| `assert_compile_error!` | Alias for `assert_diagnostic_error!` |
+
+---
+
 ## Features
 
 | Feature | Default | Description |
@@ -304,7 +343,7 @@ note: zyn::element ─── my_element
         pub name: zyn::syn::Ident,
     }
     impl ::zyn::Render for MyElement {
-        fn render(&self, input: &::zyn::Input) -> ::zyn::proc_macro2::TokenStream {
+        fn render(&self, input: &::zyn::Input) -> ::zyn::Output {
             ...
         }
     }

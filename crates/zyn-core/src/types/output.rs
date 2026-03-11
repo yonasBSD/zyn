@@ -33,9 +33,9 @@ impl Output {
         &self.diagnostic
     }
 
-    /// Consumes the output and returns the generated tokens, discarding diagnostics.
-    pub fn into_tokens(self) -> TokenStream {
-        self.tokens
+    /// Consumes the output and returns its tokens and diagnostic.
+    pub fn into_parts(self) -> (TokenStream, Diagnostic) {
+        (self.tokens, self.diagnostic)
     }
 
     /// Returns `true` if the diagnostic contains an error.
@@ -99,14 +99,14 @@ pub struct OutputBuilder {
 
 impl OutputBuilder {
     /// Sets the generated token output.
-    pub fn tokens(mut self, tokens: TokenStream) -> Self {
-        self.tokens = tokens;
+    pub fn tokens(mut self, tokens: impl ToTokens) -> Self {
+        self.tokens = tokens.to_token_stream();
         self
     }
 
     /// Appends tokens to the output.
-    pub fn extend(mut self, tokens: TokenStream) -> Self {
-        self.tokens.extend(tokens);
+    pub fn extend(mut self, tokens: impl ToTokens) -> Self {
+        tokens.to_tokens(&mut self.tokens);
         self
     }
 

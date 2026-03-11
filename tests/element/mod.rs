@@ -8,7 +8,7 @@ fn greeting(name: zyn::syn::Ident) -> zyn::TokenStream {
     zyn::zyn!(fn {{ name }}() {})
 }
 
-fn derive_greeting(tokens: &str) -> zyn::TokenStream {
+fn derive_greeting(tokens: &str) -> zyn::Output {
     let input: zyn::Input = zyn::syn::parse_str(tokens).unwrap();
     zyn::zyn!(
         @greeting(name = zyn::format_ident!("hello"))
@@ -29,7 +29,7 @@ fn wrapper(name: zyn::syn::Ident, children: zyn::TokenStream) -> zyn::TokenStrea
     zyn::quote::quote!(struct #name { #children })
 }
 
-fn derive_wrapper(tokens: &str) -> zyn::TokenStream {
+fn derive_wrapper(tokens: &str) -> zyn::Output {
     let input: zyn::Input = zyn::syn::parse_str(tokens).unwrap();
     zyn::zyn!(
         @wrapper(name = zyn::format_ident!("Foo")) {
@@ -54,7 +54,7 @@ fn get_greeting(name: zyn::syn::Ident) -> zyn::TokenStream {
     zyn::zyn!(fn {{ name }}() {})
 }
 
-fn derive_say_hello(tokens: &str) -> zyn::TokenStream {
+fn derive_say_hello(tokens: &str) -> zyn::Output {
     let input: zyn::Input = zyn::syn::parse_str(tokens).unwrap();
     zyn::zyn!(
         @say_hello(name = zyn::format_ident!("world"))
@@ -77,12 +77,12 @@ fn divider() -> zyn::TokenStream {
     )
 }
 
-fn derive_divider(tokens: &str) -> zyn::TokenStream {
+fn derive_divider(tokens: &str) -> zyn::Output {
     let input: zyn::Input = zyn::syn::parse_str(tokens).unwrap();
     zyn::zyn!(@divider)
 }
 
-fn derive_divider_parens(tokens: &str) -> zyn::TokenStream {
+fn derive_divider_parens(tokens: &str) -> zyn::Output {
     let input: zyn::Input = zyn::syn::parse_str(tokens).unwrap();
     zyn::zyn!(@divider())
 }
@@ -110,7 +110,7 @@ fn container(children: zyn::TokenStream) -> zyn::TokenStream {
     zyn::quote::quote!(mod container { #children })
 }
 
-fn derive_container(tokens: &str) -> zyn::TokenStream {
+fn derive_container(tokens: &str) -> zyn::Output {
     let input: zyn::Input = zyn::syn::parse_str(tokens).unwrap();
     zyn::zyn!(
         @container {
@@ -130,7 +130,7 @@ fn children_without_parens() {
     zyn::assert_tokens!(result, expected);
 }
 
-fn derive_for_greeting(tokens: &str) -> zyn::TokenStream {
+fn derive_for_greeting(tokens: &str) -> zyn::Output {
     let input: zyn::Input = zyn::syn::parse_str(tokens).unwrap();
     let names = vec![zyn::format_ident!("foo"), zyn::format_ident!("bar")];
     zyn::zyn!(

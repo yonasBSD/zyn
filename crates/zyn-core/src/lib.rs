@@ -42,10 +42,10 @@ macro_rules! parse {
         $crate::syn::parse_str($s)
     };
     ($ts:expr => $ty:ty) => {
-        $crate::syn::parse2::<$ty>($ts)
+        $crate::syn::parse2::<$ty>(::std::convert::Into::into($ts))
     };
     ($ts:expr) => {
-        $crate::syn::parse2($ts)
+        $crate::syn::parse2(::std::convert::Into::into($ts))
     };
 }
 
@@ -73,7 +73,7 @@ pub trait Expand {
 
 /// Implemented by `#[zyn::element]` types. Renders the element with the given `Input` context.
 pub trait Render {
-    fn render(&self, input: &types::Input) -> types::Output;
+    fn render(&self, input: &Input) -> Output;
 }
 
 /// Implemented by `#[zyn::pipe]` types. Transforms a value in a pipe chain.

@@ -16,9 +16,9 @@
 //! assert_eq!(tmpl.nodes.len(), 3);
 //! ```
 //!
-//! `to_token_stream()` and `render(&input)` produce proc macro output code —
-//! `TokenStream` that, when returned from a proc macro, generates the expanded
-//! template in the user's crate. `render` additionally binds `input` in scope
+//! `to_token_stream()` produces proc macro output code that evaluates to an
+//! [`Output`](crate::Output) carrying both the generated tokens and any diagnostics
+//! from nested element renders. `render(&input)` additionally binds `input` in scope
 //! so templates can reference it directly.
 
 use proc_macro2::Ident;
@@ -64,8 +64,12 @@ impl Template {
         quote! {
             {
                 let mut #output = ::zyn::proc_macro2::TokenStream::new();
+                let mut __zyn_diagnostic = ::zyn::mark::new();
                 #expanded
-                #output
+                ::zyn::Output::new()
+                    .tokens(#output)
+                    .diagnostic(__zyn_diagnostic)
+                    .build()
             }
         }
     }

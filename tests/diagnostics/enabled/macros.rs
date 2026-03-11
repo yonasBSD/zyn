@@ -18,7 +18,7 @@ pub fn enabled_bail(name: syn::Ident) -> zyn::TokenStream {
 fn bail_emits_error() {
     let input: zyn::Input = dummy_input();
     let output = zyn::zyn!(@enabled_bail(name = zyn::format_ident!("bad")));
-    zyn::assert_tokens_contain!(output, "not allowed");
+    zyn::assert_diagnostic_error!(output, "not allowed");
 }
 
 #[test]
@@ -42,8 +42,8 @@ pub fn enabled_multi(name: syn::Ident) -> zyn::TokenStream {
 fn error_and_help_accumulate() {
     let input: zyn::Input = dummy_input();
     let output = zyn::zyn!(@enabled_multi(name = zyn::format_ident!("bad")));
-    zyn::assert_tokens_contain!(output, "name is bad");
-    zyn::assert_tokens_contain!(output, "use a different name");
+    zyn::assert_diagnostic_error!(output, "name is bad");
+    zyn::assert_diagnostic_help!(output, "use a different name");
 }
 
 #[zyn::element]

@@ -72,17 +72,21 @@ pub fn option_getters(fields: syn::Fields) -> zyn::TokenStream {
         let ty = &field.ty;
         if field.is_option() {
             let inner = field.inner_type().unwrap();
-            tokens.extend(zyn::zyn!(
+            let part: zyn::TokenStream = zyn::zyn!(
                 fn {{ key | ident:"get_{}" }}(&self) -> Option<&{{ inner }}> {
                     self.{{ key }}.as_ref()
                 }
-            ));
+            )
+            .into();
+            tokens.extend(part);
         } else {
-            tokens.extend(zyn::zyn!(
+            let part: zyn::TokenStream = zyn::zyn!(
                 fn {{ key | ident:"get_{}" }}(&self) -> &{{ ty }} {
                     &self.{{ key }}
                 }
-            ));
+            )
+            .into();
+            tokens.extend(part);
         }
     }
     tokens

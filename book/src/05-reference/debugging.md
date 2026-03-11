@@ -115,13 +115,13 @@ note: zyn::element ─── Greeting
       }
       impl ::zyn::Render for Greeting {
           fn render(&self, input: &::zyn::Input) -> ::zyn::Output {
-              let mut diagnostics = ::zyn::Diagnostics::new();
+              let mut diagnostics = ::zyn::mark::new();
               let name = &self.name;
               let __body = { zyn::zyn!(fn {{ name }}() {}) };
-              if diagnostics.has_errors() {
-                  return diagnostics.emit();
-              }
-              __body
+              ::zyn::Output::new()
+                  .tokens(__body)
+                  .diagnostic(diagnostics)
+                  .build()
           }
       }
   --> src/lib.rs:1:1
@@ -207,7 +207,7 @@ note: zyn::element ─── FieldGetter
       }
       impl ::zyn::Render for FieldGetter {
           fn render(&self, input: &::zyn::Input) -> ::zyn::Output {
-              let mut diagnostics = ::zyn::Diagnostics::new();
+              let mut diagnostics = ::zyn::mark::new();
               let name = &self.name;
               let ty = &self.ty;
               let __body = {
@@ -217,10 +217,10 @@ note: zyn::element ─── FieldGetter
                       }
                   )
               };
-              if diagnostics.has_errors() {
-                  return diagnostics.emit();
-              }
-              __body
+              ::zyn::Output::new()
+                  .tokens(__body)
+                  .diagnostic(diagnostics)
+                  .build()
           }
       }
 ```

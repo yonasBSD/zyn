@@ -1,9 +1,9 @@
 # Templates
 
-The `zyn!` macro is the core of zyn. It accepts a template and returns a `zyn::TokenStream`:
+The `zyn!` macro is the core of zyn. It accepts a template and returns a `zyn::Output`:
 
 ```rust
-let tokens: zyn::TokenStream = zyn! {
+let output: zyn::Output = zyn! {
     pub struct {{ name }} {
         @for (field in fields.iter()) {
             {{ field.ident }}: {{ field.ty }},

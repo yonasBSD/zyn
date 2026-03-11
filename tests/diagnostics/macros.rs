@@ -18,7 +18,7 @@ pub fn bail_on_forbidden(name: syn::Ident) -> zyn::TokenStream {
 fn bail_emits_compile_error() {
     let input: zyn::Input = dummy_input();
     let output = zyn::zyn!(@bail_on_forbidden(name = zyn::format_ident!("forbidden")));
-    zyn::assert_tokens_contain!(output, "reserved identifier");
+    zyn::assert_diagnostic_error!(output, "reserved identifier");
 }
 
 #[test]
@@ -42,8 +42,8 @@ pub fn multi_diag(name: syn::Ident) -> zyn::TokenStream {
 fn error_and_help_accumulate() {
     let input: zyn::Input = dummy_input();
     let output = zyn::zyn!(@multi_diag(name = zyn::format_ident!("bad")));
-    zyn::assert_tokens_contain!(output, "name is bad");
-    zyn::assert_tokens_contain!(output, "use a different name");
+    zyn::assert_diagnostic_error!(output, "name is bad");
+    zyn::assert_diagnostic_help!(output, "use a different name");
 }
 
 #[test]
@@ -78,7 +78,7 @@ pub fn format_error(name: syn::Ident) -> zyn::TokenStream {
 fn bail_with_format_args() {
     let input: zyn::Input = dummy_input();
     let output = zyn::zyn!(@format_error(name = zyn::format_ident!("foo")));
-    zyn::assert_tokens_contain!(output, "invalid");
+    zyn::assert_diagnostic_error!(output, "invalid");
 }
 
 #[zyn::element]

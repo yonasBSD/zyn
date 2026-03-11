@@ -7,7 +7,7 @@ pub mod components {
     }
 }
 
-fn derive_field_decl(tokens: &str) -> zyn::TokenStream {
+fn derive_field_decl(tokens: &str) -> zyn::Output {
     let input: zyn::Input = zyn::syn::parse_str(tokens).unwrap();
     zyn::zyn!(
         @components::field_decl(

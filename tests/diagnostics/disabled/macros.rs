@@ -18,8 +18,7 @@ pub fn fallback_bail(name: syn::Ident) -> zyn::TokenStream {
 fn fallback_bail_emits_compile_error() {
     let input: zyn::Input = dummy_input();
     let output = zyn::zyn!(@fallback_bail(name = zyn::format_ident!("bad")));
-    zyn::assert_tokens_contain!(output, "compile_error");
-    zyn::assert_tokens_contain!(output, "not allowed");
+    zyn::assert_diagnostic_error!(output, "not allowed");
 }
 
 #[zyn::element]

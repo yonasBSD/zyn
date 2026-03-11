@@ -13,6 +13,7 @@
 //! - [Pipes](#pipes)
 //! - [Attributes](#attributes)
 //!   - [Auto-suggest](#auto-suggest)
+//! - [Testing](#testing)
 //! - [Features](#features)
 //!   - [ext](#ext)
 //!   - [pretty](#pretty)
@@ -368,6 +369,22 @@
 //! ```
 //!
 //! See the [`mark`] module for the lower-level diagnostic builder API.
+//!
+//! ---
+//!
+//! # Testing
+//!
+//! `zyn!` returns [`Output`] — test both tokens and diagnostics directly:
+//!
+//! ```ignore
+//! let output = zyn::zyn!(@my_element(name = zyn::format_ident!("hello")));
+//!
+//! zyn::assert_tokens!(output, quote::quote!(fn hello() {}));
+//! zyn::assert_tokens_contain!(output, "fn hello");
+//! zyn::assert_diagnostic_error!(output, "reserved identifier");
+//! ```
+//!
+//! See the [`test`] module for the full assertion macro reference.
 
 pub use zyn_core::*;
 

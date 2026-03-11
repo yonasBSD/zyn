@@ -54,7 +54,7 @@ pub fn describe_data(data: syn::Data, name: syn::Ident) -> zyn::TokenStream {
             }
         )
     } else {
-        zyn::TokenStream::new()
+        zyn::Output::default()
     }
 }
 
