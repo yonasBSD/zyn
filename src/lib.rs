@@ -14,6 +14,8 @@
 //! - [Attributes](#attributes)
 //!   - [Auto-suggest](#auto-suggest)
 //! - [Testing](#testing)
+//!   - [Assertions](#assertions)
+//!   - [Debugging](#debugging)
 //! - [Features](#features)
 //!   - [ext](#ext)
 //!   - [pretty](#pretty)
@@ -234,6 +236,129 @@
 //!
 //! ---
 //!
+//! # Testing
+//!
+//! ## Assertions
+//!
+//! `zyn!` returns [`Output`] — test both tokens and diagnostics directly:
+//!
+//! ```ignore
+//! #[test]
+//! fn generates_function() {
+//!     let input: zyn::Input = zyn::parse!("struct Foo;" => zyn::syn::DeriveInput).unwrap().into();
+//!     let output = zyn::zyn!(fn hello() {});
+//!     let expected = zyn::quote::quote!(fn hello() {});
+//!     zyn::assert_tokens!(output, expected);
+//! }
+//! ```
+//!
+//! Diagnostic assertions check error messages from `error!`, `warn!`, `bail!`:
+//!
+//! ```ignore
+//! #[zyn::element]
+//! fn validated(name: zyn::syn::Ident) -> zyn::TokenStream {
+//!     if name == "forbidden" {
+//!         bail!("reserved identifier `{}`", name);
+//!     }
+//!     zyn::zyn!(fn {{ name }}() {})
+//! }
+//!
+//! #[test]
+//! fn rejects_forbidden_name() {
+//!     let input: zyn::Input = zyn::parse!("struct Foo;" => zyn::syn::DeriveInput).unwrap().into();
+//!     let output = zyn::zyn!(@validated(name = zyn::format_ident!("forbidden")));
+//!     zyn::assert_diagnostic_error!(output, "reserved identifier");
+//!     zyn::assert_tokens_empty!(output);
+//! }
+//!
+//! #[test]
+//! fn accepts_valid_name() {
+//!     let input: zyn::Input = zyn::parse!("struct Foo;" => zyn::syn::DeriveInput).unwrap().into();
+//!     let output = zyn::zyn!(@validated(name = zyn::format_ident!("hello")));
+//!     zyn::assert_tokens_contain!(output, "fn hello");
+//! }
+//! ```
+//!
+//! | Macro | Purpose |
+//! |-------|---------|
+//! | `assert_tokens!` | Compare two token streams |
+//! | `assert_tokens_empty!` | Assert no tokens produced |
+//! | `assert_tokens_contain!` | Check for substring in output |
+//! | `assert_diagnostic_error!` | Assert error diagnostic with message |
+//! | `assert_diagnostic_warning!` | Assert warning diagnostic |
+//! | `assert_diagnostic_note!` | Assert note diagnostic |
+//! | `assert_diagnostic_help!` | Assert help diagnostic |
+//! | `assert_compile_error!` | Alias for `assert_diagnostic_error!` |
+//!
+//! With the `pretty` feature:
+//!
+//! | Macro | Purpose |
+//! |-------|---------|
+//! | `assert_tokens_pretty!` | Compare using `prettyplease`-formatted output |
+//! | `assert_tokens_contain_pretty!` | Substring check on pretty-printed output |
+//!
+//! ## Debugging
+//!
+//! Add `debug` (or `debug = "pretty"`) to any zyn attribute macro and set `ZYN_DEBUG` to
+//! inspect generated code at compile time:
+//!
+//! ```ignore
+//! #[zyn::element(debug)]
+//! fn greeting(name: zyn::syn::Ident) -> zyn::TokenStream {
+//!     zyn::zyn!(fn {{ name }}() {})
+//! }
+//! ```
+//!
+//! ```sh
+//! ZYN_DEBUG="*" cargo build
+//! ```
+//!
+//! ```text
+//! note: zyn::element ─── Greeting
+//!
+//!       struct Greeting { pub name : zyn :: syn :: Ident , } impl :: zyn :: Render
+//!       for Greeting { fn render (& self , input : & :: zyn :: Input) -> :: zyn ::
+//!       proc_macro2 :: TokenStream { ... } }
+//! ```
+//!
+//! With the `pretty` feature, use `debug = "pretty"` for formatted output:
+//!
+//! ```ignore
+//! #[zyn::element(debug = "pretty")]
+//! fn greeting(name: zyn::syn::Ident) -> zyn::TokenStream {
+//!     zyn::zyn!(fn {{ name }}() {})
+//! }
+//! ```
+//!
+//! ```text
+//! note: zyn::element ─── Greeting
+//!
+//!       struct Greeting {
+//!           pub name: zyn::syn::Ident,
+//!       }
+//!       impl ::zyn::Render for Greeting {
+//!           fn render(&self, input: &::zyn::Input) -> ::zyn::Output { ... }
+//!       }
+//! ```
+//!
+//! All macros support `debug`: `#[zyn::element]`, `#[zyn::pipe]`, `#[zyn::derive]`,
+//! `#[zyn::attribute]`.
+//!
+//! `ZYN_DEBUG` accepts comma-separated `*`-wildcard patterns matched against the generated
+//! PascalCase type name:
+//!
+//! ```sh
+//! ZYN_DEBUG="Greeting" cargo build     # exact match
+//! ZYN_DEBUG="Greet*" cargo build       # prefix wildcard
+//! ZYN_DEBUG="*Element" cargo build     # suffix wildcard
+//! ZYN_DEBUG="Greeting,Shout" cargo build  # multiple patterns
+//! ```
+//!
+//! See the [`test`] module for the full assertion macro reference and the [`debug`] module
+//! for programmatic access via `DebugExt`.
+//!
+//! ---
+//!
 //! # Features
 //!
 //! | Feature | Default | Description |
@@ -369,22 +494,6 @@
 //! ```
 //!
 //! See the [`mark`] module for the lower-level diagnostic builder API.
-//!
-//! ---
-//!
-//! # Testing
-//!
-//! `zyn!` returns [`Output`] — test both tokens and diagnostics directly:
-//!
-//! ```ignore
-//! let output = zyn::zyn!(@my_element(name = zyn::format_ident!("hello")));
-//!
-//! zyn::assert_tokens!(output, quote::quote!(fn hello() {}));
-//! zyn::assert_tokens_contain!(output, "fn hello");
-//! zyn::assert_diagnostic_error!(output, "reserved identifier");
-//! ```
-//!
-//! See the [`test`] module for the full assertion macro reference.
 
 pub use zyn_core::*;
 
