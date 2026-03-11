@@ -87,6 +87,14 @@ impl From<Diagnostic> for Output {
     }
 }
 
+impl std::ops::Deref for Output {
+    type Target = TokenStream;
+
+    fn deref(&self) -> &Self::Target {
+        &self.tokens
+    }
+}
+
 /// Builder for constructing [`Output`] instances.
 ///
 /// All methods are builder-pattern (consume and return `Self`).
