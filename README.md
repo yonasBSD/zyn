@@ -32,6 +32,7 @@ cargo add zyn
 - [Elements](#elements)
 - [Pipes](#pipes)
 - [Attributes](#attributes)
+  - [Auto-suggest](#auto-suggest)
 - [Features](#features)
   - [ext](#ext)
   - [pretty](#pretty)
@@ -211,8 +212,10 @@ struct BuilderConfig {
 The derive generates `from_args`, `FromArg`, and `FromInput` implementations, as well as
 a human-readable `about()` string for error messages.
 
-**Auto-suggest** — when a user misspells an argument name, zyn automatically suggests
-the closest known field. No extra setup required:
+### Auto-suggest
+
+When a user misspells an argument name, zyn automatically suggests the closest known
+field. No extra setup required:
 
 ```text
 error: unknown argument `skiip`

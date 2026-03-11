@@ -16,6 +16,7 @@
 //! - [Elements](#elements)
 //! - [Pipes](#pipes)
 //! - [Attributes](#attributes)
+//!   - [Auto-suggest](#auto-suggest)
 //! - [Features](#features)
 //!   - [ext](#ext)
 //!   - [pretty](#pretty)
