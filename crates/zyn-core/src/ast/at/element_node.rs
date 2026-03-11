@@ -75,7 +75,9 @@ impl Expand for ElementNode {
                         #(#prop_names: #prop_values,)*
                         children: #inner,
                     }, &::zyn::Input::from(input.clone()));
-                    ::zyn::quote::ToTokens::to_tokens(&__zyn_rendered, &mut #output);
+                    let (__zyn_tokens, __zyn_diag) = __zyn_rendered.into_parts();
+                    #output.extend(__zyn_tokens);
+                    __zyn_diagnostic = __zyn_diagnostic.add(__zyn_diag);
                 }
             }
         } else {
@@ -84,7 +86,9 @@ impl Expand for ElementNode {
                     let __zyn_rendered = ::zyn::Render::render(&#name {
                         #(#prop_names: #prop_values,)*
                     }, &::zyn::Input::from(input.clone()));
-                    ::zyn::quote::ToTokens::to_tokens(&__zyn_rendered, &mut #output);
+                    let (__zyn_tokens, __zyn_diag) = __zyn_rendered.into_parts();
+                    #output.extend(__zyn_tokens);
+                    __zyn_diagnostic = __zyn_diagnostic.add(__zyn_diag);
                 }
             }
         }

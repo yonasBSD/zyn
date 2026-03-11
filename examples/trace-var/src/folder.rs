@@ -53,7 +53,7 @@ impl Fold for TraceVarFolder<'_> {
             }) => {
                 let right = fold::fold_expr(self, *right);
                 let left = *left;
-                let op = zyn::zyn!({ { eq_token } });
+                let op: zyn::TokenStream = zyn::zyn!({ { eq_token } }).into();
                 if self.is_traced_expr(&left) {
                     zyn::parse!(zyn::zyn!(@assign_trace(left = left, op = op, right = right)))
                         .unwrap()
@@ -76,7 +76,7 @@ impl Fold for TraceVarFolder<'_> {
                 {
                     let right = fold::fold_expr(self, *right);
                     let left = *left;
-                    let op_ts = zyn::zyn!({ { op } });
+                    let op_ts: zyn::TokenStream = zyn::zyn!({ { op } }).into();
                     if self.is_traced_expr(&left) {
                         zyn::parse!(
                             zyn::zyn!(@assign_trace(left = left, op = op_ts, right = right))

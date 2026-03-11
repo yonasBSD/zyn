@@ -13,6 +13,7 @@
 //! - [Pipes](#pipes)
 //! - [Attributes](#attributes)
 //!   - [Auto-suggest](#auto-suggest)
+//! - [Testing](#testing)
 //! - [Features](#features)
 //!   - [ext](#ext)
 //!   - [pretty](#pretty)
@@ -297,7 +298,7 @@
 //!         pub name: zyn::syn::Ident,
 //!     }
 //!     impl ::zyn::Render for MyElement {
-//!         fn render(&self, input: &::zyn::Input) -> ::zyn::proc_macro2::TokenStream {
+//!         fn render(&self, input: &::zyn::Input) -> ::zyn::Output {
 //!             ...
 //!         }
 //!     }
@@ -368,16 +369,34 @@
 //! ```
 //!
 //! See the [`mark`] module for the lower-level diagnostic builder API.
+//!
+//! ---
+//!
+//! # Testing
+//!
+//! `zyn!` returns [`Output`] — test both tokens and diagnostics directly:
+//!
+//! ```ignore
+//! let output = zyn::zyn!(@my_element(name = zyn::format_ident!("hello")));
+//!
+//! zyn::assert_tokens!(output, quote::quote!(fn hello() {}));
+//! zyn::assert_tokens_contain!(output, "fn hello");
+//! zyn::assert_diagnostic_error!(output, "reserved identifier");
+//! ```
+//!
+//! See the [`test`] module for the full assertion macro reference.
 
 pub use zyn_core::*;
 
 #[cfg(feature = "derive")]
 pub use zyn_derive::*;
 
+pub mod test;
+
 /// The zyn prelude. Re-exports all built-in pipes, core traits, and proc macros.
 pub mod prelude {
     pub use crate::pipes::*;
-    pub use crate::{Pipe, Render};
+    pub use crate::{Diagnostic, Output, Pipe, Render};
 
     #[cfg(feature = "derive")]
     pub use zyn_derive::*;

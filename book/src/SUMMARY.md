@@ -20,6 +20,7 @@
 - [Proc Macro Entry Points](./06-macros/README.md)
   - [#[zyn::derive]](./06-macros/derive.md)
   - [#[zyn::attribute]](./06-macros/attribute.md)
+- [Testing](./07-testing.md)
 - [Reference](./05-reference/README.md)
   - [Grammar](./05-reference/grammar.md)
   - [Traits](./05-reference/traits.md)

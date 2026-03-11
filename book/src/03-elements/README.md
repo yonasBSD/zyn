@@ -4,7 +4,7 @@ Elements are reusable template components. Define them with `#[zyn::element]` an
 
 ## Defining
 
-Annotate a function with `#[zyn::element]`. Parameters become struct fields (props); the function must return `zyn::TokenStream`:
+Annotate a function with `#[zyn::element]`. Parameters become struct fields (props). The function returns `zyn::TokenStream`; the macro wraps it in [`Output`](../05-reference/traits.md) automatically:
 
 ```rust,zyn
 #[zyn::element]
@@ -25,7 +25,7 @@ pub struct FieldDecl {
 }
 
 impl zyn::Render for FieldDecl {
-    fn render(&self, input: &zyn::Input) -> zyn::TokenStream {
+    fn render(&self, input: &zyn::Input) -> zyn::Output {
         let vis = &self.vis;
         let name = &self.name;
         let ty = &self.ty;
