@@ -26,15 +26,3 @@ impl MultiSpan for &[Span] {
         self.to_vec()
     }
 }
-
-/// Joins a slice of [`Span`]s into a single span by repeatedly calling `Span::join`.
-/// Returns `None` if the slice is empty.
-pub fn join(spans: &[Span]) -> Option<Span> {
-    let mut value = spans.first().copied();
-
-    for &item in spans {
-        value = value?.join(item);
-    }
-
-    value
-}

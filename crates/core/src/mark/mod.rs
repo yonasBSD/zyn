@@ -20,14 +20,12 @@
 
 mod diagnostic;
 mod level;
-mod scope;
 mod span;
 
 pub use diagnostic::Diagnostic;
 pub use diagnostic::DiagnosticBuilder;
 pub use diagnostic::Result;
 pub use level::*;
-pub use scope::*;
 pub use span::*;
 
 /// Creates an empty diagnostic builder.

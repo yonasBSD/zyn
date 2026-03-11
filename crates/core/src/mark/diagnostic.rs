@@ -22,7 +22,13 @@ pub type Result<T> = std::result::Result<T, Diagnostic>;
 impl Diagnostic {
     /// Returns the joined span of this diagnostic, or `call_site` if no spans are attached.
     pub fn span(&self) -> Span {
-        crate::mark::join(&self.spans).unwrap_or_else(Span::call_site)
+        let mut value = self.spans.first().copied().unwrap_or_else(Span::call_site);
+
+        for item in &self.spans {
+            value = value.join(*item).unwrap_or_else(Span::call_site);
+        }
+
+        value
     }
 
     /// Returns the highest severity level among this diagnostic and its children.
@@ -164,12 +170,11 @@ impl From<syn::Error> for Diagnostic {
 #[cfg(feature = "diagnostics")]
 impl From<Diagnostic> for proc_macro2_diagnostics::Diagnostic {
     fn from(value: Diagnostic) -> Self {
-        let span = crate::mark::join(&value.spans).unwrap_or_else(Span::call_site);
+        let span = value.span();
         let mut diag = Self::spanned(span, value.level.into(), value.message);
 
         for child in value.children {
-            let child_span = crate::mark::join(&child.spans).unwrap_or_else(Span::call_site);
-            diag = diag.spanned_child(child_span, child.level.into(), child.message);
+            diag = diag.spanned_child(child.span(), child.level.into(), child.message);
         }
 
         diag
