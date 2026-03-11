@@ -20,6 +20,7 @@ proc-macro = true
 
 [features]
 pretty = ["zyn-core/pretty"]
+diagnostics = ["zyn-core/diagnostics"]
 
 [dependencies]
 zyn-core = { workspace = true }
