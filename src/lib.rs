@@ -273,7 +273,18 @@
 //! ZYN_DEBUG="*" cargo build
 //! ```
 //!
-//! ![pretty debug output](https://raw.githubusercontent.com/aacebo/zyn/refs/heads/main/assets/pretty.png)
+//! ```text
+//! note: zyn::element ─── my_element
+//!
+//!     struct MyElement {
+//!         pub name: zyn::syn::Ident,
+//!     }
+//!     impl ::zyn::Render for MyElement {
+//!         fn render(&self, input: &::zyn::Input) -> ::zyn::proc_macro2::TokenStream {
+//!             ...
+//!         }
+//!     }
+//! ```
 //!
 //! See the [`debug`] module for programmatic access via `DebugExt`.
 //!
@@ -303,7 +314,13 @@
 //! }
 //! ```
 //!
-//! ![diagnostics in editor](https://raw.githubusercontent.com/aacebo/zyn/refs/heads/main/assets/diagnostics.png)
+//! ```text
+//! error: unnamed fields are not supported
+//!  --> src/main.rs:3:5
+//!
+//! error: unnamed fields are not supported
+//!  --> src/main.rs:4:5
+//! ```
 //!
 //! See the [`mark`] module for the full diagnostic API.
 
