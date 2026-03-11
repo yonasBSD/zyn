@@ -6,12 +6,12 @@ pub mod ast;
 pub mod case;
 /// Debug formatting and printing for template expansions.
 pub mod debug;
-/// Diagnostic accumulation and emission.
-pub mod diagnostic;
 /// Extractors for resolving values from proc macro input.
 pub mod extract;
 /// Internal identifier generation for template expansion.
 pub mod ident;
+/// Types and implementations for marking spans.
+pub mod mark;
 /// Attribute argument parsing types.
 pub mod meta;
 /// Dot-separated path type for navigating nested `syn` metadata.
@@ -22,21 +22,16 @@ pub mod pipes;
 pub mod template;
 /// Proc macro input types.
 pub mod types;
-/// Types and implementations for marking spans.
-pub mod mark;
 
 /// Extension traits for common `syn` AST types.
 #[cfg(feature = "ext")]
 pub mod ext;
 
-pub use diagnostic::*;
 pub use extract::*;
+pub use mark::*;
 pub use meta::*;
 pub use template::Template;
 pub use types::Input;
-
-/// A specialized [`Result`](std::result::Result) type for zyn diagnostics.
-pub type Result<T> = diagnostic::Result<T>;
 
 /// Parses tokens or string literals into a type. Wraps `syn::parse_str` and `syn::parse2`.
 #[macro_export]
