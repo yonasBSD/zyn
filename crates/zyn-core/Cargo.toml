@@ -1,10 +1,10 @@
 [package]
 name = "zyn-core"
 description = "Core AST, traits, and utilities for the zyn proc macro framework"
+readme = "README.md"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-readme.workspace = true
 documentation.workspace = true
 homepage.workspace = true
 repository.workspace = true
