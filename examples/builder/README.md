@@ -315,6 +315,8 @@ ZYN_DEBUG="Setter" cargo build
 
 > ℹ️ Opts the element into debug output. `debug = "pretty"` formats the generated code through `prettyplease`. The `ZYN_DEBUG` env var controls which macros emit output — wildcard patterns like `"*"` match everything.
 
+![debug pretty](https://raw.githubusercontent.com/aacebo/zyn/refs/heads/main/examples/builder/assets/screenshot-1.png)
+
 Generated code shows up as a compiler note — in your terminal, in your IDE's Problems panel. `pretty` runs it through `prettyplease` so you get formatted Rust instead of token soup. Wildcard patterns work: `ZYN_DEBUG="*"` dumps everything.
 
 ## 🧪 Testing
