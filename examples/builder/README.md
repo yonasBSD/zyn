@@ -1,71 +1,31 @@
----
-title: I Got Tired of Fighting quote! — So I Built a Template Engine for Proc Macros
-published: false
-tags: rust, macros, opensource, showdev
----
-
-I've been writing proc macros for a while now. Derive macros for internal tools, attribute macros for instrumentation. And every time, the same two problems: `quote!` doesn't compose (you end up passing `TokenStream` fragments through five layers of helper functions), and debugging generated code means `cargo expand` and then squinting at unformatted token output hoping something jumps out.
+I've been writing proc macros for a while now. Derive macros for internal tools, attribute macros for instrumentation. And every time, the same two problems: `quote!` doesn't compose (you end up passing `TokenStream` fragments through five layers of helper functions and writing hundreds of `let` statements), and debugging generated code means `cargo expand` and then squinting at unformatted token output hoping something jumps out.
 
 Because of this I ended up writing the same helper methods, composite AST parsing and tokenizing types, extractors etc. I would have to copy these from project to project as needed, and eventually just decided to publish a crate so I never have to do it again.
 
 So I built [zyn](https://github.com/aacebo/zyn) — a proc macro framework with a template language, composable components, and compile-time diagnostics.
 
-## Goals
+## 🎯 Goals
 
-1. Template syntax that supports expressions, looping, and composition of reusable custom elements.
+1. Template syntax that supports expressions, looping, composition of reusable custom elements, and editor syntax highlighting + type safety.
 2. Automated attribute arguments parsing.
 3. Diagnostic pattern that supports more than just hard compiler errors and can emit more than one at a time, linked to the span it originated from. Ideally with editor integration.
 4. Extensions for `syn` AST types to make querying the parsed AST easier.
 5. Testing features like `debug` and assertion macros so I don't have to use `cargo expand` or stringify token streams and make fuzzy assertions.
+6. **Comparable performance to using `syn` + `quote`** ([benchmarks](#-performance))
 
-## Example: [Builder](https://github.com/aacebo/zyn/tree/main/examples/builder)
+## 🔨 Building a [Builder](https://github.com/aacebo/zyn/tree/main/examples/builder)
+
+I'm going to build a `#[derive(Builder)]` macro with it, start to finish. The whole thing comes out to about **60** lines.
+
+[Features](https://docs.rs/zyn/latest/zyn/index.html#features)
 
 ```sh
 cargo add zyn
 ```
 
-I'm going to build a `#[derive(Builder)]` macro with it, start to finish. The whole thing comes out to about 60 lines.
-
-## The Template Language
-
-The core is the `zyn!` macro. You write output that looks like the code you're generating:
-
-```rust
-let name = zyn::format_ident!("hello_world");
-zyn::zyn!(fn {{ name }}() {})
-// → fn hello_world() {}
-```
-
-Double braces for interpolation. Pipes are where it gets interesting though — inline transforms that chain:
-
-```rust
-zyn::zyn!(fn {{ name | pascal }}() {})
-// name = "hello_world" → fn HelloWorld() {}
-
-zyn::zyn!(fn {{ name | snake | ident:"get_{}" }}() {})
-// name = "HelloWorld" → fn get_hello_world() {}
-```
-
-13 built-in pipes — `snake`, `pascal`, `camel`, `screaming`, `kebab`, `upper`, `lower`, `str`, `plural`, `singular`, `trim`, and format patterns `ident:"prefix_{}"` and `fmt:"prefix_{}"`. All hand-rolled, no `heck` dependency, benchmarks at about 6x faster. You can write your own too.
-
-Control flow uses `@` directives:
-
-```rust
-zyn::zyn!(
-    @if (is_pub) { pub }
-    @for (field in fields.named.iter()) {
-        fn {{ field.ident }}(&self) -> &{{ field.ty }} {
-            &self.{{ field.ident }}
-        }
-    }
-)
-```
-
-`@if`, `@for`, `@match`. The template is fully type-checked at compile time — if you reference a variable that doesn't exist, you get a normal Rust compiler error.
-
-## Building a Builder
-
 What we want the user to write:
+
+[source](https://github.com/aacebo/zyn/blob/main/examples/builder/tests/builder.rs#L3-L11) | [docs](https://aacebo.github.io/zyn/06-macros/derive.html)
 
 ```rust
 #[derive(Builder)]
@@ -78,6 +38,8 @@ struct Config {
     timeout: i64,
 }
 ```
+
+> ℹ️ A struct annotated with `#[derive(Builder)]`. Fields marked `#[builder(default)]` use `Default::default()` when omitted, and `#[builder(default_value = "...")]` uses a custom expression.
 
 And what we want to generate:
 
@@ -120,9 +82,11 @@ impl Config {
 
 With raw `quote!`, this gets messy fast — nested iterations, conditional logic for defaults, splicing field names and types everywhere.
 
-## Typed Attribute Parsing
+## 🏷️ Typed Attribute Parsing
 
 First, parsing `#[builder(default)]` and `#[builder(default = expr)]`. Doing this by hand means a `syn::parse::Parse` impl, handling every variant, producing decent errors. With zyn:
+
+[source](https://github.com/aacebo/zyn/blob/main/examples/builder/src/lib.rs#L3-L11) | [docs](https://aacebo.github.io/zyn/04-attributes/)
 
 ```rust
 #[derive(zyn::Attribute)]
@@ -136,7 +100,11 @@ struct BuilderConfig {
 }
 ```
 
+> ℹ️ Declares a typed config for `#[builder(...)]` attributes. `#[zyn("builder")]` sets the attribute name to match. `#[zyn(default)]` fields default to `false`/`None` when omitted. zyn generates `from_args()` and `from_input()` parsing methods automatically.
+
 That generates `from_args()` and `from_input()` methods. We add a convenience `from_field` that extracts from a field's attributes using the `ext` feature:
+
+[source](https://github.com/aacebo/zyn/blob/main/examples/builder/src/lib.rs#L1-L29) | [docs](https://aacebo.github.io/zyn/04-attributes/)
 
 ```rust
 use zyn::ext::AttrExt;
@@ -160,7 +128,9 @@ impl BuilderConfig {
 }
 ```
 
-Typo suggestions come free:
+> ℹ️ A convenience method that extracts `BuilderConfig` from a field's attributes. `AttrExt::is()` finds the `#[builder(...)]` attribute, `args()` parses its arguments, and `from_args()` maps them into the typed struct. Returns defaults when no attribute is present.
+
+Typo suggestions come free 💡:
 
 ```
 error: unknown argument `skiip`
@@ -173,9 +143,11 @@ error: unknown argument `skiip`
 
 Levenshtein distance. Your users get `did you mean skip?` instead of `unexpected token`.
 
-## Composable Elements
+## 🧩 Composable Elements
 
 Instead of one giant `quote!` block, you break the macro into **elements** — reusable template components with typed props.
+
+[source](https://github.com/aacebo/zyn/blob/main/examples/builder/src/lib.rs#L31-L39) | [docs](https://aacebo.github.io/zyn/03-elements/)
 
 ```rust
 #[zyn::element]
@@ -192,9 +164,13 @@ fn setter(
 }
 ```
 
+> ℹ️ An element that generates a builder setter method. Takes a field name and type as props, produces a method that sets the corresponding `Option` field and returns `self` for chaining.
+
 If you wanted methods like `with_host` instead of `host`, pipes handle it inline: `{{ name | ident:"with_{}" }}`. They compose — `{{ name | upper | ident:"SET_{}" }}` would produce `SET_HOST` from `host`.
 
 The build method, where defaults come in:
+
+[source](https://github.com/aacebo/zyn/blob/main/examples/builder/src/lib.rs#L41-L55) | [docs](https://aacebo.github.io/zyn/03-elements/)
 
 ```rust
 #[zyn::element]
@@ -217,24 +193,15 @@ fn build_field(
 }
 ```
 
+> ℹ️ Generates a single field assignment inside `build()`. Uses `unwrap_or_default()` for `#[builder(default)]`, `unwrap_or_else(|| expr)` for `#[builder(default_value)]`, and panics with a descriptive message for required fields.
+
 The setter doesn't care about defaults — that's `build_field`'s job.
 
-Custom pipes work the same way. Say we want one that wraps any type in `Option`:
-
-```rust
-#[zyn::pipe]
-fn optional(input: String) -> zyn::syn::Type {
-    zyn::syn::parse_str(&format!("Option<{}>", input)).unwrap()
-}
-
-// {{ ty | optional }} → Option<String>
-```
-
-Takes a string, returns a type. Works in any `{{ value | pipe }}` expression.
-
-## The Derive Entry Point
+## ⚙️ The Derive Entry Point
 
 The derive uses **extractors** — typed parameters that zyn resolves from the macro input automatically:
+
+[source](https://github.com/aacebo/zyn/blob/main/examples/builder/src/lib.rs#L57-L121) | [docs](https://aacebo.github.io/zyn/06-macros/derive.html)
 
 ```rust
 #[zyn::derive("Builder", attributes(builder))]
@@ -283,15 +250,19 @@ fn builder(
 }
 ```
 
+> ℹ️ The derive entry point. Extractors (`#[zyn(input)]`) resolve `ident` and `fields` from the derive input automatically. The template generates a `FooBuilder` struct with `Option`-wrapped fields, setter methods via `@setter`, a `build()` method that unwraps each field via `@build_field`, and a `Foo::builder()` constructor.
+
 Parameters marked `#[zyn(input)]` are extractors — `ident` gets resolved from the derive input automatically, `Fields<FieldsNamed>` pulls the named fields. If someone puts `#[derive(Builder)]` on an enum, zyn emits a compile error automatically.
 
 The `@for` loops iterate fields. The `@setter` and `@build_field` calls compose the pieces. The template reads top-to-bottom as one block, no splicing iterator chains back together like you would with `quote!`.
 
-## Diagnostics
+## 🩺 Diagnostics
 
 Standard proc macros bail on the first error. Fix, recompile, hit the next one.
 
 zyn accumulates them. Add some validation to the builder:
+
+[source](https://github.com/aacebo/zyn/blob/main/examples/builder/src/lib.rs#L62-L82) | [docs](https://aacebo.github.io/zyn/03-elements/diagnostics.html)
 
 ```rust
 for field in fields.named.iter() {
@@ -317,15 +288,19 @@ for field in fields.named.iter() {
 bail!();
 ```
 
+> ℹ️ Validates field configurations before codegen. `error!` and `warn!` accumulate diagnostics with span information instead of panicking on the first problem. `bail!()` stops compilation only if errors were recorded — warnings pass through.
+
 `error!`, `warn!`, `note!`, `help!` are injected into every `#[zyn::derive]`, `#[zyn::element]`, and `#[zyn::attribute]` body. `bail!()` with no arguments checks if any errors were accumulated and returns early — but only if there are errors. Warnings pass through.
 
-Users see every problem in one compile pass.
+Users see every problem in one compile pass. ✅
 
-## Debugging
+## 🔍 Debugging
 
 I wrote the debug system after spending two days on a bug where a generated impl block was missing a lifetime bound. `cargo expand` spat out 400 lines of tokens and I couldn't find it, so I built a debug system.
 
 Add `debug = "pretty"` to any element, derive, or attribute macro:
+
+[docs](https://aacebo.github.io/zyn/07-testing/debugging.html)
 
 ```rust
 #[zyn::element(debug = "pretty")]
@@ -338,11 +313,15 @@ fn setter(name: zyn::syn::Ident, ty: zyn::syn::Type) -> zyn::TokenStream {
 ZYN_DEBUG="Setter" cargo build
 ```
 
+> ℹ️ Opts the element into debug output. `debug = "pretty"` formats the generated code through `prettyplease`. The `ZYN_DEBUG` env var controls which macros emit output — wildcard patterns like `"*"` match everything.
+
 Generated code shows up as a compiler note — in your terminal, in your IDE's Problems panel. `pretty` runs it through `prettyplease` so you get formatted Rust instead of token soup. Wildcard patterns work: `ZYN_DEBUG="*"` dumps everything.
 
-## Testing
+## 🧪 Testing
 
 zyn's test module gives you assertion macros that compare token streams structurally. Here's how we test the `setter` element from the builder:
+
+[source](https://github.com/aacebo/zyn/blob/main/examples/builder/tests/elements.rs) | [docs](https://aacebo.github.io/zyn/07-testing/assertions.html)
 
 ```rust
 use zyn::quote::quote;
@@ -390,9 +369,11 @@ fn setter_pretty_output() {
 }
 ```
 
+> ℹ️ Tests for the `setter` element. `assert_tokens!` compares token streams structurally — no whitespace sensitivity. `assert_tokens_contain_pretty!` does substring matching on formatted output for readable assertions.
+
 `assert_tokens!` compares structurally — no `to_string()` comparisons that break on whitespace. `assert_tokens_contain!` does substring matching on the cleaned output. `assert_tokens_contain_pretty!` (behind the `pretty` feature) gives you human-readable diffs when things fail.
 
-## Performance
+## ⚡ Performance
 
 Benchmarks are run via CI on push and also on a schedule.
 
@@ -402,7 +383,7 @@ Benchmarks are run via CI on push and also on a schedule.
 
 [more benchmarks](https://github.com/aacebo/zyn/blob/main/BENCH.md).
 
-## Try It
+## 🚀 Try It
 
 ```sh
 cargo add zyn
@@ -414,4 +395,4 @@ The [getting started guide](https://aacebo.github.io/zyn) walks through everythi
 
 I built zyn because `quote!` was making me miserable. It's not done — there are rough edges around macro hygiene in some edge cases — but it's how I write every proc macro now.
 
-[GitHub](https://github.com/aacebo/zyn) | [crates.io](https://crates.io/crates/zyn) | [Docs](https://docs.rs/zyn)
+🔗 [GitHub](https://github.com/aacebo/zyn) | [crates.io](https://crates.io/crates/zyn) | [Docs](https://docs.rs/zyn)
