@@ -1,11 +1,7 @@
-name: Benchmark
+name: Benchmark Pull Request
 
 on:
-  push:
-    branches: [main]
-  schedule:
-    # Run once per hour at the beginning of the hour (UTC)
-    - cron: "0 * * * *"
+  pull_request:
   workflow_dispatch:
   workflow_call:
 
@@ -26,10 +22,14 @@ jobs:
           bencher run \
           --project zyn \
           --token '${{ secrets.BENCHER_API_TOKEN }}' \
-          --branch main \
+          --branch '${{ github.head_ref }}' \
+          --start-point main \
+          --start-point-clone-thresholds \
           --testbed ubuntu-latest \
           --adapter rust_bench \
           --threshold-measure latency \
           --threshold-test t_test \
           --threshold-upper-boundary 0.95 \
+          --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+          --err \
           cargo bench -p zyn
