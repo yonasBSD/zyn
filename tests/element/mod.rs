@@ -180,6 +180,36 @@ fn element_with_generics() {
 }
 
 #[zyn::element]
+fn generics_with_where_clause<T>(children: T) -> zyn::TokenStream
+where
+    T: zyn::ToTokens,
+{
+    zyn::quote::quote!(#children)
+}
+
+fn derive_generics_with_where_clause(tokens: &str) -> zyn::Output {
+    let input: zyn::Input = zyn::syn::parse_str(tokens).unwrap();
+    zyn::zyn!(
+        fn gen() {
+            @generics_with_where_clause {
+                {{ input }}
+            }
+        }
+    )
+}
+
+#[test]
+fn element_with_generics_with_where_clause() {
+    let result = derive_generics_with_where_clause("struct Foo;");
+    let expected = quote!(
+        fn gen() {
+            struct Foo;
+        }
+    );
+    zyn::assert_tokens!(result, expected);
+}
+
+#[zyn::element]
 fn lifetimes<'a>(ident: &'a zyn::syn::Ident) -> zyn::TokenStream {
     zyn::zyn!(struct {{ ident }};)
 }
