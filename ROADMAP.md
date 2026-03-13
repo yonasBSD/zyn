@@ -27,7 +27,11 @@ When I started **zyn**, my goal was not simply to build a nicer templating syste
 Today, Rust macro development is powerful but fragmented. The typical stack looks like this:
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#fabd2f', 'primaryTextColor': '#282828', 'primaryBorderColor': '#d79921', 'lineColor': '#83a598', 'secondaryColor': '#3c3836', 'background': '#282828', 'nodeBorder': '#504945', 'textColor': '#ebdbb2'}}}%%
 graph TD
+    classDef hub fill:#fabd2f,color:#282828,stroke:#d79921,font-weight:bold
+    classDef leaf fill:#3c3836,color:#ebdbb2,stroke:#504945
+
     A[proc_macro] --> B[proc_macro2]
     B --> C[syn]
     B --> D[quote]
@@ -35,6 +39,9 @@ graph TD
     B --> F[prettyplease]
     G[trybuild]
     H[cargo-expand]
+
+    class B hub
+    class A,C,D,E,F,G,H leaf
 ```
 
 Each of these tools solves a specific problem well, but together they create a developer experience that feels **stitched together rather than designed**.
@@ -88,8 +95,13 @@ Today these areas are fragmented across multiple crates.
 In zyn they should feel like **parts of a single pipeline**:
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#fabd2f', 'primaryTextColor': '#282828', 'primaryBorderColor': '#d79921', 'lineColor': '#83a598', 'background': '#282828', 'textColor': '#ebdbb2'}}}%%
 flowchart LR
+    classDef step fill:#fabd2f,color:#282828,stroke:#d79921,font-weight:bold
+
     Parse --> Inspect --> Transform --> Emit --> Test
+
+    class Parse,Inspect,Transform,Emit,Test step
 ```
 
 ---
@@ -135,6 +147,7 @@ Compatibility layers and migration guides are therefore a core part of the roadm
 # Roadmap
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#fabd2f', 'primaryTextColor': '#282828', 'primaryBorderColor': '#d79921', 'lineColor': '#83a598', 'background': '#282828', 'cScale0': '#fabd2f', 'cScale1': '#3c3836', 'titleColor': '#ebdbb2'}}}%%
 timeline
     title zyn Roadmap
     section 🔄 In Progress
@@ -167,11 +180,11 @@ The repository should include a clear design document that defines:
 
 This prevents feature drift and clarifies the project's direction.
 
-### Exit criteria
+### ✅ Exit Criteria
 
-* a canonical design document exists
-* non-goals are clearly documented
-* internal dependencies (`syn`, `quote`, etc.) are explicitly treated as implementation details
+- [ ] a canonical design document exists
+- [ ] non-goals are clearly documented
+- [ ] internal dependencies (`syn`, `quote`, etc.) are explicitly treated as implementation details
 
 ---
 
@@ -193,11 +206,11 @@ These types wrap the existing ecosystem primitives but provide a stable surface 
 
 Initially these may simply delegate to `proc_macro2`, `syn`, and `quote`, but over time they will allow the framework to evolve independently of those crates.
 
-### Exit criteria
+### ✅ Exit Criteria
 
-* zyn exposes its own wrapper types
-* examples prefer zyn abstractions over raw ecosystem types
-* `syn` re-exports remain available but are clearly positioned as compatibility APIs
+- [ ] zyn exposes its own wrapper types
+- [ ] examples prefer zyn abstractions over raw ecosystem types
+- [ ] `syn` re-exports remain available but are clearly positioned as compatibility APIs
 
 ---
 
@@ -216,7 +229,12 @@ As the framework grows, the workspace should instead reflect **capabilities** ra
 Target structure:
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#fabd2f', 'primaryTextColor': '#282828', 'primaryBorderColor': '#d79921', 'lineColor': '#83a598', 'background': '#282828', 'nodeBorder': '#504945', 'textColor': '#ebdbb2'}}}%%
 graph TD
+    classDef root fill:#fabd2f,color:#282828,stroke:#d79921,font-weight:bold
+    classDef crate fill:#3c3836,color:#ebdbb2,stroke:#504945
+    classDef compat fill:#32302f,color:#928374,stroke:#504945
+
     zyn --> zyn-macro
     zyn --> zyn-syntax
     zyn --> zyn-build
@@ -225,14 +243,18 @@ graph TD
     zyn --> zyn-test
     zyn-syntax --> zyn-compat-syn
     zyn-build --> zyn-compat-quote
+
+    class zyn root
+    class zyn-macro,zyn-syntax,zyn-build,zyn-template,zyn-diag,zyn-test crate
+    class zyn-compat-syn,zyn-compat-quote compat
 ```
 
 This forces all dependencies on `syn` and `quote` to pass through clearly defined compatibility layers.
 
-### Exit criteria
+### ✅ Exit Criteria
 
-* direct usage of `syn` or `quote` is isolated
-* public documentation focuses on framework capabilities rather than underlying crates
+- [ ] direct usage of `syn` or `quote` is isolated
+- [ ] public documentation focuses on framework capabilities rather than underlying crates
 
 ---
 
@@ -256,11 +278,11 @@ Backends may include:
 * test snapshot rendering
 * debugging output
 
-### Exit criteria
+### ✅ Exit Criteria
 
-* diagnostics can be constructed without macros
-* diagnostics can be snapshot tested
-* backend implementations are internal details
+- [ ] diagnostics can be constructed without macros
+- [ ] diagnostics can be snapshot tested
+- [ ] backend implementations are internal details
 
 ---
 
@@ -276,11 +298,11 @@ Zyn should provide a unified testing system supporting:
 * compile-fail tests
 * golden-file comparisons
 
-### Exit criteria
+### ✅ Exit Criteria
 
-* zyn includes a dedicated testing crate
-* examples demonstrate snapshot testing
-* macro refactors can be validated through stable tests
+- [ ] zyn includes a dedicated testing crate
+- [ ] examples demonstrate snapshot testing
+- [ ] macro refactors can be validated through stable tests
 
 ---
 
@@ -300,11 +322,11 @@ Path::from_segments(...)
 
 Templates (`zyn!`) should remain available but should compile into or interoperate with these structured representations.
 
-### Exit criteria
+### ✅ Exit Criteria
 
-* complex macros can be implemented without templates
-* builders and templates compose naturally
-* documentation encourages builders for reusable transformations
+- [ ] complex macros can be implemented without templates
+- [ ] builders and templates compose naturally
+- [ ] documentation encourages builders for reusable transformations
 
 ---
 
@@ -316,11 +338,11 @@ Instead, I plan to introduce a **thin syntax facade** that covers the subset of 
 
 Initially this facade will delegate to `syn`. Over time it may diverge where appropriate.
 
-### Exit criteria
+### ✅ Exit Criteria
 
-* macro inputs can be represented using zyn syntax types
-* most examples no longer require direct use of `syn`
-* conversion layers exist between zyn syntax and `syn`
+- [ ] macro inputs can be represented using zyn syntax types
+- [ ] most examples no longer require direct use of `syn`
+- [ ] conversion layers exist between zyn syntax and `syn`
 
 ---
 
@@ -339,11 +361,11 @@ FunctionContext
 
 These contexts provide structured access to macro inputs while extractors remain available as ergonomic sugar.
 
-### Exit criteria
+### ✅ Exit Criteria
 
-* each macro type has a context object
-* advanced documentation focuses on context-based APIs
-* extractors remain optional
+- [ ] each macro type has a context object
+- [ ] advanced documentation focuses on context-based APIs
+- [ ] extractors remain optional
 
 ---
 
@@ -359,10 +381,10 @@ The project should provide guides such as:
 
 Compatibility traits and conversions should make it easy to interoperate with existing code.
 
-### Exit criteria
+### ✅ Exit Criteria
 
-* comprehensive migration guides exist
-* compatibility layers are documented and stable
+- [ ] comprehensive migration guides exist
+- [ ] compatibility layers are documented and stable
 
 ---
 
@@ -378,11 +400,11 @@ Key components to migrate include:
 * debugging tools
 * documentation examples
 
-### Exit criteria
+### ✅ Exit Criteria
 
-* most internal macro logic uses zyn abstractions
-* direct usage of `quote!` becomes rare
-* `syn` usage is isolated to parser/compat modules
+- [ ] most internal macro logic uses zyn abstractions
+- [ ] direct usage of `quote!` becomes rare
+- [ ] `syn` usage is isolated to parser/compat modules
 
 ---
 
@@ -409,6 +431,7 @@ If this roadmap succeeds, zyn will evolve from a templating system into a **true
 Instead of learning a patchwork of tools, macro authors will work within a single coherent framework:
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#fabd2f', 'primaryTextColor': '#282828', 'primaryBorderColor': '#d79921', 'lineColor': '#83a598', 'background': '#282828', 'textColor': '#ebdbb2'}}}%%
 mindmap
   root((zyn))
     Syntax Inspection
