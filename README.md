@@ -18,6 +18,8 @@
 
 A proc macro framework with templates, composable elements, and built-in diagnostics.
 
+[🗺️ Roadmap](./ROADMAP.md)
+
 ```sh
 cargo add zyn
 ```
